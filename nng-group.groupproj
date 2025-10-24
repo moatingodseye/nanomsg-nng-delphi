@@ -21,6 +21,12 @@
         <Projects Include="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="request.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="response.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -83,14 +89,32 @@
     <Target Name="TestNanoMsg:Make">
         <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj" Targets="Make"/>
     </Target>
+    <Target Name="request">
+        <MSBuild Projects="request.dproj"/>
+    </Target>
+    <Target Name="request:Clean">
+        <MSBuild Projects="request.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="request:Make">
+        <MSBuild Projects="request.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="response">
+        <MSBuild Projects="response.dproj"/>
+    </Target>
+    <Target Name="response:Clean">
+        <MSBuild Projects="response.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="response:Make">
+        <MSBuild Projects="response.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="publish;subscribe;test;server;client;TestNanoMsg"/>
+        <CallTarget Targets="publish;subscribe;test;server;client;TestNanoMsg;request;response"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="publish:Clean;subscribe:Clean;test:Clean;server:Clean;client:Clean;TestNanoMsg:Clean"/>
+        <CallTarget Targets="publish:Clean;subscribe:Clean;test:Clean;server:Clean;client:Clean;TestNanoMsg:Clean;request:Clean;response:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="publish:Make;subscribe:Make;test:Make;server:Make;client:Make;TestNanoMsg:Make"/>
+        <CallTarget Targets="publish:Make;subscribe:Make;test:Make;server:Make;client:Make;TestNanoMsg:Make;request:Make;response:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
