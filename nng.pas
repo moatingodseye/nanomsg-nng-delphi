@@ -31,6 +31,7 @@ type
 
   nng_socket = THandle;
   nng_duration = Int64;
+  nng_size = ^UInt32;
 
 // Function prototypes
 function nng_init(params: Pointer): Integer; cdecl; external libnng name 'nng_init';
@@ -41,11 +42,11 @@ function nng_sub0_open(out sock: nng_socket): Integer; cdecl; external libnng na
 function nng_req0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_req0_open';
 function nng_rep0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_rep0_open';
 
-function nng_listen(sock: nng_socket; url: PAnsiChar; var listener: Pointer; flags: Integer): Integer; cdecl; external libnng name 'nng_listen';
-function nng_dial(sock: nng_socket; url: PAnsiChar; var dialer: Pointer; flags: Integer): Integer; cdecl; external libnng name 'nng_dial';
+function nng_listen(sock: nng_socket; url: PAnsiChar; listener: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_listen';
+function nng_dial(sock: nng_socket; url: PAnsiChar; dialer: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_dial';
 
 function nng_send(sock: nng_socket; buf: Pointer; len: UInt32; flags: Integer): Integer; cdecl; external libnng name 'nng_send';
-function nng_recv(sock: nng_socket; buf: Pointer; len: UInt32; flags: Integer): Integer; cdecl; external libnng name 'nng_recv';
+function nng_recv(sock: nng_socket; buf: Pointer; len: nng_size; flags: Integer): Integer; cdecl; external libnng name 'nng_recv';
 
 function nng_strerror(err: Integer): PAnsiChar; cdecl; external libnng name 'nng_strerror';
 

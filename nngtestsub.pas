@@ -16,8 +16,10 @@ var
   msg_len: Integer;
   err: Integer;
   init_params: nng_init_params;
-  url : AnsiString;
-  dial : Pointer;
+  url : PAnsiChar;
+  dial : THandle;
+  go : boolean;
+  count : integer;
 begin
   // Initialize the nng_init_params structure
   init_params.num_task_threads := 2;
@@ -32,45 +34,40 @@ begin
   Writeln('Before init');
   err := nng_init(@init_params);
   if err <> NNG_OK then
-  begin
     WriteLn('Error initializing nng: ', nng_strerror(err));
-    Exit;
-  end;
   Writeln('After init');
                          
   // Initialize subscriber socket
   err := nng_sub0_open(sub_sock);
   if err <> NNG_OK then
-  begin
     WriteLn('Error opening subscriber: ', nng_strerror(err));
-    Exit;
-  end;
 
-  url := 'tcp://127.0.0.1:5555';
-  dial := nil;
-  err := nng_dial(sub_sock, @url, dial, 0);
+  url := PAnsiChar('tcp://127.0.0.1:5555');
+  dial := 0;
+  err := nng_dial(sub_sock, url, @dial, 0);
   if err <> NNG_OK then
-  begin
     WriteLn('Error dialing: ', nng_strerror(err));
-    Exit;
-  end;
 
   // Receive message
-  err := nng_recv(sub_sock, msg, msg_len, 0);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error receiving message: ', nng_strerror(err));
-    Exit;
+  go := true;
+  count := 0;
+  while go do begin
+    err := nng_recv(sub_sock, msg, msg_len, 0);
+    if err <> NNG_OK then begin
+      WriteLn('Error receiving message: ', nng_strerror(err));
+      go := false;
+    end else
+      WriteLn('Subscriber received message: ', msg);
+    Sleep(100);
+    inc(count);
+    if count>100 then
+      go := false;
   end;
-
-  WriteLn('Subscriber received message: ', msg);
 
   // Cleanup
   err := nng_fini();
   if err <> NNG_OK then
-  begin
     WriteLn('Error finalizing nng: ', nng_strerror(err));
-  end;
 end;
 
 end.

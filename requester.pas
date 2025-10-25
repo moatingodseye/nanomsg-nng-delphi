@@ -11,15 +11,17 @@ implementation
 
 procedure Test;
 var
+  buffer : Array[0..1024] of byte;
+  p : Pointer;
   req_sock: nng_socket;
-  msg: PAnsiChar;
-  msg_len: Integer;
-  response: PAnsiChar;
-  resp_len: Integer;
+  req: AnsiString;
+  req_len: Integer;
+  rep: Pointer;
+  rep_len: Integer;
   err: Integer;
   init_params: nng_init_params;
-  url ; AnsiString;
-  dial : Pointer;
+  url : PAnsiChar;
+  dial : THandle;
 begin
   // Initialize the nng_init_params structure
   init_params.num_task_threads := 2;
@@ -33,53 +35,51 @@ begin
   // Initialize the nng library
   err := nng_init(@init_params);
   if err <> NNG_OK then
-  begin
-    WriteLn('Error initializing nng: ', nng_strerror(err));
-    Exit;
-  end;
+    WriteLn('Error initializing nng: ', nng_strerror(err))
+  else begin
+    Writeln('Initialised');
+    // Initialize requester socket
+    err := nng_req0_open(req_sock);
+    if err <> NNG_OK then
+      WriteLn('Error opening requester: ', nng_strerror(err))
+    else begin
+      Writeln('REQ open');
+      url := PAnsiChar('tcp://127.0.0.1:5555');
+      err := nng_dial(req_sock, url, @dial, 0);
+      if err <> NNG_OK then 
+        WriteLn('Error dialing: ', nng_strerror(err))
+      else begin
+        Writeln('Dialed...');
+        // Send request
+        req := 'Requesting Data';
+        req_len := Length(req);
 
-  // Initialize requester socket
-  err := nng_req0_open(req_sock);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error opening requester: ', nng_strerror(err));
-    Exit;
+        move(Pointer(req)^,buffer,128);
+        
+        err := nng_send(req_sock, @buffer[0], req_len, 0);
+        if err <> NNG_OK then
+          WriteLn('Error sending request: ', nng_strerror(err))
+        else begin
+          Writeln('REQ sent');
+          // Receive response
+          GetMem(rep,128);
+          rep_len := 128;
+          err := nng_recv(req_sock, @buffer[0], @rep_len, 0);
+          
+          if err <> NNG_OK then
+            WriteLn('Error receiving response: ', nng_strerror(err))
+          else
+            WriteLn('Requester received response: ', PAnsiChar(@buffer[0]),' size: ',rep_len);
+          FreeMem(rep,128);
+        end;
+      end;
+    end;
   end;
-
-  url := 'tcp://127.0.0.1:5555';
-  err := nng_dial(req_sock, @url, dial, 0);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error dialing: ', nng_strerror(err));
-    Exit;
-  end;
-
-  // Send request
-  msg := PAnsiChar('Requesting Data');
-  msg_len := Length(msg);
-  err := nng_send(req_sock, msg, msg_len, 0);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error sending request: ', nng_strerror(err));
-    Exit;
-  end;
-
-  // Receive response
-  err := nng_recv(req_sock, response, resp_len, 0);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error receiving response: ', nng_strerror(err));
-    Exit;
-  end;
-
-  WriteLn('Requester received response: ', response);
 
   // Cleanup
   err := nng_fini();
   if err <> NNG_OK then
-  begin
     WriteLn('Error finalizing nng: ', nng_strerror(err));
-  end;
 end;
 
 end.

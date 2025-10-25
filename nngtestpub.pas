@@ -17,7 +17,9 @@ var
   err: Integer;
   init_params: nng_init_params;
   url: PAnsiChar;
-  listen: Pointer;
+  listen: THandle;
+  go : boolean;
+  count : integer;
 begin
   // Initialize the nng_init_params structure
   init_params.num_task_threads := 2;
@@ -31,49 +33,43 @@ begin
   // Initialize the nng library
   err := nng_init(@init_params);
   if err <> NNG_OK then
-  begin
     WriteLn('Error initializing nng: ', nng_strerror(err));
-    Exit;
-  end;
 
   // Initialize publisher socket
   err := nng_pub0_open(pub_sock);
   if err <> NNG_OK then
-  begin
     WriteLn('Error opening publisher: ', nng_strerror(err));
-    Exit;
-  end;
 
   // Set the URL for binding
   url := PAnsiChar('tcp://127.0.0.1:5555');
 
   // Listen on the URL
-  listen := nil;
-  err := nng_listen(pub_sock, @url, listen, 0);
+  listen := 0;
+  err := nng_listen(pub_sock, url, @listen, 0);
   if err <> NNG_OK then
-  begin
     WriteLn('Error listening: ', nng_strerror(err));
-    Exit;
-  end;
 
   // Send message
   msg := PAnsiChar('Hello, Subscriber!');
   msg_len := Length(msg);
-  err := nng_send(pub_sock, msg, msg_len, 0);
-  if err <> NNG_OK then
-  begin
-    WriteLn('Error sending message: ', nng_strerror(err));
-    Exit;
+  go := true;
+  while go do begin
+    err := nng_send(pub_sock, msg, msg_len, 0);
+    if err <> NNG_OK then begin
+      WriteLn('Error sending message: ', nng_strerror(err));
+      go := false;
+    end else
+      WriteLn('Publisher sent message: ', msg);
+    Sleep(100);
+    inc(count);
+    if count>100 then
+      go := false;
   end;
-
-  WriteLn('Publisher sent message: ', msg);
 
   // Cleanup
   err := nng_fini();
   if err <> NNG_OK then
-  begin
     WriteLn('Error finalizing nng: ', nng_strerror(err));
-  end;
 end;
 
 end.
