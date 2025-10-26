@@ -15,6 +15,7 @@ var
   what : AnsiString;
   what_len : Integer;
   buffer : Pointer;
+  tmp : PByte;
   sub: AnsiString;
   sub_len: Integer;
   err: Integer;
@@ -69,11 +70,14 @@ begin
           count := 0;
           while go do begin
             sub_len := 128;
-            err := nng_recv(sub_sock, buffer, @sub_len, 0);
-            if err <> NNG_OK then begin
+            err := nng_recv(sub_sock, buffer, @sub_len, NNG_FLAG_NONBLOCK);
+            if (err <> NNG_OK) and (err <> NNG_EAGAIN) then begin
               WriteLn('Error receiving message: ', nng_strerror(err));
               go := false;
             end else begin
+              tmp := buffer;
+              Inc(tmp,sub_len);
+              tmp^ := 0;
               sub := PAnsiChar(buffer);
               WriteLn('Subscriber received message: ', sub, ' size: ', sub_len);
             end;
@@ -83,11 +87,19 @@ begin
               go := false;
           end;
           FreeMem(buffer, 128);
+
+          err := nng_dialer_close(dial);
+          if err<>NNG_OK then
+            Writeln('Dialer close failed:',nng_strerror(err));
         end;
       end;
       err := nng_sub0_socket_unsubscribe(sub_sock, PAnsiChar(what), what_len);
       if err <> NNG_OK then
-        Writeln('Failed to unsubscribe: ', nng_strerror(err))
+        Writeln('Failed to unsubscribe: ', nng_strerror(err));
+
+      err := nng_socket_close(sub_sock);
+      if err <> NNG_OK then
+        WriteLn('Error closing socket: ', nng_strerror(err));
     end;
   end;
 

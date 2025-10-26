@@ -73,8 +73,15 @@ begin
           else
             WriteLn('Requester received response: ', PAnsiChar(rep),' size: ',rep_len);
           FreeMem(rep,128);
+
+          err := nng_dialer_close(dial);
+          if err<>NNG_OK then
+            Writeln('Dialer close failed:',nng_strerror(err));
         end;
       end;
+      err := nng_socket_close(req_sock);
+      if err<>NNG_OK then
+        Writeln('Socket close failed:',nng_strerror(err));
     end;
   end;
 

@@ -76,7 +76,15 @@ begin
               Writeln('REP sent');
           end;
           FreeMem(req,128);
+
+          err := nng_listener_close(listen);
+          if err<>NNG_OK then
+            Writeln('Listener close failed:',nng_strerror(err));
         end;
+        
+        err := nng_socket_close(rep_sock);
+        if err <> NNG_OK then
+          WriteLn('Error closing socket: ', nng_strerror(err));
       end;
     end;
 

@@ -21,6 +21,12 @@
         <Projects Include="response.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="pull.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="push.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -83,14 +89,32 @@
     <Target Name="response:Make">
         <MSBuild Projects="response.dproj" Targets="Make"/>
     </Target>
+    <Target Name="pull">
+        <MSBuild Projects="pull.dproj"/>
+    </Target>
+    <Target Name="pull:Clean">
+        <MSBuild Projects="pull.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="pull:Make">
+        <MSBuild Projects="pull.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="push">
+        <MSBuild Projects="push.dproj"/>
+    </Target>
+    <Target Name="push:Clean">
+        <MSBuild Projects="push.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="push:Make">
+        <MSBuild Projects="push.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response"/>
+        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean"/>
+        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make"/>
+        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
