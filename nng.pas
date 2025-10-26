@@ -42,6 +42,11 @@ function nng_sub0_open(out sock: nng_socket): Integer; cdecl; external libnng na
 function nng_req0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_req0_open';
 function nng_rep0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_rep0_open';
 
+function nng_sub0_socket_subscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_subscribe';
+function nng_sub0_socket_unsubscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_unsubscribe';
+//int nng_sub0_socket_subscribe(nng_socket id, const void *buf, size_t sz);
+//int nng_sub0_socket_unsubscribe(nng_socket id, const void *buf, size_t sz);
+
 function nng_listen(sock: nng_socket; url: PAnsiChar; listener: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_listen';
 function nng_dial(sock: nng_socket; url: PAnsiChar; dialer: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_dial';
 

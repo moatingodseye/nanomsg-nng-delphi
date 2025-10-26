@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{D700A6C1-3552-4DE6-8D58-E3D934B15692}</ProjectGuid>
+        <ProjectGuid>{EA236EE9-E1EE-4594-9E5A-EAA715431302}</ProjectGuid>
         <ProjectVersion>20.2</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
@@ -12,16 +12,6 @@
         <MainSource>publish.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Android' and '$(Base)'=='true') or '$(Base_Android)'!=''">
-        <Base_Android>true</Base_Android>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Android64' and '$(Base)'=='true') or '$(Base_Android64)'!=''">
-        <Base_Android64>true</Base_Android64>
-        <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
@@ -60,64 +50,6 @@
         <DCC_K>false</DCC_K>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <SanitizedProjectName>publish</SanitizedProjectName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Android)'!=''">
-        <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
-        <Android_LauncherIcon48>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
-        <Android_LauncherIcon72>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
-        <Android_LauncherIcon96>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
-        <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
-        <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
-        <Android_SplashImage426>$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
-        <Android_SplashImage470>$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
-        <Android_SplashImage640>$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
-        <Android_SplashImage960>$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
-        <IncludeAndroid_AdaptiveIcon>true</IncludeAndroid_AdaptiveIcon>
-        <IncludeAndroid_VectorizedSplash>true</IncludeAndroid_VectorizedSplash>
-        <Android_AdaptiveIconMonochrome>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Monochrome.xml</Android_AdaptiveIconMonochrome>
-        <Android_AdaptiveIconForeground>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Foreground.xml</Android_AdaptiveIconForeground>
-        <Android_AdaptiveIconBackground>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Background.xml</Android_AdaptiveIconBackground>
-        <Android_VectorizedSplash>$(BDS)\bin\Artwork\Android\FM_VectorizedSplash.xml</Android_VectorizedSplash>
-        <Android_VectorizedSplashDark>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashDark.xml</Android_VectorizedSplashDark>
-        <Android_VectorizedSplashV31>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashV31.xml</Android_VectorizedSplashV31>
-        <Android_VectorizedSplashV31Dark>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashV31Dark.xml</Android_VectorizedSplashV31Dark>
-        <Android_NotificationIcon24>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
-        <Android_NotificationIcon36>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
-        <Android_NotificationIcon48>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
-        <Android_NotificationIcon72>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
-        <Android_NotificationIcon96>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
-        <IncludeAndroid_NotificationAccentColor>false</IncludeAndroid_NotificationAccentColor>
-        <IncludeAndroid_VectorizedNotificationIcon>true</IncludeAndroid_VectorizedNotificationIcon>
-        <Android_VectorizedNotificationIcon>$(BDS)\bin\Artwork\Android\FM_VectorizedNotificationIcon.xml</Android_VectorizedNotificationIcon>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Android64)'!=''">
-        <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
-        <Android_LauncherIcon48>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_48x48.png</Android_LauncherIcon48>
-        <Android_LauncherIcon72>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_72x72.png</Android_LauncherIcon72>
-        <Android_LauncherIcon96>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_96x96.png</Android_LauncherIcon96>
-        <Android_LauncherIcon144>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_144x144.png</Android_LauncherIcon144>
-        <Android_LauncherIcon192>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_192x192.png</Android_LauncherIcon192>
-        <Android_SplashImage426>$(BDS)\bin\Artwork\Android\FM_SplashImage_426x320.png</Android_SplashImage426>
-        <Android_SplashImage470>$(BDS)\bin\Artwork\Android\FM_SplashImage_470x320.png</Android_SplashImage470>
-        <Android_SplashImage640>$(BDS)\bin\Artwork\Android\FM_SplashImage_640x480.png</Android_SplashImage640>
-        <Android_SplashImage960>$(BDS)\bin\Artwork\Android\FM_SplashImage_960x720.png</Android_SplashImage960>
-        <IncludeAndroid_AdaptiveIcon>true</IncludeAndroid_AdaptiveIcon>
-        <IncludeAndroid_VectorizedSplash>true</IncludeAndroid_VectorizedSplash>
-        <Android_AdaptiveIconMonochrome>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Monochrome.xml</Android_AdaptiveIconMonochrome>
-        <Android_AdaptiveIconForeground>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Foreground.xml</Android_AdaptiveIconForeground>
-        <Android_AdaptiveIconBackground>$(BDS)\bin\Artwork\Android\FM_AdaptiveIcon_Background.xml</Android_AdaptiveIconBackground>
-        <Android_VectorizedSplash>$(BDS)\bin\Artwork\Android\FM_VectorizedSplash.xml</Android_VectorizedSplash>
-        <Android_VectorizedSplashDark>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashDark.xml</Android_VectorizedSplashDark>
-        <Android_VectorizedSplashV31>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashV31.xml</Android_VectorizedSplashV31>
-        <Android_VectorizedSplashV31Dark>$(BDS)\bin\Artwork\Android\FM_VectorizedSplashV31Dark.xml</Android_VectorizedSplashV31Dark>
-        <Android_NotificationIcon24>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_24x24.png</Android_NotificationIcon24>
-        <Android_NotificationIcon36>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_36x36.png</Android_NotificationIcon36>
-        <Android_NotificationIcon48>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_48x48.png</Android_NotificationIcon48>
-        <Android_NotificationIcon72>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_72x72.png</Android_NotificationIcon72>
-        <Android_NotificationIcon96>$(BDS)\bin\Artwork\Android\FM_NotificationIcon_96x96.png</Android_NotificationIcon96>
-        <IncludeAndroid_NotificationAccentColor>false</IncludeAndroid_NotificationAccentColor>
-        <IncludeAndroid_VectorizedNotificationIcon>true</IncludeAndroid_VectorizedNotificationIcon>
-        <Android_VectorizedNotificationIcon>$(BDS)\bin\Artwork\Android\FM_VectorizedNotificationIcon.xml</Android_VectorizedNotificationIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>FireDACIBDriver;dxPSdxChartControlLnkRS29;dxRibbonRS29;JvNet;vclwinx;dxPScxExtCommonRS29;dxRichEditControlCoreRS29;fmx;dxSpreadSheetReportDesignerRS29;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;dxComnRS29;dxFlowChartDesignerRS29;appanalytics;IndyProtocols;vclx;Skia.Package.RTL;dxBarExtDBItemsRS29;dbxcds;vcledge;cxVerticalGridRS29;FmxTeeUI;cxFireDACAdaptersRS29;dxPSDBTeeChartRS29;cxSchedulerWebServiceStorageRS29;dxRichEditControlRS29;dxPsPrVwAdvRS29;JvAppFrm;dacvcl290;FireDACSqliteDriver;DbxClientDriver;dxPSdxGaugeControlLnkRS29;JclVcl;soapmidas;dxRibbonCustomizationFormRS29;TeeUI;Jcl;dbexpress;JvManagedThreads;dxEMFRS29;dxDockingRS29;inet;vcltouch;JvDB;dxPSdxFCLnkRS29;dxorgcRS29;ExcelColdSamplePackage;dxSpreadSheetCoreConditionalFormattingDialogsRS29;LLAnimatePackage;fmxdae;dxPSRichEditControlLnkRS29;dxPSdxSpreadSheetLnkRS29;CustomIPTransport;JvSystem;JvCustom;JvControls;cxADOAdaptersRS29;madExcept_;JvCrypt;JvJans;odacvcl290;dxPSPrVwRibbonRS29;IndySystem;dxPScxTLLnkRS29;JvMM;ListCompPackage;dxPSdxDBOCLnkRS29;JvGlobus;dxGDIPlusRS29;odacfmx290;JclContainers;JvPageComps;vclFireDAC;dxPSCoreRS29;madDisAsm_;dxSpreadSheetRS29;FireDACCommon;dxPSdxMapControlLnkRS29;cxGridEMFRS29;dxGanttControlRS29;dxPScxVGridLnkRS29;dxPScxPivotGridLnkRS29;dxADOServerModeRS29;dxWizardControlRS29;bindcompdbx;rtl;FireDACMySQLDriver;dxCloudServiceLibraryRS29;RawEditPackage;LLVersionInfo;dxServerModeRS29;DBXSqliteDriver;dxBarDBNavRS29;dxSpreadSheetCoreRS29;JvRuntimeDesign;dxNavBarRS29;JvXPCtrls;vclimg;inetdbxpress;FireDAC;JvDocking;JvDlgs;xmlrtl;odac290;ULLEditPackage;TwoFishPackage;dxFireDACEMFRS29;dsnap;JvCmp;dxPSdxLCLnkRS29;DoubleCheck;fmxobj;bindcompvclsmp;oraprov290;DebraTimePickerPackage;dxPSLnksRS29;CXBalanceEdit;dxmdsRS29;dxPSdxOCLnkRS29;cxSchedulerGridRS29;dxPScxSchedulerLnkRS29;ULLDateTimeEditPackage;dxADOEMFRS29;dxChartControlRS29;dxPSdxDBTVLnkRS29;DebEditPackage;TabbingGridPackage;FireDACCommonDriver;dxGaugeControlRS29;IndyIPClient;dxPDFViewerRS29;bindcompvclwinx;dxOrgChartAdvancedCustomizeFormRS29;dxBarExtItemsRS29;bindcompfmx;madBasic_;JvBands;dxFlowChartLayoutsRS29;inetdb;SampleListBoxPackage;crcontrols290;dxdborRS29;Tee;dxPScxGridLnkRS29;cxPivotGridChartRS29;vclactnband;fmxFireDAC;dxRichEditCoreRS29;cxTreeListdxBarPopupMenuRS29;DBXMySQLDriver;dxFlowChartAdvancedCustomizeFormRS29;VclSmp;cxSchedulerRibbonStyleEventEditorRS29;JvPascalInterpreter;dxPSTeeChartRS29;fmxase;ReportsPackage;dxtrmdRS29;dxFlowChartRS29;JvPluginSystem;JvTimeFramework;dbrtl;dxPScxPCProdRS29;Skia.Package.FMX;TeeDB;FireDACMSAccDriver;cxGridRS29;dxSpellCheckerRS29;JclDeveloperTools;dxRichEditDocumentModelRS29;dxMapControlRS29;GraphPackage;vcldsnap;DBXInterBaseDriver;JvWizards;dxSkinWXIRS29;cxLibraryRS29;Skia.Package.VCL;vcldb;TrafficLightsPackage;dxPSdxPDFViewerLnkRS29;cxSchedulerTreeBrowserRS29;JvCore;AlignPackage;dacfmx290;bindcomp;dxTabbedMDIRS29;cxExportRS29;inetstn;IndyCore;RESTBackendComponents;dxHttpIndyRequestRS29;dxTileControlRS29;dxFireDACServerModeRS29;cxPivotGridOLAPRS29;FireDACADSDriver;RESTComponents;IndyIPServer;vcl;dsnapxml;adortl;dsnapcon;dxCoreRS29;cxPivotGridRS29;dxdbtrRS29;JvDotNetCtrls;JvHMI;dac290;dxSkinsCoreRS29;FireDACPgDriver;dxBarRS29;JvPrintPreview;tethering;JvStdCtrls;bindcompvcl;CloudService;dxSpreadSheetConditionalFormattingDialogsRS29;cxTreeListRS29;FMXTee;ThermoPackage;soaprtl;dxDBXServerModeRS29;cxSchedulerRS29;soapserver;dxPScxCommonRS29;$(DCC_UsePackage)</DCC_UsePackage>
@@ -1145,8 +1077,6 @@
                 <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
             </Deployment>
             <Platforms>
-                <Platform value="Android">False</Platform>
-                <Platform value="Android64">False</Platform>
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>

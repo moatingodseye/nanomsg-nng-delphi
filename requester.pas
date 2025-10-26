@@ -11,8 +11,8 @@ implementation
 
 procedure Test;
 var
-  buffer : Array[0..1024] of byte;
-  p : Pointer;
+//  buffer : Array[0..1024] of byte;
+//  p : Pointer;
   req_sock: nng_socket;
   req: AnsiString;
   req_len: Integer;
@@ -54,22 +54,24 @@ begin
         req := 'Requesting Data';
         req_len := Length(req);
 
-        move(Pointer(req)^,buffer,128);
+//        move(Pointer(req)^,buffer,128);
         
-        err := nng_send(req_sock, @buffer[0], req_len, 0);
-        if err <> NNG_OK then
+//        err := nng_send(req_sock, @buffer[0], req_len, 0); works
+//        err := nng_send(req_sock, @req, req_len, 0); dpesn't work!
+        err := nng_send(req_sock, PAnsiChar(req), req_len, 0); // works
+        if err <> NNG_OK then                                         
           WriteLn('Error sending request: ', nng_strerror(err))
         else begin
           Writeln('REQ sent');
           // Receive response
           GetMem(rep,128);
           rep_len := 128;
-          err := nng_recv(req_sock, @buffer[0], @rep_len, 0);
+          err := nng_recv(req_sock, rep, @rep_len, 0);
           
           if err <> NNG_OK then
             WriteLn('Error receiving response: ', nng_strerror(err))
           else
-            WriteLn('Requester received response: ', PAnsiChar(@buffer[0]),' size: ',rep_len);
+            WriteLn('Requester received response: ', PAnsiChar(rep),' size: ',rep_len);
           FreeMem(rep,128);
         end;
       end;

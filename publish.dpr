@@ -11,10 +11,11 @@ uses
 
 begin
   try
-    { TODO -oUser -cConsole Main : Insert code here }
-    publisher.Publish;
+    Writeln('Testing...');
+    Test;
+    Writeln('Finished.');
   except
     on E: Exception do
-      Writeln(E.ClassName, ': ', E.Message);
+      Writeln('Exception:'+E.ClassName, ': ', E.Message);
   end;
 end.

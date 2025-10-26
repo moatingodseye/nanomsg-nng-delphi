@@ -56,18 +56,20 @@ begin
           // Receive request
           GetMem(req,128);
           req_len := 128;
-          err := nng_recv(rep_sock,req, @req_len, 0);
-          if err <> NNG_OK then
+          err := nng_recv(rep_sock,req, @req_len, 0); 
+          if err <> NNG_OK then                              
             WriteLn('Error receiving request: ', nng_strerror(err))
           else begin
-            S := PAnsiChar(req);
+            S := PAnsiChar(req); 
             WriteLn('Responder received request: ',S,' size: ',req_len);
 
             // Send response
             rep := 'Response Data';
-            Move(Pointer(rep)^,req^,128);
+//            Move(Pointer(rep)^,req^,128);
             rep_len := Length(rep);
-            err := nng_send(rep_sock, req, rep_len, 0);
+//            err := nng_send(rep_sock, req, rep_len, 0);
+//            err := nng_send(rep_sock, @rep, rep_len, 0); // doesn't work
+            err := nng_send(rep_sock, PAnsiChar(rep), rep_len, 0); // doesn't work
             if err <> NNG_OK then
               WriteLn('Error sending response: ', nng_strerror(err))
             else

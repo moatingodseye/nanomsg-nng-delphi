@@ -3,22 +3,16 @@
         <ProjectGuid>{48642009-71DC-493B-B40A-351BB1E0DB6E}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="publish.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="subscribe.dproj">
+        <Projects Include="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="test.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="server.dproj">
+        <Projects Include="publish.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="client.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj">
+        <Projects Include="subscribe.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="request.dproj">
@@ -35,6 +29,24 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
+    <Target Name="TestNanoMsg">
+        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj"/>
+    </Target>
+    <Target Name="TestNanoMsg:Clean">
+        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TestNanoMsg:Make">
+        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="test">
+        <MSBuild Projects="test.dproj"/>
+    </Target>
+    <Target Name="test:Clean">
+        <MSBuild Projects="test.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="test:Make">
+        <MSBuild Projects="test.dproj" Targets="Make"/>
+    </Target>
     <Target Name="publish">
         <MSBuild Projects="publish.dproj"/>
     </Target>
@@ -52,42 +64,6 @@
     </Target>
     <Target Name="subscribe:Make">
         <MSBuild Projects="subscribe.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="test">
-        <MSBuild Projects="test.dproj"/>
-    </Target>
-    <Target Name="test:Clean">
-        <MSBuild Projects="test.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="test:Make">
-        <MSBuild Projects="test.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="server">
-        <MSBuild Projects="server.dproj"/>
-    </Target>
-    <Target Name="server:Clean">
-        <MSBuild Projects="server.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="server:Make">
-        <MSBuild Projects="server.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="client">
-        <MSBuild Projects="client.dproj"/>
-    </Target>
-    <Target Name="client:Clean">
-        <MSBuild Projects="client.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="client:Make">
-        <MSBuild Projects="client.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="TestNanoMsg">
-        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj"/>
-    </Target>
-    <Target Name="TestNanoMsg:Clean">
-        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="TestNanoMsg:Make">
-        <MSBuild Projects="Delphi-NanoMSG-master\Test\TestNanoMsg.dproj" Targets="Make"/>
     </Target>
     <Target Name="request">
         <MSBuild Projects="request.dproj"/>
@@ -108,13 +84,13 @@
         <MSBuild Projects="response.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="publish;subscribe;test;server;client;TestNanoMsg;request;response"/>
+        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="publish:Clean;subscribe:Clean;test:Clean;server:Clean;client:Clean;TestNanoMsg:Clean;request:Clean;response:Clean"/>
+        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="publish:Make;subscribe:Make;test:Make;server:Make;client:Make;TestNanoMsg:Make;request:Make;response:Make"/>
+        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
