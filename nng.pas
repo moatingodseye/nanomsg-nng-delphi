@@ -105,8 +105,8 @@ function nng_rep0_open(out sock: nng_socket): Integer; cdecl; external libnng na
 function nng_push0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_push0_open';
 function nng_pull0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_pull0_open';
 
-function nng_x_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_req0_open';
-function nng_y_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_rep0_open';
+function nng_surveyor0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_surveyor0_open';
+function nng_respondent0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_respondent0_open';
 
 function nng_sub0_socket_subscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_subscribe';
 function nng_sub0_socket_unsubscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_unsubscribe';

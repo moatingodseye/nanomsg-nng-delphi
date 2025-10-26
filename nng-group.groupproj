@@ -27,6 +27,12 @@
         <Projects Include="push.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="survey.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="respondent.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -107,14 +113,32 @@
     <Target Name="push:Make">
         <MSBuild Projects="push.dproj" Targets="Make"/>
     </Target>
+    <Target Name="survey">
+        <MSBuild Projects="survey.dproj"/>
+    </Target>
+    <Target Name="survey:Clean">
+        <MSBuild Projects="survey.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="survey:Make">
+        <MSBuild Projects="survey.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="respondent">
+        <MSBuild Projects="respondent.dproj"/>
+    </Target>
+    <Target Name="respondent:Clean">
+        <MSBuild Projects="respondent.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="respondent:Make">
+        <MSBuild Projects="respondent.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push"/>
+        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push;survey;respondent"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean"/>
+        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean;survey:Clean;respondent:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make"/>
+        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make;survey:Make;respondent:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
