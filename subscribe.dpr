@@ -6,7 +6,7 @@ program subscribe;
 uses
   System.SysUtils,
   subscriber in 'subscriber.pas',
-  nng in 'nng.pas';
+  nngdll in 'nnglib\nngdll.pas';
 
 begin
   try

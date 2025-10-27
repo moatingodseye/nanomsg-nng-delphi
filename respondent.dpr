@@ -6,7 +6,7 @@ program respondent;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   respondenter in 'respondenter.pas';
 
 begin

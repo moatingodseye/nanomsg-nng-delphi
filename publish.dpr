@@ -6,7 +6,7 @@ program publish;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   publisher in 'publisher.pas';
 
 begin

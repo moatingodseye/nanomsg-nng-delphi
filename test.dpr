@@ -7,7 +7,7 @@ program test;
 uses
   System.SysUtils,
   testlibnng in 'testlibnng.pas',
-  nng in 'nng.pas';
+  nngdll in 'nnglib\nngdll.pas';
 
 var
   Version : PAnsiChar;

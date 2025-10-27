@@ -90,7 +90,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="nng.pas"/>
+        <DCCReference Include="nnglib\nngdll.pas"/>
         <DCCReference Include="publisher.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

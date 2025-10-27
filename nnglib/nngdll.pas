@@ -1,4 +1,4 @@
-unit nng;
+unit nngdll;
 
 interface
 

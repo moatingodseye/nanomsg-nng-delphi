@@ -6,7 +6,7 @@ program push;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   pusher in 'pusher.pas';
 
 begin

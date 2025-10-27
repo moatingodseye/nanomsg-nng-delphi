@@ -6,7 +6,7 @@ program request;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   requester in 'requester.pas';
 
 begin

@@ -6,7 +6,7 @@ program pull;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   puller in 'puller.pas';
 
 begin

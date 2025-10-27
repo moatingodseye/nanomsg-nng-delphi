@@ -6,7 +6,7 @@ program survey;
 
 uses
   System.SysUtils,
-  nng in 'nng.pas',
+  nngdll in 'nnglib\nngdll.pas',
   surveyor in 'surveyor.pas';
 
 begin
