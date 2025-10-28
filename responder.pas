@@ -3,11 +3,23 @@ unit responder;
 interface
 
 uses
-  System.SysUtils, nng;
+  System.SysUtils, nngdll;
 
 procedure Test;
 
 implementation
+
+var 
+  data : Integer;
+  
+procedure callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
+var
+  r : Integer;
+begin
+  asm nop end;
+  r := Integer(arg^);
+  Writeln(pipe,' ',which, ' ', data, ' ', r);
+end;
 
 procedure Test;
 var
@@ -17,7 +29,7 @@ var
   rep : AnsiString;
   rep_len : Integer;
   err: Integer;
-  init_params: nng_init_params;
+  init_params: nng_init_param;
   url : PAnsiChar;
   listen : THandle;
   need : boolean;
@@ -53,6 +65,20 @@ begin
           WriteLn('Error listening: ', nng_strerror(err))
         else begin
           Writeln('Listening...');
+
+          err := nng_pipe_notify(rep_sock,pipBefore,@callback,@data);
+          if err<>NNG_OK then
+            Writeln('Pipe Error:',nng_strerror(err));
+          err := nng_pipe_notify(rep_sock,pipAdd,@callback,@data);
+          if err<>NNG_OK then
+            Writeln('Pipe Error:',nng_strerror(err));
+          err := nng_pipe_notify(rep_sock,pipRemove,@callback,@data);
+          if err<>NNG_OK then
+            Writeln('Pipe Error:',nng_strerror(err));
+
+          data := Random(100);
+          Writeln(data);
+          
           // Receive request
           GetMem(req,128);
           req_len := 128;

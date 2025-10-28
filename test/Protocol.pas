@@ -29,7 +29,17 @@ implementation
 
 uses
   System.SysUtils;
-  
+
+procedure callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
+var
+  nng : Tnng;
+begin
+  asm nop end;
+  nng := TNNG(arg);
+  if assigned(nng.OnLog) then
+    nng.OnLog('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
+end;
+
 procedure TProtocol.Setup;
 var
   err : Integer;
@@ -41,6 +51,17 @@ begin
       Inc(FStage)
     else
       Log('Error opening responder: '+ nng_strerror(err))
+  end;
+  if FStage=2 then begin
+    err := nng_pipe_notify(FSocket,pipBefore,@callback,self);
+    if err<>NNG_OK then
+      Log('Pipe Error:'+nng_strerror(err));
+    err := nng_pipe_notify(FSocket,pipAdd,@callback,self);
+    if err<>NNG_OK then
+      Log('Pipe Error:'+nng_strerror(err));
+    err := nng_pipe_notify(FSocket,pipRemove,@callback,self);
+    if err<>NNG_OK then
+      Log('Pipe Error:'+nng_strerror(err));
   end;
 end;
 

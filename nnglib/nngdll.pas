@@ -11,7 +11,6 @@ const
 
   // Define error constants for libnng
   NNG_OK = 0;
-//  NNG_EAGAIN = -100;  // Error code for non-blocking operation
   NNG_EINTR        = 1;
   NNG_ENOMEM       = 2;
   NNG_EINVAL       = 3;
@@ -70,7 +69,6 @@ const
   NNG_OPT_RECVMAXSZ = 'recv-size-max';
   NNG_OPT_RECONNMINT = 'reconnect-time-min';
   NNG_OPT_RECONNMAXT = 'reconnect-time-max';
-
   
 type
   jrb = boolean; // weird delphi 12 bug if you don't have this here you cannot put this function in!
@@ -78,7 +76,7 @@ type
 
 // nng_init_params struct declaration
 type
-  nng_init_params = record
+  nng_init_param = record
     num_task_threads: SmallInt;
     max_task_threads: SmallInt;
     num_expire_threads: SmallInt;
@@ -87,105 +85,85 @@ type
     max_poller_threads: SmallInt;
     num_resolver_threads: SmallInt;
   end;
+  pnng_init_param = ^nng_init_param;
 
   nng_socket = THandle;
   nng_duration = Int64;
-  nng_size = ^UInt32;
+  nng_size = UInt32;
+  pnng_size = ^nng_size;
+  nng_error = Integer;
 
 // Function prototypes
-function nng_init(params: Pointer): Integer; cdecl; external libnng name 'nng_init';
-function nng_fini(): Integer; cdecl; external libnng name 'nng_fini';
+function nng_init(params: pnng_init_param) : nng_error; cdecl; external libnng name 'nng_init';
+function nng_fini() : nng_error; cdecl; external libnng name 'nng_fini';
 
-function nng_pub0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_pub0_open';
-function nng_sub0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_sub0_open';
+function nng_pub0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_pub0_open';
+function nng_sub0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_sub0_open';
 
-function nng_req0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_req0_open';
-function nng_rep0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_rep0_open';
+function nng_req0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_req0_open';
+function nng_rep0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_rep0_open';
 
-function nng_push0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_push0_open';
-function nng_pull0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_pull0_open';
+function nng_push0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_push0_open';
+function nng_pull0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_pull0_open';
 
-function nng_surveyor0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_surveyor0_open';
-function nng_respondent0_open(out sock: nng_socket): Integer; cdecl; external libnng name 'nng_respondent0_open';
+function nng_surveyor0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_surveyor0_open';
+function nng_respondent0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_respondent0_open';
 
-function nng_sub0_socket_subscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_subscribe';
-function nng_sub0_socket_unsubscribe(sock : nng_socket; what : pointer; size : UInt32) : Integer; cdecl; external libnng name 'nng_sub0_socket_unsubscribe';
+function nng_sub0_socket_subscribe(sock : nng_socket; what : pointer; size : nng_size) : Integer; cdecl; external libnng name 'nng_sub0_socket_subscribe';
+function nng_sub0_socket_unsubscribe(sock : nng_socket; what : pointer; size : nng_size) : Integer; cdecl; external libnng name 'nng_sub0_socket_unsubscribe';
 //int nng_sub0_socket_subscribe(nng_socket id, const void *buf, size_t sz);
 //int nng_sub0_socket_unsubscribe(nng_socket id, const void *buf, size_t sz);
 
-function nng_listen(sock: nng_socket; url: PAnsiChar; listener: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_listen';
-function nng_dial(sock: nng_socket; url: PAnsiChar; dialer: PHandle; flags: Integer): Integer; cdecl; external libnng name 'nng_dial';
+function nng_listen(sock: nng_socket; url: PAnsiChar; listener: PHandle; flags: Integer) : nng_error; cdecl; external libnng name 'nng_listen';
+function nng_dial(sock: nng_socket; url: PAnsiChar; dialer: PHandle; flags: Integer) : nng_error; cdecl; external libnng name 'nng_dial';
 
 function nng_listener_close(listen: THandle) : Integer; cdecl; external libnng name 'nng_listener_close';
 function nng_dialer_close(listen: THandle) : Integer; cdecl; external libnng name 'nng_dialer_close';
 
-function nng_send(sock: nng_socket; buf: Pointer; len: UInt32; flags: Integer): Integer; cdecl; external libnng name 'nng_send';
-function nng_recv(sock: nng_socket; buf: Pointer; len: nng_size; flags: Integer): Integer; cdecl; external libnng name 'nng_recv';
+function nng_send(sock: nng_socket; buf: Pointer; len: nng_size; flags: Integer) : nng_error; cdecl; external libnng name 'nng_send';
+function nng_recv(sock: nng_socket; buf: Pointer; len: pnng_size; flags: Integer) : nng_error; cdecl; external libnng name 'nng_recv';
 
-function nng_socket_close(sock: nng_socket): Integer; cdecl; external libnng name 'nng_socket_close';
+function nng_socket_close(sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_socket_close';
 
 function nng_strerror(err: Integer): PAnsiChar; cdecl; external libnng name 'nng_strerror';
 
-// below are untested
-//type
-  // NNG socket types
-//  TNNGSocket = Pointer;
+//procedure callback; cdecl;
 
-  // Declare function prototypes from libnng
-//  function nng_version : PAnsiChar; cdecl; external libnng name 'nng_version';
-//  function nng_pub0_open(var socket: TNNGSocket): Integer; cdecl; external libnng name 'nng_pub0_open';
-//  function nng_sub0_open(var socket: TNNGSocket): Integer; cdecl; external libnng name 'nng_sub0_open';
-//  function nng_socket_setopt(socket: TNNGSocket; option: Integer; value: Pointer; optlen: Integer): Integer; cdecl; external libnng name 'nng_socket_setopt';
-//  function nng_socket_send(socket: TNNGSocket; buf: Pointer; len: Integer): Integer; cdecl; external libnng name 'nng_socket_send';
-//  function nng_socket_recv(socket: TNNGSocket; var buf: Pointer; var len: Integer): Integer; cdecl; external libnng name 'nng_socket_recv';
-//  function nng_close(socket: TNNGSocket): Integer; cdecl; external libnng name 'nng_close';
+const
+  pipBefore = 1;
+  pipAdd = 2;
+  pipRemove = 3;
 
-  // nng_error_t (int) -> Integer
 type
-  // nng_error_t (int) -> Integer
-  nng_error_t = Integer;
+//  nng_callback = @callback; 
+  nng_pipe_ev = Integer;
+  nng_pipe = THandle;
+  nng_argument = Pointer;
+  pnng_argument = ^nng_argument;
+  nng_callback = procedure(pipe : nng_pipe; which : nng_pipe_ev; out arg : nng_argument); cdecl;
 
-  // nng_socket_t (handle to socket) -> THandle
-  nng_socket_t = THandle;
+function nng_pipe_notify(sock : nng_socket; which : nng_pipe_ev; callback : nng_callback; arg : nng_argument) : nng_error; cdecl; external libnng name 'nng_pipe_notify';
 
-  // nng_msg (message structure) -> THandle
-  nng_msg = THandle;
-
+type
   // nng_provider (initialize provider struct)
   nng_provider = record
     dummy: Integer; // For simplicity, assuming no specific initialization parameters yet.
   end;
   pnng_provider = ^nng_provider;
 
-  // Function declarations from libnng API
-//  function nng_init(provider: pnng_provider): nng_error_t; cdecl; external LIBNNG name 'nng_init';
-//  function nng_fini: nng_error_t; cdecl; external LIBNNG name 'nng_fini';
-
-  // Create a PUB0 socket (Publisher)
-//  function nng_pub0_open(var sock: nng_socket_t): nng_error_t; cdecl; external LIBNNG name 'nng_pub0_open';
-  
-  // Create a SUB0 socket (Subscriber)
-//  function nng_sub0_open(var sock: nng_socket_t): nng_error_t; cdecl; external LIBNNG name 'nng_sub0_open';
-
-  // Connect or bind a socket
-//  function nng_dial(sock: nng_socket_t; const url: PAnsiChar; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_dial';
-//  function nng_listen(sock: nng_socket_t; const url: PAnsiChar; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_listen';
-
   // Send and receive messages
-  function nng_sendmsg(sock: nng_socket_t; msg: nng_msg; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_sendmsg';
-  function nng_recvmsg(sock: nng_socket_t; msg: nng_msg; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_recvmsg';
+//  function nng_sendmsg(sock: nng_socket; msg: nng_msg; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_sendmsg';
+//  function nng_recvmsg(sock: nng_socket; msg: nng_msg; flags: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_recvmsg';
 
   // Message management
-  function nng_msg_alloc(var msg: nng_msg; size: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_msg_alloc';
-  function nng_msg_free(msg: nng_msg): nng_error_t; cdecl; external LIBNNG name 'nng_msg_free';
+//  function nng_msg_alloc(var msg: nng_msg; size: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_msg_alloc';
+//  function nng_msg_free(msg: nng_msg): nng_error_t; cdecl; external LIBNNG name 'nng_msg_free';
 
   // Socket options
-//  function nng_socket_setopt(sock: nng_socket_t; const option: PAnsiChar; const value: Pointer; len: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_socket_setopt';
-// Socket options for libnng 2.0.0-dev
-  function nng_socket_set_bool(sock: nng_socket_t; const option: PAnsiChar; value: Boolean): nng_error_t; cdecl; external LIBNNG name 'nng_socket_set_bool';
-  function nng_socket_set_int(sock: nng_socket_t; const option: PAnsiChar; value: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_socket_set_int';
-  function nng_socket_set_ms(sock: nng_socket_t; const option: PAnsiChar; value: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_socket_set_ms';
-  function nng_socket_set_size(sock: nng_socket_t; const option: PAnsiChar; value: Integer): nng_error_t; cdecl; external LIBNNG name 'nng_socket_set_size';
+  function nng_socket_set_bool(sock: nng_socket; const option: PAnsiChar; value: Boolean): nng_error; cdecl; external LIBNNG name 'nng_socket_set_bool';
+  function nng_socket_set_int(sock: nng_socket; const option: PAnsiChar; value: Integer): nng_error; cdecl; external LIBNNG name 'nng_socket_set_int';
+  function nng_socket_set_ms(sock: nng_socket; const option: PAnsiChar; value: Integer): nng_error; cdecl; external LIBNNG name 'nng_socket_set_ms';
+  function nng_socket_set_size(sock: nng_socket; const option: PAnsiChar; value: Integer): nng_error; cdecl; external LIBNNG name 'nng_socket_set_size';
   
   // Declare a function to load the DLL and check if it's successful
   function LoadNNGLibrary: Boolean;

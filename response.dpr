@@ -6,8 +6,8 @@ program response;
 
 uses
   System.SysUtils,
-  nngdll in 'nnglib\nngdll.pas',
-  responder in 'responder.pas';
+  responder in 'responder.pas',
+  nngdll in 'nnglib\nngdll.pas';
 
 begin
   try

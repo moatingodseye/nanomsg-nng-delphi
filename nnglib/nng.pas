@@ -51,7 +51,7 @@ end;
 
 procedure TNNG.Setup;
 var
-  init_params: nng_init_params;
+  init_params : nng_init_param;
   err : Integer;
   url : AnsiString;
 begin
