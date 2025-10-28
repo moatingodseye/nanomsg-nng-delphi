@@ -3,6 +3,7 @@ unit Test;
 interface
 
 uses
+  System.Classes,
   baThread, baLogger, LogForm, NNG;
   
 const
@@ -18,6 +19,8 @@ type
     FNNG : TNNG;
     FLog : TbaLogger;
     FForm : TfrmLog;
+    FOnKick,
+    FOnStop : TNotifyEvent;
   private
   strict protected
     FState : Integer;
@@ -25,7 +28,8 @@ type
   protected
     procedure Log(AMessage : String);
     procedure Error(AMessage : String);
-    procedure OnKick(Sender : TObject);
+    procedure DoStop(Sender : TObject);
+    procedure DoKick(Sender : TObject);
   public
     constructor Create(ANNG : TNNG); virtual;
     destructor Destroy; override;
@@ -35,6 +39,8 @@ type
     procedure Stop;
     
     function State : Integer;
+
+    property OnStop : TNotifyEvent read FOnStop write FOnStop;  
   published
   end;
   
@@ -60,9 +66,14 @@ begin
   FState := tsError;
 end;
 
-procedure TTest.OnKick(Sender : TObject);
+procedure TTest.DoKick(Sender : TObject);
 begin
   FNNG.Kick;
+end;
+
+procedure TTest.DoStop(Sender : TObject);
+begin
+  Stop;
 end;
 
 constructor TTest.Create(ANNG : TNNG);
@@ -74,7 +85,9 @@ begin
   FState := tsNever;
   FLog := TbaLogger.Create(DoLog);
   FForm := TfrmLog.Create(Nil);
-  FForm.OnKick := OnKick;
+  FForm.Data := ANNG;
+  FForm.OnStop := DoStop;
+  FForm.OnKick := DoKick;
   FForm.Caption := FNNG.ClassName;
 end;
 
@@ -104,6 +117,8 @@ begin
   FForm := Nil;
   FNNG.Stop;
   FState := tsClose;
+  if assigned(FOnStop) then
+    FOnStop(Self);
 end;
 
 function TTest.State : Integer;

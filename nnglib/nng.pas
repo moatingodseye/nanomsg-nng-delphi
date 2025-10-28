@@ -20,11 +20,14 @@ type
   strict protected
     FStage : Integer;
     FData : TObject;
+    FActive : Integer;
     
     procedure Setup; virtual; 
     procedure Process(AData : TObject); virtual; abstract;
     procedure Teardown; virtual; 
   protected
+    FEnabled : Boolean;
+    procedure SetPeriod(APeriod : Integer);
     procedure Log(AMessage : String);
     procedure Error(AMessage : String);
   public
@@ -32,9 +35,11 @@ type
     destructor Destroy; override;
 
     procedure Start;
-    procedure Kick; virtual; abstract;
+    procedure Kick; virtual;
     procedure Stop;
 
+    procedure Pipe(Which : Integer);
+    
     property OnLog : TOnLog read FOnLog write FOnLog;
     property OnError : TOnLog read FOnError write FOnError;
     property Data : TObject read FData write FData;
@@ -43,10 +48,23 @@ type
   
 implementation
 
+uses
+  System.SysUtils;
+  
+function IIF(ACheck : Boolean; AYes,ANo : String) : String;
+begin
+  result := ANo;
+  if ACheck then
+    result := AYes;
+end;
+
 procedure TNNG.DoOnThread(ASender: TObject; AData: TObject);
 begin
-  Process(AData);
-  FThread.Kick;
+  Log(DateTimeToStr(Now)+' '+IntToStr(FActive)+' '+IIF(FEnabled,'Yes','No'));
+  if (FActive>0) and FEnabled then
+    Process(AData);
+  if (FActive>0) and FEnabled then
+    FThread.Kick;
 end;
 
 procedure TNNG.Setup;
@@ -87,6 +105,32 @@ begin
   inherited;
 end;
 
+procedure TNNG.Pipe(which : Integer);
+begin
+  case which of
+    1 : { Before add } ;
+    2 : { Add }
+      begin
+        Inc(FActive);
+        if FActive>0 then begin
+          Log('Active');
+          FThread.Kick;
+        end;
+      end;
+    3 : { Remove }
+      begin
+        Dec(FActive);
+        if FActive=0 then
+          Log('In-active');
+      end;
+  end;
+end;
+
+procedure TNNG.SetPeriod(APeriod : Integer);
+begin
+  FThread.SetPeriod(APeriod);
+end;
+
 procedure TNNG.Log(AMessage : String);
 begin
   if assigned(FOnLog) then
@@ -99,11 +143,13 @@ begin
     FOnError(AMessage);
 end;
 
-constructor TNNG.Create;                   
+constructor TNNG.Create;
 begin
   inherited Create;
+  FEnabled := False;
+  FActive := 0;
   FStage := 0;
-  FThread := TbaThread.Create(50);
+  FThread := TbaThread.Create(1000);
   FThread.OnAsThread := DoOnThread;
 end;
 
@@ -116,11 +162,19 @@ end;
 procedure TNNG.Start;
 begin
   Setup;
+  FEnabled := True;
+  FThread.Kick;
+end;
+
+procedure TNNG.Kick;
+begin
+  FEnabled := True;
   FThread.Kick;
 end;
 
 procedure TNNG.Stop;
 begin
+  FThread.OnAsThread := Nil;
   Teardown;
 end;
 

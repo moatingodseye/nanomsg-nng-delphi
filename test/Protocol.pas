@@ -32,12 +32,13 @@ uses
 
 procedure callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
 var
-  nng : Tnng;
+  nng : TNNG;
 begin
   asm nop end;
   nng := TNNG(arg);
   if assigned(nng.OnLog) then
     nng.OnLog('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
+  nng.Pipe(which);
 end;
 
 procedure TProtocol.Setup;
@@ -82,6 +83,7 @@ end;
 constructor TProtocol.Create;
 begin
   inherited;
+  FSocket := 0;
 end;
 
 destructor TProtocol.Destroy;

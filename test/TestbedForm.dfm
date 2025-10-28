@@ -2,8 +2,8 @@ object frmTestBed: TfrmTestBed
   Left = 0
   Top = 0
   Caption = 'Testbed'
-  ClientHeight = 284
-  ClientWidth = 477
+  ClientHeight = 250
+  ClientWidth = 174
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -28,18 +28,11 @@ object frmTestBed: TfrmTestBed
     Caption = 'Servers'
   end
   object Label2: TLabel
-    Left = 224
+    Left = 88
     Top = 80
     Width = 36
     Height = 15
     Caption = 'Clients'
-  end
-  object lblActive: TLabel
-    Left = 226
-    Top = 16
-    Width = 46
-    Height = 15
-    Caption = 'lblActive'
   end
   object btnVersion: TButton
     Left = 8
@@ -69,7 +62,7 @@ object frmTestBed: TfrmTestBed
     OnClick = btnResponseClick
   end
   object btnRequest: TButton
-    Left = 224
+    Left = 88
     Top = 101
     Width = 75
     Height = 25
@@ -77,30 +70,22 @@ object frmTestBed: TfrmTestBed
     TabOrder = 3
     OnClick = btnRequestClick
   end
-  object btnStopResponse: TButton
-    Left = 89
-    Top = 101
+  object btnPush: TButton
+    Left = 8
+    Top = 132
     Width = 75
     Height = 25
-    Caption = 'Stop'
+    Caption = 'Push'
     TabOrder = 4
-    OnClick = btnStopResponseClick
+    OnClick = btnPushClick
   end
-  object btnKick: TButton
-    Left = 309
-    Top = 101
+  object btnPull: TButton
+    Left = 88
+    Top = 132
     Width = 75
     Height = 25
-    Caption = 'Kick'
+    Caption = 'Pull'
     TabOrder = 5
-  end
-  object btnStopRequest: TButton
-    Left = 394
-    Top = 101
-    Width = 75
-    Height = 25
-    Caption = 'Stop'
-    TabOrder = 6
-    OnClick = btnStopRequestClick
+    OnClick = btnPullClick
   end
 end

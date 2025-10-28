@@ -35,5 +35,14 @@ object frmLog: TfrmLog
       TabOrder = 0
       OnClick = btnKickClick
     end
+    object btnStop: TButton
+      Left = 81
+      Top = 10
+      Width = 75
+      Height = 25
+      Caption = 'Stop'
+      TabOrder = 1
+      OnClick = btnStopClick
+    end
   end
 end

@@ -145,6 +145,8 @@
         <DCCReference Include="..\nnglib\nng.pas"/>
         <DCCReference Include="Listen.pas"/>
         <DCCReference Include="Dial.pas"/>
+        <DCCReference Include="Pull.pas"/>
+        <DCCReference Include="Push.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

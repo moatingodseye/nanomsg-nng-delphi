@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Contnrs, Test, baThread;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Contnrs, Test, nng, baThread;
 
 type
   TfrmTestBed = class(TForm)
@@ -15,25 +15,26 @@ type
     Label1: TLabel;
     Label2: TLabel;
     btnRequest: TButton;
-    lblActive: TLabel;
-    btnStopResponse: TButton;
-    btnKick: TButton;
-    btnStopRequest: TButton;
+    btnPush: TButton;
+    btnPull: TButton;
     procedure btnVersionClick(Sender: TObject);
     procedure btnTestClick(Sender: TObject);
     procedure btnResponseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure btnStopResponseClick(Sender: TObject);
+    procedure btnStopClick(Sender: TObject);
     procedure btnRequestClick(Sender: TObject);
-    procedure btnStopRequestClick(Sender: TObject);
+    procedure btnKickRequestClick(Sender: TObject);
+    procedure btnPushClick(Sender: TObject);
+    procedure btnPullClick(Sender: TObject);
   private
     { Private declarations }
     FTidy : TObjectList;
     FThread : TbaThread;
+    procedure DoOnStop(ATest : TObject);
     procedure Monitor(ATest : TTest);
-    procedure DoOnSyIdle(ASender,AData : TObject);
-    procedure DoOnAsIdle(ASender,AData : TObject);
+    procedure DoOnSyThread(ASender,AData : TObject);
+    procedure Test(ANNG : TNNG);
   public
     { Public declarations }
   end;
@@ -46,52 +47,49 @@ implementation
 {$R *.dfm}
 
 uses
-  nngdll, Dummy, Response, Request;
+  nngdll, Dummy, Response, Request, Push, Pull;
 
+procedure TfrmTestBed.DoOnStop(ATest : TObject);
+begin
+  FThread.Kick;
+end;
+  
 procedure TfrmTestBed.Monitor(ATest : TTest);
 begin
   FThread.Lock;
   try
     FTidy.Add(ATest);
+    ATest.OnStop := DoOnStop;
   finally
     FThread.UnLock;
   end;
   FThread.Kick;
 end;
   
-procedure TfrmTestBed.DoOnSyIdle(ASender,AData : TObject);
+procedure TfrmTestBed.DoOnSyThread(ASender,AData : TObject);
 var
   C : Integer;
   lTest : TTest;
 begin
-  lblActive.Caption := IntToStr(FTidy.Count);
   FThread.Lock;
   try
     for C := FTidy.Count-1 downto 0 do begin
       lTest := FTidy[C] as TTest;
       if lTest.State=tsDone then
-        lTest.Stop; // close any forms, can't do that in asynch
+        FTidy.Delete(C);
     end;
   finally
     FThread.UnLock;
   end;
 end;
 
-procedure TfrmTestBed.DoOnAsIdle(ASender,AData : TObject);
+procedure TfrmTestBed.Test(ANNG : TNNG);
 var
-  C : Integer;
   lTest : TTest;
 begin
-  FThread.Lock;
-  try
-    for C := FTidy.Count-1 downto 0 do begin
-      lTest := FTidy[C] as TTest;
-      if lTest.State=tsClose then
-        FTidy.Delete(C); // frees
-    end;
-  finally
-    FThread.UnLock;
-  end;
+  lTest := TTest.Create(Anng);
+  Monitor(lTest);
+  lTest.Start;
 end;
 
 procedure TfrmTestBed.btnVersionClick(Sender: TObject);
@@ -103,9 +101,7 @@ procedure TfrmTestBed.FormCreate(Sender: TObject);
 begin
   FTidy := TObjectList.Create;
   FThread := TbaThread.Create(100);
-//  FThread.OnSynchronise := DoOnSynchronise;
-  FThread.OnSyIdle := DoOnSyIdle;
-  FThread.OnAsIdle := DoOnAsIdle;  
+  FThread.OnSyThread := DoOnSyThread;
 end;
 
 procedure TfrmTestBed.FormDestroy(Sender: TObject);
@@ -114,43 +110,43 @@ begin
   FTidy.Free;
 end;
 
-procedure TfrmTestBed.btnRequestClick(Sender: TObject);
+procedure TfrmTestBed.btnKickRequestClick(Sender: TObject);
 var
+  lControl : TControl;
   lTest : TTest;
-  lRequest : TRequest;
 begin
-  lRequest := TRequest.Create;
-  lTest := TTest.Create(lRequest);
-  btnStopRequest.Tag := Integer(lTest);
-  Monitor(lTest);
-  lTest.Start;
+  lControl := Sender as TControl;
+  lTest := TTest(lControl.Tag);
+  lTest.Kick;
+end;
+
+procedure TfrmTestBed.btnPullClick(Sender: TObject);
+begin
+  Test(TPull.Create);
+end;
+
+procedure TfrmTestBed.btnPushClick(Sender: TObject);
+begin
+  Test(TPush.Create);
+end;
+
+procedure TfrmTestBed.btnRequestClick(Sender: TObject);
+begin
+  Test(TRequest.Create);
 end;
 
 procedure TfrmTestBed.btnResponseClick(Sender: TObject);
-var
-  lTest : TTest;
-  lResponse : TResponse;
 begin
-  lResponse := TResponse.Create;
-  lTest := TTest.Create(lResponse);
-  btnStopResponse.Tag := Integer(lTest);
-  Monitor(lTest);
-  lTest.Start;
+  Test(TResponse.Create);
 end;
 
-procedure TfrmTestBed.btnStopRequestClick(Sender: TObject);
+procedure TfrmTestBed.btnStopClick(Sender: TObject);
 var
   lTest : TTest;
+  lControl : TControl;
 begin
-  lTest := TTest(btnStopRequest.Tag);
-  lTest.Stop;
-end;
-
-procedure TfrmTestBed.btnStopResponseClick(Sender: TObject);
-var
-  lTest : TTest;
-begin
-  lTest := TTest(btnStopResponse.Tag);
+  lControl := Sender as TControl;
+  lTest := TTest(lControl.Tag);
   lTest.Stop;
 end;
 

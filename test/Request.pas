@@ -19,11 +19,10 @@ type
     procedure Setup; override;
     procedure Process(AData : TObject); override;
     procedure Teardown; override;
+    procedure Kick; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-
-    procedure Kick; override;
   published
   end;
   
@@ -78,6 +77,7 @@ begin
     stReceived :
       begin
         { all done }
+        FEnabled := False;
       end;
   end;
 end;
@@ -119,6 +119,7 @@ end;
 
 procedure TRequest.Kick;
 begin
+  inherited;
   FState := stNull;
 end;
 

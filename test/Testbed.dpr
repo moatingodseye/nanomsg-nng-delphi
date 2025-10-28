@@ -14,7 +14,9 @@ uses
   Protocol in 'Protocol.pas',
   nng in '..\nnglib\nng.pas',
   Listen in 'Listen.pas',
-  Dial in 'Dial.pas';
+  Dial in 'Dial.pas',
+  Pull in 'Pull.pas',
+  Push in 'Push.pas';
 
 {$R *.res}
 
