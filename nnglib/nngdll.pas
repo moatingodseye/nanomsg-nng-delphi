@@ -93,7 +93,52 @@ type
   pnng_size = ^nng_size;
   nng_error = Integer;
 
-// Function prototypes
+  nng_flag = integer;
+  nng_argument = Pointer;
+  pnng_argument = ^nng_argument;
+
+  nng_msg = record
+    dummo : integer;
+  end;
+  pnng_msg = ^nng_msg;
+  
+function nng_msg_alloc(mess : pnng_msg; size : nng_size) : nng_error; cdecl; external libnng name 'nng_msg_alloc';
+procedure nng_msg_free(mess : nng_msg); cdecl; external libnng name 'nng_msg_free';
+function nng_msg_body(mess : nng_msg) : pnng_msg; cdecl; external libnng name 'nng_msg_body';
+function nng_msg_len(mess : nng_msg) : nng_size; cdecl; external libnng name 'nng_msg_len';
+  
+type
+  nng_aio = record
+   dunno  :integer;
+  end;
+  pnng_aio = ^nng_aio;
+  ppnng_aio = ^pnng_aio;
+  
+  nng_aio_callback = procedure(out arg : nng_argument); cdecl;
+  
+function nng_aio_alloc(out aio : pnng_aio; callback : nng_aio_callback; arg : nng_argument): nng_error; cdecl; external libnng name 'nng_aio_alloc';
+procedure nng_aio_free(aio : pnng_aio); cdecl; external libnng name 'nng_aio_free';
+procedure nng_aio_reap(aio : pnng_aio); cdecl; external libnng name 'nng_aio_reap'; { async }
+procedure nng_aio_abort(aio : pnng_aio; out err : nng_error); cdecl; external libnng name 'nng_aio_abort';
+procedure nng_aio_cancel(aio : pnng_aio); cdecl; external libnng name 'nng_aio_cancel';
+procedure nng_aio_stop(aio : pnng_aio); cdecl; external libnng name 'nng_aio_stop';
+procedure nng_aio_set_timeout(aio : pnng_aio; time : Integer); cdecl; external libnng name 'nng_set_timeout';
+procedure nng_aio_wait(aio : pnng_aio); cdecl; external libnng name 'nng_aio_wait';
+function nng_aio_busy(aio : pnng_aio) : Boolean; cdecl; external libnng name 'nng_aio_busy';
+function nng_aio_result(aio : pnng_aio) : nng_error; cdecl; external libnng name 'nng_aio_result';
+function nng_aio_count(aio : pnng_aio) : nng_size; cdecl; external libnng name 'nng_aio_size';
+function nng_aio_get_msg(aio : pnng_aio) : pnng_msg; cdecl; external libnng name 'nng_aio_get_msg';
+procedure nng_aio_set_msg(aio : pnng_aio; mess : nng_msg); cdecl; external libnng name 'nng_aio_set_msg';
+procedure nng_aio_finish(aio : pnng_aio; out error : nng_error); cdecl; external libnng name 'nng_aio_finish';
+
+function nng_sendmsg(socket : nng_socket; mess : nng_msg; flag : nng_flag) : nng_error; cdecl; external libnng name 'nng_sendmsg';
+function nng_recvmsg(socket : nng_socket; mess : pnng_msg; flag : nng_flag) : nng_error; cdecl; external libnng name 'nng_recvmsg';
+
+procedure nng_socket_recv(socket : nng_socket; aio : pnng_aio); cdecl; external libnng name 'nng_socket_recv';
+procedure nng_socket_send(socket : nng_socket; aio : pnng_aio); cdecl; external libnng name 'nng_socket_send';
+
+procedure nng_sleep_aio(socket : nng_socket; aio : pnng_aio); cdecl; external libnng name 'nng_sleop_aio';
+
 function nng_init(params: pnng_init_param) : nng_error; cdecl; external libnng name 'nng_init';
 function nng_fini() : nng_error; cdecl; external libnng name 'nng_fini';
 
@@ -143,8 +188,6 @@ type
 //  nng_callback = @callback; 
   nng_pipe_ev = Integer;
   nng_pipe = THandle;
-  nng_argument = Pointer;
-  pnng_argument = ^nng_argument;
   nng_callback = procedure(pipe : nng_pipe; which : nng_pipe_ev; out arg : nng_argument); cdecl;
 
 function nng_pipe_notify(sock : nng_socket; which : nng_pipe_ev; callback : nng_callback; arg : nng_argument) : nng_error; cdecl; external libnng name 'nng_pipe_notify';
