@@ -8,9 +8,6 @@ uses
 type
   TProtocol = class(TNNG)
   strict private
-//    FStage : Integer;
-//    FListen : THandle;
-//    FBuffer : Pointer;
   private
   strict protected
     FSocket : nng_socket;
@@ -34,7 +31,6 @@ procedure callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
 var
   nng : TNNG;
 begin
-  asm nop end;
   nng := TNNG(arg);
   if assigned(nng.OnLog) then
     nng.OnLog('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));

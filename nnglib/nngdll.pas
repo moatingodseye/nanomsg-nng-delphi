@@ -97,6 +97,11 @@ type
 function nng_init(params: pnng_init_param) : nng_error; cdecl; external libnng name 'nng_init';
 function nng_fini() : nng_error; cdecl; external libnng name 'nng_fini';
 
+function nng_bus0_open(out sock : nng_socket) : nng_error; cdecl; external libnng name 'nng_bus0_open';
+
+function nng_pair0_open(out sock : nng_socket) : nng_error; cdecl; external libnng name 'nng_pair0_open';
+function nng_pair1_open(out sock : nng_socket) : nng_error; cdecl; external libnng name 'nng_pair1_open';
+
 function nng_pub0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_pub0_open';
 function nng_sub0_open(out sock: nng_socket) : nng_error; cdecl; external libnng name 'nng_sub0_open';
 

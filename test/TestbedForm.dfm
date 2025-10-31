@@ -2,8 +2,8 @@ object frmTestBed: TfrmTestBed
   Left = 0
   Top = 0
   Caption = 'Testbed'
-  ClientHeight = 250
-  ClientWidth = 174
+  ClientHeight = 268
+  ClientWidth = 283
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -33,6 +33,13 @@ object frmTestBed: TfrmTestBed
     Width = 36
     Height = 15
     Caption = 'Clients'
+  end
+  object Label3: TLabel
+    Left = 169
+    Top = 80
+    Width = 25
+    Height = 15
+    Caption = 'Both'
   end
   object btnVersion: TButton
     Left = 8
@@ -87,5 +94,77 @@ object frmTestBed: TfrmTestBed
     Caption = 'Pull'
     TabOrder = 5
     OnClick = btnPullClick
+  end
+  object btnPublish: TButton
+    Left = 7
+    Top = 163
+    Width = 75
+    Height = 25
+    Caption = 'Publish'
+    TabOrder = 6
+    OnClick = btnPublishClick
+  end
+  object Subscribe: TButton
+    Left = 88
+    Top = 163
+    Width = 75
+    Height = 25
+    Caption = 'Subscribe'
+    TabOrder = 7
+    OnClick = SubscribeClick
+  end
+  object btnSPair: TButton
+    Left = 8
+    Top = 194
+    Width = 75
+    Height = 25
+    Caption = 'Pair'
+    TabOrder = 8
+    OnClick = btnSPairClick
+  end
+  object btnCPair: TButton
+    Left = 89
+    Top = 194
+    Width = 75
+    Height = 25
+    Caption = 'Pair'
+    TabOrder = 9
+    OnClick = btnCPairClick
+  end
+  object btnPair: TButton
+    Left = 170
+    Top = 194
+    Width = 75
+    Height = 25
+    Caption = 'Pair'
+    TabOrder = 10
+    OnClick = btnPairClick
+  end
+  object btnSBus: TButton
+    Left = 8
+    Top = 224
+    Width = 75
+    Height = 25
+    Caption = 'Bus'
+    TabOrder = 11
+    OnClick = btnSBusClick
+  end
+  object btnCBus: TButton
+    Left = 89
+    Top = 225
+    Width = 75
+    Height = 25
+    Caption = 'Bus'
+    TabOrder = 12
+    OnClick = btnCBusClick
+  end
+  object btnBus: TButton
+    Left = 170
+    Top = 225
+    Width = 75
+    Height = 25
+    Caption = 'Bus'
+    TabOrder = 13
+    OnClick = btnBusClick
   end
 end

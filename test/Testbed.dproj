@@ -147,6 +147,11 @@
         <DCCReference Include="Dial.pas"/>
         <DCCReference Include="Pull.pas"/>
         <DCCReference Include="Push.pas"/>
+        <DCCReference Include="Subscribe.pas"/>
+        <DCCReference Include="Publish.pas"/>
+        <DCCReference Include="Bus.pas"/>
+        <DCCReference Include="Pair.pas"/>
+        <DCCReference Include="Both.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

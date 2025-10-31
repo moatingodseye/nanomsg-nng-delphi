@@ -12,7 +12,9 @@ type
 
   TbaInternal = class(TThread)
   private
-    FPeriod : Integer;
+    FPeriod,
+    FGranularity : Integer;
+    FLast : Integer;
     FTarget : TbaThread;
     FLock : TCriticalSection;
     FSignal : TEvent;
@@ -25,7 +27,7 @@ type
     
     property Target : TbaThread read FTarget write FTarget;
   public
-    constructor Create(APeriod : Integer); 
+    constructor Create(APeriod, AGranularity : Integer); 
     destructor  Destroy; override;
 
     procedure Lock;
@@ -54,7 +56,7 @@ type
     procedure SetOnSyThread(AEvent : TbaThreadEvent);
     procedure SetOnSyIdle(AEvent : TbaThreadEvent);
   public                                             
-    constructor Create(APeriod : Integer); virtual;
+    constructor Create(APeriod, AGranularity : Integer); virtual;
     destructor  Destroy; override;
     
     procedure Lock;
@@ -75,16 +77,18 @@ type
 implementation
 
 uses
-  System.Math;
+  System.Math, WinAPI.Windows;
   
 var
-  uID : Integer = 1000;
+  uID : Integer = 0;
   
 procedure TbaInternal.Execute;
+var
+  lTick : Integer;
 begin
   {Perform the background thread}
   while not Terminated do begin
-    case FSignal.WaitFor(FPeriod) of
+    case FSignal.WaitFor(FGranularity) of
       wrSignaled :
         if not Terminated then begin
           Inc(FBusy);
@@ -101,14 +105,18 @@ begin
         end;
       wrTimeout : 
         if not Terminated then begin
-          Inc(FBusy);
-          if assigned(FTarget) then begin
-            if (FEnabled AND 2)=2 then
-              FTarget.Idle(False);   
-            if (FEnabled AND 8)=8 then
-              Synchronize(Idle);  
+          lTick := GetTickCount;
+          if ((lTick-FLast)>FPeriod) or (lTick<FLast) then begin
+            Inc(FBusy);
+            if assigned(FTarget) then begin
+              if (FEnabled AND 2)=2 then
+                FTarget.Idle(False);   
+              if (FEnabled AND 8)=8 then
+                Synchronize(Idle);  
+            end;
+            Dec(FBusy);
+            FLast := lTick;
           end;
-          Dec(FBusy);
         end;
     end;
   end;
@@ -126,15 +134,16 @@ begin
     FTarget.Idle(True);
 end;
 
-constructor TbaInternal.Create(APeriod : Integer);
+constructor TbaInternal.Create(APeriod, AGranularity : Integer);
 begin
   FEnabled :=- 0;
   FLock := TCriticalSection.Create;
   Inc(uID);
-  FSignal := TEvent.Create(nil, False, False, 'xbaThreadx'+IntToStr(uID));
+  FSignal := TEvent.Create(nil, False, False, 'xbaThreadx'+IntToHex(uID));
   FBusy := 0;
   FTarget := Nil;
   FPeriod := APeriod;
+  FGranularity := AGranularity;
   inherited Create(False);
 //  Priority := tpIdle;
   FreeOnTerminate := False;
@@ -212,15 +221,16 @@ begin
   FThread.Enabled := FThread.Enabled OR IIF(Assigned(FOnSyIdle),8,0);
 end;
 
-constructor TbaThread.Create(APeriod : Integer);
+constructor TbaThread.Create(APeriod,AGranularity : Integer);
 begin
   inherited Create;
   APeriod := Max(10,APeriod);
+  AGranularity := Max(10,AGranularity);
   FOnSyThread := Nil;
   FOnAsThread := Nil;
   FOnSyIdle := Nil;
   FOnAsIdle := Nil;
-  FThread := TbaInternal.Create(APeriod);
+  FThread := TbaInternal.Create(APeriod, AGranularity);
   FThread.Target := Self;
 end;                               
 
@@ -281,4 +291,12 @@ begin
   FThread.FPeriod := APeriod;
 end;
 
+procedure Initialise;
+begin
+  uID := GetTickCount;
+end;
+
+initialization
+  Initialise;
+  
 end.

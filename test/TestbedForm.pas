@@ -17,6 +17,15 @@ type
     btnRequest: TButton;
     btnPush: TButton;
     btnPull: TButton;
+    btnPublish: TButton;
+    Subscribe: TButton;
+    btnSPair: TButton;
+    Label3: TLabel;
+    btnCPair: TButton;
+    btnPair: TButton;
+    btnSBus: TButton;
+    btnCBus: TButton;
+    btnBus: TButton;
     procedure btnVersionClick(Sender: TObject);
     procedure btnTestClick(Sender: TObject);
     procedure btnResponseClick(Sender: TObject);
@@ -27,6 +36,14 @@ type
     procedure btnKickRequestClick(Sender: TObject);
     procedure btnPushClick(Sender: TObject);
     procedure btnPullClick(Sender: TObject);
+    procedure btnPublishClick(Sender: TObject);
+    procedure SubscribeClick(Sender: TObject);
+    procedure btnSPairClick(Sender: TObject);
+    procedure btnCPairClick(Sender: TObject);
+    procedure btnPairClick(Sender: TObject);
+    procedure btnSBusClick(Sender: TObject);
+    procedure btnCBusClick(Sender: TObject);
+    procedure btnBusClick(Sender: TObject);
   private
     { Private declarations }
     FTidy : TObjectList;
@@ -47,7 +64,7 @@ implementation
 {$R *.dfm}
 
 uses
-  nngdll, Dummy, Response, Request, Push, Pull;
+  nngdll, Dummy, Response, Request, Push, Pull, Publish, Subscribe, Both, Pair, Bus;
 
 procedure TfrmTestBed.DoOnStop(ATest : TObject);
 begin
@@ -66,6 +83,11 @@ begin
   FThread.Kick;
 end;
   
+procedure TfrmTestBed.SubscribeClick(Sender: TObject);
+begin
+  Test(TSubscribe.Create);
+end;
+
 procedure TfrmTestBed.DoOnSyThread(ASender,AData : TObject);
 var
   C : Integer;
@@ -100,7 +122,7 @@ end;
 procedure TfrmTestBed.FormCreate(Sender: TObject);
 begin
   FTidy := TObjectList.Create;
-  FThread := TbaThread.Create(100);
+  FThread := TbaThread.Create(20,100);
   FThread.OnSyThread := DoOnSyThread;
 end;
 
@@ -108,6 +130,21 @@ procedure TfrmTestBed.FormDestroy(Sender: TObject);
 begin
   FThread.Free;
   FTidy.Free;
+end;
+
+procedure TfrmTestBed.btnBusClick(Sender: TObject);
+begin
+  Test(TBus.Create(bBoth));
+end;
+
+procedure TfrmTestBed.btnCBusClick(Sender: TObject);
+begin
+  Test(TCBus.Create);
+end;
+
+procedure TfrmTestBed.btnCPairClick(Sender: TObject);
+begin
+  Test(TCPair.Create);
 end;
 
 procedure TfrmTestBed.btnKickRequestClick(Sender: TObject);
@@ -118,6 +155,16 @@ begin
   lControl := Sender as TControl;
   lTest := TTest(lControl.Tag);
   lTest.Kick;
+end;
+
+procedure TfrmTestBed.btnPairClick(Sender: TObject);
+begin
+  Test(TPair.Create(bBoth));
+end;
+
+procedure TfrmTestBed.btnPublishClick(Sender: TObject);
+begin
+  Test(TPublish.Create);
 end;
 
 procedure TfrmTestBed.btnPullClick(Sender: TObject);
@@ -138,6 +185,16 @@ end;
 procedure TfrmTestBed.btnResponseClick(Sender: TObject);
 begin
   Test(TResponse.Create);
+end;
+
+procedure TfrmTestBed.btnSBusClick(Sender: TObject);
+begin
+  Test(TSBus.Create);
+end;
+
+procedure TfrmTestBed.btnSPairClick(Sender: TObject);
+begin
+  Test(TSPair.Create);
 end;
 
 procedure TfrmTestBed.btnStopClick(Sender: TObject);

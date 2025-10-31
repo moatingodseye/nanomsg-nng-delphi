@@ -74,7 +74,7 @@ begin
   inherited Create;
   FOnLog := AUsing;
   FWait := TObjectList.Create;
-  FThread := TbaThread.Create(20);
+  FThread := TbaThread.Create(20,20);
   FThread.OnSyThread := DoSynchronise;
 end;
 

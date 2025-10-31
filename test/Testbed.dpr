@@ -16,7 +16,12 @@ uses
   Listen in 'Listen.pas',
   Dial in 'Dial.pas',
   Pull in 'Pull.pas',
-  Push in 'Push.pas';
+  Push in 'Push.pas',
+  Subscribe in 'Subscribe.pas',
+  Publish in 'Publish.pas',
+  Bus in 'Bus.pas',
+  Pair in 'Pair.pas',
+  Both in 'Both.pas';
 
 {$R *.res}
 

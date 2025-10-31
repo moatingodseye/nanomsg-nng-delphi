@@ -61,10 +61,15 @@ end;
 procedure TNNG.DoOnThread(ASender: TObject; AData: TObject);
 begin
   Log(DateTimeToStr(Now)+' '+IntToStr(FActive)+' '+IIF(FEnabled,'Yes','No'));
-  if (FActive>0) and FEnabled then
-    Process(AData);
-  if (FActive>0) and FEnabled then
-    FThread.Kick;
+  try
+    if (FActive>0) and FEnabled then
+      Process(AData);
+    if (FActive>0) and FEnabled then
+      FThread.Kick;
+  except
+    on E : Exception do
+      Error(E.Message);
+  end;
 end;
 
 procedure TNNG.Setup;
@@ -149,8 +154,9 @@ begin
   FEnabled := False;
   FActive := 0;
   FStage := 0;
-  FThread := TbaThread.Create(1000);
+  FThread := TbaThread.Create(100,100);
   FThread.OnAsThread := DoOnThread;
+//  FThread.OnAsIdle := DoOnThread;
 end;
 
 destructor TNNG.Destroy;
