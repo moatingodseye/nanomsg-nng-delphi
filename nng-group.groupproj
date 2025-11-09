@@ -36,6 +36,21 @@
         <Projects Include="test\Testbed.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="convert\CommandLine\HEADCONV.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="convert\Gui\GUIHeadConv.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="converted.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="redis\redistest.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="redis\redisservertest.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -143,14 +158,59 @@
     <Target Name="Testbed:Make">
         <MSBuild Projects="test\Testbed.dproj" Targets="Make"/>
     </Target>
+    <Target Name="HEADCONV">
+        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj"/>
+    </Target>
+    <Target Name="HEADCONV:Clean">
+        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HEADCONV:Make">
+        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GUIHeadConv">
+        <MSBuild Projects="convert\Gui\GUIHeadConv.dproj"/>
+    </Target>
+    <Target Name="GUIHeadConv:Clean">
+        <MSBuild Projects="convert\Gui\GUIHeadConv.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GUIHeadConv:Make">
+        <MSBuild Projects="convert\Gui\GUIHeadConv.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="converted">
+        <MSBuild Projects="converted.dproj"/>
+    </Target>
+    <Target Name="converted:Clean">
+        <MSBuild Projects="converted.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="converted:Make">
+        <MSBuild Projects="converted.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="redistest">
+        <MSBuild Projects="redis\redistest.dproj"/>
+    </Target>
+    <Target Name="redistest:Clean">
+        <MSBuild Projects="redis\redistest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="redistest:Make">
+        <MSBuild Projects="redis\redistest.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="redisservertest">
+        <MSBuild Projects="redis\redisservertest.dproj"/>
+    </Target>
+    <Target Name="redisservertest:Clean">
+        <MSBuild Projects="redis\redisservertest.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="redisservertest:Make">
+        <MSBuild Projects="redis\redisservertest.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push;survey;respondent;Testbed"/>
+        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push;survey;respondent;Testbed;HEADCONV;GUIHeadConv;converted;redistest;redisservertest"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean;survey:Clean;respondent:Clean;Testbed:Clean"/>
+        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean;survey:Clean;respondent:Clean;Testbed:Clean;HEADCONV:Clean;GUIHeadConv:Clean;converted:Clean;redistest:Clean;redisservertest:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make;survey:Make;respondent:Make;Testbed:Make"/>
+        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make;survey:Make;respondent:Make;Testbed:Make;HEADCONV:Make;GUIHeadConv:Make;converted:Make;redistest:Make;redisservertest:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

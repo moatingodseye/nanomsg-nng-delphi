@@ -3,7 +3,7 @@ unit Protocol;
 interface
 
 uses
-  nngdll, nng, Test;
+  nngdll, nng;
   
 type
   TProtocol = class(TNNG)
@@ -27,7 +27,7 @@ implementation
 uses
   System.SysUtils;
 
-procedure callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
+procedure Callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
 var
   nng : TNNG;
 begin

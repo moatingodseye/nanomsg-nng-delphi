@@ -10,22 +10,31 @@ type
   private
     FListen : THandle;
   protected
+    FHost : String;
+    FPort : Integer;
     FURL : AnsiString;
     
     procedure Setup; override;
     procedure Teardown; override;
   public
+
+    property Host : String read FHost write FHost;
+    property Port : Integer read FPort write FPort;
   published
   end;
   
 implementation
 
+uses
+  SysUtils;
+  
 procedure TListen.Setup;
 var
   err : Integer;
 begin
   inherited;
   if FStage=2 then begin
+    FURL := FHost + IntToStr(FPort);
     err := nng_listen(FSocket, PAnsiChar(FUrl), @FListen, 0);
     if err = NNG_OK then 
       Inc(FStage)

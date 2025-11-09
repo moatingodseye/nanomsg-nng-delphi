@@ -8,20 +8,20 @@ uses
   BaThread in '..\basic\BaThread.pas',
   BaLogger in '..\basic\BaLogger.pas',
   LogForm in 'LogForm.pas' {frmLog},
-  Response in 'Response.pas',
+  Response in '..\nng\Response.pas',
   Dummy in 'Dummy.pas',
-  Request in 'Request.pas',
-  Protocol in 'Protocol.pas',
+  Request in '..\nng\Request.pas',
+  Protocol in '..\nng\Protocol.pas',
   nng in '..\nnglib\nng.pas',
-  Listen in 'Listen.pas',
-  Dial in 'Dial.pas',
-  Pull in 'Pull.pas',
-  Push in 'Push.pas',
-  Subscribe in 'Subscribe.pas',
-  Publish in 'Publish.pas',
-  Bus in 'Bus.pas',
-  Pair in 'Pair.pas',
-  Both in 'Both.pas';
+  Listen in '..\nng\Listen.pas',
+  Dial in '..\nng\Dial.pas',
+  Pull in '..\nng\Pull.pas',
+  Push in '..\nng\Push.pas',
+  Subscribe in '..\nng\Subscribe.pas',
+  Publish in '..\nng\Publish.pas',
+  Bus in '..\nng\Bus.pas',
+  Pair in '..\nng\Pair.pas',
+  Both in '..\nng\Both.pas';
 
 {$R *.res}
 

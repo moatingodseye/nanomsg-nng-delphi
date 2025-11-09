@@ -6,9 +6,12 @@ uses
   nngdll, Listen;
   
 type
+  TRequestEvent = procedure(ASender : TObject; ABuffer : Pointer; ASize : Integer; ASocket : nng_socket) of object;
+ 
   TResponse = class(TListen)
   strict private
     FBuffer : Pointer;
+    FOnRequest : TRequestEvent;
   private
   strict protected
     function Protocol : Integer; override;
@@ -19,6 +22,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    property OnRequest : TRequestEvent read FOnRequest write FOnRequest;
   published
   end;
   
@@ -43,12 +48,16 @@ begin
         S := PAnsiChar(FBuffer); 
         Log('Responder received request: '+S+' size: '+IntToStr(size));
 
-        // Send response
-        rep := 'Response Data';
-        rep_len := Length(rep);
-        err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
-        if err <> NNG_OK then
-          Log('Error sending response: '+ nng_strerror(err))
+        if assigned(FOnRequest) then 
+          FOnRequest(Self,FBuffer,size,FSocket)
+        else begin
+          // Send NULL response otherwise client will lock!
+          rep := '';
+          rep_len := Length(rep);
+          err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+          if err <> NNG_OK then
+            Log('Error sending response: '+ nng_strerror(err))
+        end;
       end;
     NNG_EAGAIN :
       begin

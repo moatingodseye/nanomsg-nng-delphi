@@ -1,15 +1,15 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{FBB0A7FF-E584-4F7E-8B53-0276D4E94850}</ProjectGuid>
+        <ProjectGuid>{CB1A65C9-71A3-4B11-B5BC-A514E3B756A3}</ProjectGuid>
         <ProjectVersion>20.2</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <ProjectName Condition="'$(ProjectName)'==''">Testbed</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">redistest</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>Testbed.dpr</MainSource>
+        <MainSource>redistest.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -70,7 +70,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>Testbed</SanitizedProjectName>
+        <SanitizedProjectName>redistest</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>FireDACIBDriver;dxPSdxChartControlLnkRS29;dxRibbonRS29;JvNet;vclwinx;dxPScxExtCommonRS29;dxRichEditControlCoreRS29;fmx;dxSpreadSheetReportDesignerRS29;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;dxComnRS29;dxFlowChartDesignerRS29;appanalytics;IndyProtocols;vclx;Skia.Package.RTL;dxBarExtDBItemsRS29;dbxcds;vcledge;cxVerticalGridRS29;FmxTeeUI;cxFireDACAdaptersRS29;dxPSDBTeeChartRS29;cxSchedulerWebServiceStorageRS29;dxRichEditControlRS29;dxPsPrVwAdvRS29;JvAppFrm;dacvcl290;FireDACSqliteDriver;DbxClientDriver;dxPSdxGaugeControlLnkRS29;JclVcl;soapmidas;dxRibbonCustomizationFormRS29;TeeUI;Jcl;dbexpress;JvManagedThreads;dxEMFRS29;dxDockingRS29;inet;vcltouch;JvDB;dxPSdxFCLnkRS29;dxorgcRS29;ExcelColdSamplePackage;dxSpreadSheetCoreConditionalFormattingDialogsRS29;LLAnimatePackage;fmxdae;dxPSRichEditControlLnkRS29;dxPSdxSpreadSheetLnkRS29;CustomIPTransport;JvSystem;JvCustom;JvControls;cxADOAdaptersRS29;madExcept_;JvCrypt;JvJans;odacvcl290;dxPSPrVwRibbonRS29;IndySystem;dxPScxTLLnkRS29;JvMM;ListCompPackage;dxPSdxDBOCLnkRS29;JvGlobus;dxGDIPlusRS29;odacfmx290;JclContainers;JvPageComps;vclFireDAC;dxPSCoreRS29;madDisAsm_;dxSpreadSheetRS29;FireDACCommon;dxPSdxMapControlLnkRS29;cxGridEMFRS29;dxGanttControlRS29;dxPScxVGridLnkRS29;dxPScxPivotGridLnkRS29;dxADOServerModeRS29;dxWizardControlRS29;bindcompdbx;rtl;FireDACMySQLDriver;dxCloudServiceLibraryRS29;RawEditPackage;LLVersionInfo;dxServerModeRS29;DBXSqliteDriver;dxBarDBNavRS29;dxSpreadSheetCoreRS29;JvRuntimeDesign;dxNavBarRS29;JvXPCtrls;vclimg;inetdbxpress;FireDAC;JvDocking;JvDlgs;xmlrtl;odac290;ULLEditPackage;TwoFishPackage;dxFireDACEMFRS29;dsnap;JvCmp;dxPSdxLCLnkRS29;DoubleCheck;fmxobj;bindcompvclsmp;oraprov290;DebraTimePickerPackage;dxPSLnksRS29;CXBalanceEdit;dxmdsRS29;dxPSdxOCLnkRS29;cxSchedulerGridRS29;dxPScxSchedulerLnkRS29;ULLDateTimeEditPackage;dxADOEMFRS29;dxChartControlRS29;dxPSdxDBTVLnkRS29;DebEditPackage;TabbingGridPackage;FireDACCommonDriver;dxGaugeControlRS29;IndyIPClient;dxPDFViewerRS29;bindcompvclwinx;dxOrgChartAdvancedCustomizeFormRS29;dxBarExtItemsRS29;bindcompfmx;madBasic_;JvBands;dxFlowChartLayoutsRS29;inetdb;SampleListBoxPackage;crcontrols290;dxdborRS29;Tee;dxPScxGridLnkRS29;cxPivotGridChartRS29;vclactnband;fmxFireDAC;dxRichEditCoreRS29;cxTreeListdxBarPopupMenuRS29;DBXMySQLDriver;dxFlowChartAdvancedCustomizeFormRS29;VclSmp;cxSchedulerRibbonStyleEventEditorRS29;JvPascalInterpreter;dxPSTeeChartRS29;fmxase;ReportsPackage;dxtrmdRS29;dxFlowChartRS29;JvPluginSystem;JvTimeFramework;dbrtl;dxPScxPCProdRS29;Skia.Package.FMX;TeeDB;FireDACMSAccDriver;cxGridRS29;dxSpellCheckerRS29;JclDeveloperTools;dxRichEditDocumentModelRS29;dxMapControlRS29;GraphPackage;vcldsnap;DBXInterBaseDriver;JvWizards;dxSkinWXIRS29;cxLibraryRS29;Skia.Package.VCL;vcldb;TrafficLightsPackage;dxPSdxPDFViewerLnkRS29;cxSchedulerTreeBrowserRS29;JvCore;AlignPackage;dacfmx290;bindcomp;dxTabbedMDIRS29;cxExportRS29;inetstn;IndyCore;RESTBackendComponents;dxHttpIndyRequestRS29;dxTileControlRS29;dxFireDACServerModeRS29;cxPivotGridOLAPRS29;FireDACADSDriver;RESTComponents;IndyIPServer;vcl;dsnapxml;adortl;dsnapcon;dxCoreRS29;cxPivotGridRS29;dxdbtrRS29;JvDotNetCtrls;JvHMI;dac290;dxSkinsCoreRS29;FireDACPgDriver;dxBarRS29;JvPrintPreview;tethering;JvStdCtrls;bindcompvcl;CloudService;dxSpreadSheetConditionalFormattingDialogsRS29;cxTreeListRS29;FMXTee;ThermoPackage;soaprtl;dxDBXServerModeRS29;cxSchedulerRS29;soapserver;dxPScxCommonRS29;$(DCC_UsePackage)</DCC_UsePackage>
@@ -103,7 +103,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <DCC_ExeOutput>..\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_ExeOutput>..\.\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_DcuOutput>..\.\$(Platform)\$(Config)</DCC_DcuOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -126,32 +127,11 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="TestbedForm.pas">
-            <Form>frmTestBed</Form>
+        <DCCReference Include="RedisTestForm.pas">
+            <Form>frmRedisTest</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\nnglib\nngdll.pas"/>
-        <DCCReference Include="Test.pas"/>
-        <DCCReference Include="..\basic\BaThread.pas"/>
-        <DCCReference Include="..\basic\BaLogger.pas"/>
-        <DCCReference Include="LogForm.pas">
-            <Form>frmLog</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="..\nng\Response.pas"/>
-        <DCCReference Include="Dummy.pas"/>
-        <DCCReference Include="..\nng\Request.pas"/>
-        <DCCReference Include="..\nng\Protocol.pas"/>
-        <DCCReference Include="..\nnglib\nng.pas"/>
-        <DCCReference Include="..\nng\Listen.pas"/>
-        <DCCReference Include="..\nng\Dial.pas"/>
-        <DCCReference Include="..\nng\Pull.pas"/>
-        <DCCReference Include="..\nng\Push.pas"/>
-        <DCCReference Include="..\nng\Subscribe.pas"/>
-        <DCCReference Include="..\nng\Publish.pas"/>
-        <DCCReference Include="..\nng\Bus.pas"/>
-        <DCCReference Include="..\nng\Pair.pas"/>
-        <DCCReference Include="..\nng\Both.pas"/>
+        <DCCReference Include="redis.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -170,7 +150,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Testbed.dpr</Source>
+                    <Source Name="MainSource">redistest.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -178,9 +158,9 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">
-                <DeployFile LocalName="..\Win32\Debug\Testbed.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\redistest.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>Testbed.exe</RemoteName>
+                        <RemoteName>redistest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
