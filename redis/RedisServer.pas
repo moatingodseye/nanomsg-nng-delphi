@@ -4,7 +4,7 @@ interface
 
 uses
   nngdll,
-  Publish, Response, Redis;
+  Redis, RedisProtocol;
   
 type
   TLogEvent = procedure(AMessage : String) of object;
@@ -12,13 +12,13 @@ type
   TRedisServer = class(TObject)
   private
     FRedis : TRedis;
-    FPublish : TPublish;
-    FResponse : TResponse;
+//    FPublish : TMonitor;
+    FResponse : TIncoming;
     FHost : String;
     FPort : Integer;
     FOnLog : TLogEvent;
   protected
-    procedure DoOnRequest(ASender : TObject; ARequest : Pointer; ASize : Integer; ASocket : nng_socket);
+    procedure DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
     procedure DoOnChange(AValue : TValue);
     procedure DoOnLog(AMessage : String);
     procedure Log(AMessage : String);
@@ -37,9 +37,50 @@ type
   
 implementation
 
-procedure TRedisServer.DoOnRequest(ASender : TObject; ARequest : Pointer; ASize : Integer; ASocket : nng_socket);
+const
+  keyCommand = 'CMD';
+  keyKey = 'KEY';
+  keyType = 'TYP';
+  keyValue = 'VAL';
+  cmdAdd = 1;
+  cndExist = 2;
+  cmdRemove = 3;
+  
+procedure TRedisServer.DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
+var
+  lCommand,
+  lKey,
+  lType,
+  lValue : TValue;
+  lTemp :TValue;
+  lI,lO : TRedis;
 begin
-
+  lCommand := AIncoming.Exist(keyCommand);
+  lKey := AIncoming.Exist(keyKey);
+  lType := AIncoming.Exist(keyType);
+  lValue := AIncoming.Exist(keyValue);
+  if assigned(lCommand) then begin
+    case lCommand.AsInteger of
+      cmdAdd : 
+        begin
+          lTemp := TValue.Create(FRedis,EValue(lType.AsInteger),lKey.AsString);
+          case lTemp.&Type of
+            valInteger : lTemp.AsInteger := lValue.AsInteger;
+            valFloat : lTemp.AsFloat :=- lValue.AsFloat;
+            valString : lTemp.AsString := lValue.AsString;
+            valDate : lTemp.AsDate := lValue.AsDate;
+            valObject :
+              begin
+                lO := lTemp.AsObject as TRedis;
+                lI := lValue.AsObject as TRedis;
+//                lO.Assign(lI);
+              end;
+          end;
+          FRedis.Add(lTemp);
+          lTemp := Nil;
+        end;
+    end;
+  end;
 end;
 
 procedure TRedisServer.DoOnChange(AValue : TValue);
@@ -67,10 +108,10 @@ begin
   FRedis := TRedis.Create;
   FRedis.OnChange := DoOnChange;
 
-  FPublish := TPublish.Create;
-  FPublish.OnLog := DoOnLog;
-  FResponse := TResponse.Create;
-  FResponse.OnRequest := DoOnRequest;
+//  FPublish := TPublish.Create;
+///  FPublish.OnLog := DoOnLog;
+  FResponse := TIncoming.Create;
+  FResponse.OnAction := DoOnAction;
   FResponse.OnLog := DoOnLog;
 end;
 
@@ -78,8 +119,8 @@ destructor TRedisServer.Destroy;
 begin
   FResponse.Free;
   FResponse := Nil;
-  FPublish.Free;
-  FPublish := Nil;
+//  FPublish.Free;
+//  FPublish := Nil;
   FRedis.Free;
   FRedis := Nil;
   inherited;
@@ -87,17 +128,17 @@ end;
 
 procedure TRedisServer.Start;
 begin
-  FPublish.Host := FHost;
-  FPublish.Port := FPort+1;
+//  FPublish.Host := FHost;
+//  FPublish.Port := FPort+1;
   FResponse.Host := FHost;
   FResponse.Port := FPort;
-  FPublish.Start;
+//  FPublish.Start;
   FResponse.Start;
 end;
 
 procedure TRedisServer.Stop;
 begin
-  FPublish.Stop;
+//  FPublish.Stop;
   FResponse.Stop;
 end;
 

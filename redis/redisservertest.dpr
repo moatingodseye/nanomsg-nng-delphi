@@ -11,7 +11,8 @@ uses
   nngdll in '..\nnglib\nngdll.pas',
   Listen in '..\nng\Listen.pas',
   Protocol in '..\nng\Protocol.pas',
-  BaThread in '..\basic\BaThread.pas';
+  BaThread in '..\basic\BaThread.pas',
+  RedisProtocol in 'RedisProtocol.pas';
 
 {$R *.res}
 

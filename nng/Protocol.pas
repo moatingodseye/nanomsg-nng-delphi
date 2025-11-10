@@ -4,6 +4,25 @@ interface
 
 uses
   nngdll, nng;
+
+type
+  TPacket = class(TObject)
+  private
+    FBuffer : Pointer;
+    FUsed,
+    FSpace : Integer;
+  protected
+  public
+    constructor Create(ASpace : Integer);
+    destructor Destroy; override;
+
+    procedure Clear;
+    
+    property Space : Integer read FSpace;
+    property Used : Integer read FUsed write FUsed;
+    property Buffer : Pointer read FBuffer;
+  published
+  end;
   
 type
   TProtocol = class(TNNG)
@@ -12,6 +31,8 @@ type
   strict protected
     FSocket : nng_socket;
     
+    function Receive(AIn : TPacket) : Integer;
+    function Send(AOut :TPacket) : Integer;
     function Protocol : Integer; virtual; abstract;
   protected
     procedure Setup; override;
@@ -27,6 +48,24 @@ implementation
 uses
   System.SysUtils;
 
+constructor TPacket.Create(ASpace : Integer);
+begin
+  inherited Create;
+  FSpace := ASpace;
+  GetMem(FBuffer,FSpace);
+end;
+
+destructor TPacket.Destroy;
+begin
+  FreeMem(FBuffer,FSpace);
+  inherited;
+end;
+
+procedure TPacket.Clear;
+begin
+  FUsed := 0;
+end;
+
 procedure Callback(pipe : THandle; which : nng_pipe; arg : pointer); cdecl;
 var
   nng : TNNG;
@@ -35,6 +74,20 @@ begin
   if assigned(nng.OnLog) then
     nng.OnLog('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
   nng.Pipe(which);
+end;
+
+function TProtocol.Receive(AIn : TPacket) : Integer;
+var
+  size : Integer;
+begin
+  size := AIn.Space;
+  result :=- nng_recv(FSocket, AIn.Buffer, @size, NNG_FLAG_NONBLOCK);
+  AIn.Used := size;
+end;
+
+function TProtocol.Send(AOut :TPacket) : Integer;
+begin
+  result := nng_send(FSocket, AOut.Buffer, AOut.Used, 0);
 end;
 
 procedure TProtocol.Setup;

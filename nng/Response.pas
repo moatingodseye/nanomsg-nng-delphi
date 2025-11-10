@@ -3,14 +3,15 @@ unit Response;
 interface
 
 uses
-  nngdll, Listen;
+  nngdll, Protocol, Listen;
   
 type
-  TRequestEvent = procedure(ASender : TObject; ABuffer : Pointer; ASize : Integer; ASocket : nng_socket) of object;
+  TRequestEvent = procedure(ASender : TObject; AIn,AOut : TPacket) of object;
  
   TResponse = class(TListen)
   strict private
-    FBuffer : Pointer;
+    FIn,
+    FOut : TPacket;
     FOnRequest : TRequestEvent;
   private
   strict protected
@@ -18,6 +19,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
+    procedure Request(AData : TObject; AIn,AOut : TPacket); virtual; abstract;
     procedure Teardown; override;
   public
     constructor Create; override;
@@ -37,27 +39,30 @@ var
   err : Integer;
   size : Integer;
   S : AnsiString;
-  rep : AnsiString;
-  rep_len : Integer;
+//  rep : AnsiString;
+//  rep_len : Integer;
 begin
   size := 1024;
-  err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+  err := Receive(FIn);//nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
   case err of
     NNG_OK :
       begin
-        S := PAnsiChar(FBuffer); 
-        Log('Responder received request: '+S+' size: '+IntToStr(size));
+//        S := PAnsiChar(FBuffer); 
+//        Log('Responder received request: '+S+' size: '+IntToStr(size));
 
-        if assigned(FOnRequest) then 
-          FOnRequest(Self,FBuffer,size,FSocket)
-        else begin
+        FOut.Used := 0;
+        if assigned(FOnRequest) then
+          FOnRequest(Self,FIn,FOut)
+        else
           // Send NULL response otherwise client will lock!
-          rep := '';
-          rep_len := Length(rep);
-          err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
-          if err <> NNG_OK then
-            Log('Error sending response: '+ nng_strerror(err))
-        end;
+          Request(AData,FIn,FOut);
+//          rep := '';
+//          rep_len := Length(rep);
+//          err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+//          if err <> NNG_OK then
+//            Log('Error sending response: '+ nng_strerror(err))
+        if Send(FOut)<>NNG_OK then
+          Log('Error sending response: '+ nng_strerror(err))
       end;
     NNG_EAGAIN :
       begin
@@ -77,7 +82,8 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FIn := TPacket.Create(1024);
+    FOut := TPacket.Create(1024);
   end;
 end;
 
@@ -85,7 +91,8 @@ procedure TResponse.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FOut.Free;
+    FIn.Free;
   end;
   inherited;
 end;

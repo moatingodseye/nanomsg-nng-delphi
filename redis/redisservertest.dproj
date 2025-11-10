@@ -140,6 +140,7 @@
         <DCCReference Include="..\nng\Listen.pas"/>
         <DCCReference Include="..\nng\Protocol.pas"/>
         <DCCReference Include="..\basic\BaThread.pas"/>
+        <DCCReference Include="RedisProtocol.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -166,7 +167,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">
-                <DeployFile LocalName="Win32\Debug\redisservertest.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\Win32\Debug\redisservertest.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>redisservertest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
