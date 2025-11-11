@@ -25,6 +25,9 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
   System.SysUtils;
   
@@ -73,7 +76,8 @@ constructor TPublish.Create;
 begin
   inherited;
   FCount := 0;
-  FURL := 'tcp://127.0.0.1:5557';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5557;
   SetPeriod(1000);
 end;
 

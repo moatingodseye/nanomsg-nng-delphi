@@ -3,12 +3,12 @@ unit Push;
 interface
 
 uses
-  nngdll, Listen;
+  nngdll, Listen, Packet;
   
 type
   TPush = class(TListen)
   strict private
-    FBuffer : Pointer;
+    FOut : TPacket;
     FCount: Integer;
   private
   strict protected
@@ -25,21 +25,23 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
   System.SysUtils;
-  
+
 procedure TPush.Process(AData : TObject);
 var
   err : Integer;
   rep : AnsiString;
-  rep_len : Integer;
 begin
   // Send Push
   rep := 'Push:'+IntToStr(FCount);
-  rep_len := Length(rep);
-  err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+  FOut.Push(rep);
+  err := Send(FOut); 
   if err = NNG_OK then
-    Log('Sent:'+rep+' size:'+IntToStr(rep_len))
+    Log('Sent:'+FOut.Pull)
   else
     Log('Error sending Push: '+ nng_strerror(err));
   Inc(FCount);
@@ -56,7 +58,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FOut := TPacket.Create(128);
   end;
 end;
 
@@ -64,7 +66,7 @@ procedure TPush.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FOut.Free;
   end;
   inherited;
 end;
@@ -73,7 +75,8 @@ constructor TPush.Create;
 begin
   inherited;
   FCount := 0;
-  FURL := 'tcp://127.0.0.1:5556';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5556;
   SetPeriod(1000);
 end;
 

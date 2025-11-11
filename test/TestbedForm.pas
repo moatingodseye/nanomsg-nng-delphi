@@ -114,6 +114,9 @@ begin
   lTest.Start;
 end;
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 procedure TfrmTestBed.btnVersionClick(Sender: TObject);
 begin
   lblVersion.Caption :=  nng_version();

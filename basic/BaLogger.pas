@@ -4,23 +4,25 @@ unit BaLogger;
 interface
 
 uses
-  Windows,
+  WinAPI.Windows,
   System.SysUtils, System.Classes, System.Contnrs, BaThread;
    
 type
-  TDoLog = procedure(AMessage : String) of object;
+  TLogEvent = procedure(AMessage : String) of object;
   TbaLogger = class(TObject)
   private
     FThread : TbaThread;
     FWait : TObjectList;
-    FOnLog : TDoLog;
+    FOnLog : TLogEvent;
   protected
     procedure DoSynchronise(ASender,AData : TObject);
   public
-    constructor Create(AUsing : TDoLog);
+    constructor Create;
     destructor  Destroy; override;
 
     procedure Log(AMessage : String);
+
+    property OnLog : TLogEvent read FOnLog write FOnLog;
   published
   end;
   
@@ -69,10 +71,9 @@ begin
   end;
 end;
 
-constructor TbaLogger.Create(AUsing : TDoLog);
+constructor TbaLogger.Create;
 begin
   inherited Create;
-  FOnLog := AUsing;
   FWait := TObjectList.Create;
   FThread := TbaThread.Create(20,20);
   FThread.OnSyThread := DoSynchronise;
@@ -87,8 +88,6 @@ begin
 end;
 
 procedure TbaLogger.Log(AMessage : string);
-var
-  S : String;
 begin
   FThread.Lock;
   try

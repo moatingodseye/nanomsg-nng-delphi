@@ -1,5 +1,5 @@
 {$M+}
-unit RedisServer;
+unit RedisClient;
 
 interface
 
@@ -10,16 +10,16 @@ uses
 type
   TLogEvent = procedure(AMessage : String) of object;
   
-  TRedisServer = class(TObject)
+  TRedisClient = class(TObject)
   private
     FRedis : TRedis;
 //    FPublish : TMonitor;
-    FResponse : TIncoming;
+    FRequest : TOutgoing;
     FHost : String;
     FPort : Integer;
     FOnLog : TLogEvent;
   protected
-    procedure DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
+    procedure DoOnAction(ASender : TObject; AIncoming  : TRedis);
     procedure DoOnChange(AValue : TValue);
     procedure DoOnLog(AMessage : String);
     procedure Log(AMessage : String);
@@ -28,6 +28,7 @@ type
     destructor Destroy; override;
 
     procedure Start;
+    procedure Add(AValue : TValue);
     procedure Stop;
 
     property Host : String read FHost write FHost;
@@ -38,6 +39,10 @@ type
   
 implementation
 
+uses
+  System.SysUtils,
+  Request;
+  
 const
   keyCommand = 'CMD';
   keyKey = 'KEY';
@@ -47,79 +52,78 @@ const
   cndExist = 2;
   cmdRemove = 3;
   
-procedure TRedisServer.DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
+procedure TRedisClient.DoOnAction(ASender : TObject; AIncoming : TRedis);
 var
-  lCommand,
   lKey,
   lType,
   lValue : TValue;
   lTemp :TValue;
   lI,lO : TRedis;
 begin
-  lCommand := AIncoming.Exist(keyCommand);
+  Log('Action:');
   lKey := AIncoming.Exist(keyKey);
   lType := AIncoming.Exist(keyType);
   lValue := AIncoming.Exist(keyValue);
-  if assigned(lCommand) then begin
-    case lCommand.AsInteger of
-      cmdAdd : 
+//    case lCommand.AsInteger of
+//      cmdAdd : 
         begin
           lTemp := TValue.Create(FRedis,lKey.AsString);
-          case EValue(lTemp.AsInteger) of
+          case EValue(lType.AsInteger) of
             valInteger : lTemp.AsInteger := lValue.AsInteger;
             valFloat : lTemp.AsFloat :=- lValue.AsFloat;
             valString : lTemp.AsString := lValue.AsString;
             valDate : lTemp.AsDate := lValue.AsDate;
             valRedis :
               begin
-                lO := lTemp.AsRedis;
-                lI := lValue.AsRedis;
+                lO := lTemp.AsRedis as TRedis;
+                lI := lValue.AsRedis as TRedis;
                 lO.Assign(lI);
               end;
           end;
           FRedis.Add(lTemp);
           SetToNil(lTemp);
         end;
-    end;
-  end;
+//    end;
+//  end;
 end;
 
-procedure TRedisServer.DoOnChange(AValue : TValue);
+procedure TRedisClient.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
     Log('Change-'+AValue.Caption);
 end;
 
-procedure TRedisServer.DoOnLog(AMessage : String);
+procedure TRedisClient.DoOnLog(AMessage : String);
 begin
   Log(AMessage);
 end;
 
-procedure TRedisServer.Log(AMessage : String);
+procedure TRedisClient.Log(AMessage : String);
 begin
   if assigned(FOnLog) then
     FOnLog(AMEssage);
 end;
 
-constructor TRedisServer.Create;
+constructor TRedisClient.Create;
 begin
   inherited;
-  FHost := 'tcp://127.0.0.1:8888';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 9999;
 
   FRedis := TRedis.Create;
   FRedis.OnChange := DoOnChange;
 
 //  FPublish := TPublish.Create;
 ///  FPublish.OnLog := DoOnLog;
-  FResponse := TIncoming.Create;
-  FResponse.OnAction := DoOnAction;
-  FResponse.OnLog := DoOnLog;
+  FRequest := TOutgoing.Create;
+  FRequest.OnAction := DoOnAction;
+  FRequest.OnLog := DoOnLog;
 end;
 
-destructor TRedisServer.Destroy;
+destructor TRedisClient.Destroy;
 begin
-  FResponse.Free;
-  FResponse := Nil;
+  FRequest.Free;
+  FRequest := Nil;
 //  FPublish.Free;
 //  FPublish := Nil;
   FRedis.Free;
@@ -130,20 +134,36 @@ end;
 {$WARN IMPLICIT_STRING_CAST OFF}
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
-procedure TRedisServer.Start;
+procedure TRedisClient.Start;
 begin
 //  FPublish.Host := FHost;
 //  FPublish.Port := FPort+1;
-  FResponse.Host := FHost;
-  FResponse.Port := FPort;
+  FRequest.Host := FHost;
+  FRequest.Port := FPort;
 //  FPublish.Start;
-  FResponse.Start;
+  FRequest.Start;
 end;
 
-procedure TRedisServer.Stop;
+procedure TRedisClient.Add(AValue : TValue);
+var
+  lRedis : TRedis;
+begin
+  lRedis := TRedis.Create;
+  lRedis.Add(keyCommand,cmdAdd);
+  lRedis.Add(keyType,Ord(AValue.&Type));
+  lRedis.Add(keyKey,AValue.Key);
+  lRedis.Add(AValue);
+  FRequest.Request(lRedis);
+  while FRequest.State<>stReceived do
+    Sleep(100);
+  lRedis.Free;
+end;
+
+procedure TRedisClient.Stop;
 begin
 //  FPublish.Stop;
-  FResponse.Stop;
+  FRequest.Stop;
 end;
 
 end.
+

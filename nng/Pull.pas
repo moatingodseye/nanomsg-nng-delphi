@@ -3,12 +3,13 @@ unit Pull;
 interface
 
 uses
-  nngdll, Dial;
+  nngdll, Packet, Dial;
   
 type
   TPull = class(TDial)
   strict private
-    FBuffer : Pointer;
+    FIn : TPacket;
+//    FBuffer : Pointer;
   private
   strict protected
     function Protocol : Integer; override;
@@ -24,22 +25,21 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
   System.SysUtils;
   
 procedure TPull.Process(AData : TObject);
 var
   err : Integer;
-  size : Integer;
-  S : AnsiString;
 begin
-  size := 1024;
-  err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+  err := Receive(FIn);
   case err of
     NNG_OK :
       begin
-        S := PAnsiChar(FBuffer); 
-        Log('Received: '+S+' size: '+IntToStr(size));
+        Log('Received: '+FIn.Pull);
       end;
     NNG_EAGAIN :
       begin
@@ -59,7 +59,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FIn := TPacket.Create(128);
   end;
 end;
 
@@ -67,7 +67,7 @@ procedure TPull.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FIn.Free;
   end;
   inherited;
 end;
@@ -75,7 +75,8 @@ end;
 constructor TPull.Create;
 begin
   inherited;
-  FURL := 'tcp://127.0.0.1:5556';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5556;
   SetPeriod(100);
 end;
 

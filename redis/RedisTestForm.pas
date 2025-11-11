@@ -18,7 +18,6 @@ type
     rdoFloat: TRadioButton;
     rdoString: TRadioButton;
     rdoDate: TRadioButton;
-    rdoObject: TRadioButton;
     edtValue: TEdit;
     Label2: TLabel;
     Label3: TLabel;
@@ -56,15 +55,17 @@ end;
 
 procedure TfrmRedisTest.btnAddClick(Sender: TObject);
 var
-  lInt : TIntegerValue;
   lValue : TValue;
 begin
-  if rdoInteger.Checked then begin
-    lInt := TIntegerValue.Create(FRedis,valInteger,edtKey.Text);
-    lInt.Value := StrToInt(edtValue.Text);
-    
-    lValue := lInt;
-  end;
+  lValue := TValue.Create(FRedis,edtKey.Text);
+  if rdoInteger.Checked then
+    lValue.AsInteger := StrToInt(edtValue.Text);
+  if rdoFloat.Checked then
+    lValue.AsFloat := StrToFloat(edtValue.Text);
+  if rdoString.Checked then
+    lValue.AsString := edtValue.Text;
+  if rdoDate.Checked then
+    lValue.AsDate := StrToDateTime(edtValue.Text);
 
   try
     FRedis.Add(lValue);

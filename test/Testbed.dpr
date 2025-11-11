@@ -21,7 +21,8 @@ uses
   Publish in '..\nng\Publish.pas',
   Bus in '..\nng\Bus.pas',
   Pair in '..\nng\Pair.pas',
-  Both in '..\nng\Both.pas';
+  Both in '..\nng\Both.pas',
+  Packet in '..\nng\Packet.pas';
 
 {$R *.res}
 

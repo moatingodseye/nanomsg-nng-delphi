@@ -3,7 +3,7 @@ unit Response;
 interface
 
 uses
-  nngdll, Protocol, Listen;
+  nngdll, Listen, Packet;
   
 type
   TRequestEvent = procedure(ASender : TObject; AIn,AOut : TPacket) of object;
@@ -37,38 +37,25 @@ uses
 procedure TResponse.Process(AData : TObject);
 var
   err : Integer;
-  size : Integer;
-  S : AnsiString;
-//  rep : AnsiString;
-//  rep_len : Integer;
 begin
-  size := 1024;
   err := Receive(FIn);//nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
   case err of
     NNG_OK :
       begin
-//        S := PAnsiChar(FBuffer); 
-//        Log('Responder received request: '+S+' size: '+IntToStr(size));
-
         FOut.Used := 0;
         if assigned(FOnRequest) then
           FOnRequest(Self,FIn,FOut)
         else
           // Send NULL response otherwise client will lock!
           Request(AData,FIn,FOut);
-//          rep := '';
-//          rep_len := Length(rep);
-//          err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
-//          if err <> NNG_OK then
-//            Log('Error sending response: '+ nng_strerror(err))
         if Send(FOut)<>NNG_OK then
-          Log('Error sending response: '+ nng_strerror(err))
+          Log('Error sending : '+ nng_strerror(err))
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Log('Error receiving request: '+ nng_strerror(err))
+    Log('Error receiving : '+ nng_strerror(err))
   end;
 end;
 
@@ -100,7 +87,8 @@ end;
 constructor TResponse.Create;
 begin
   inherited;
-  FURL := 'tcp://127.0.0.1:5555';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5555;
 end;
 
 destructor TResponse.Destroy;

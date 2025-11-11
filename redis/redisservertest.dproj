@@ -107,6 +107,7 @@
         <DCC_DcuOutput>..\.\$(Platform)\$(Config)</DCC_DcuOutput>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Debugger_HostApplication>D:\Project\nng\Win32\Debug\redisclienttest.exe</Debugger_HostApplication>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -141,6 +142,11 @@
         <DCCReference Include="..\nng\Protocol.pas"/>
         <DCCReference Include="..\basic\BaThread.pas"/>
         <DCCReference Include="RedisProtocol.pas"/>
+        <DCCReference Include="RedisClient.pas"/>
+        <DCCReference Include="..\nng\Request.pas"/>
+        <DCCReference Include="..\nng\Dial.pas"/>
+        <DCCReference Include="..\nng\Packet.pas"/>
+        <DCCReference Include="..\basic\BaLogger.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

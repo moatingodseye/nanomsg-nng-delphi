@@ -12,7 +12,12 @@ uses
   Listen in '..\nng\Listen.pas',
   Protocol in '..\nng\Protocol.pas',
   BaThread in '..\basic\BaThread.pas',
-  RedisProtocol in 'RedisProtocol.pas';
+  RedisProtocol in 'RedisProtocol.pas',
+  RedisClient in 'RedisClient.pas',
+  Request in '..\nng\Request.pas',
+  Dial in '..\nng\Dial.pas',
+  Packet in '..\nng\Packet.pas',
+  BaLogger in '..\basic\BaLogger.pas';
 
 {$R *.res}
 

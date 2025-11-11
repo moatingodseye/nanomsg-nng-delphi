@@ -1,3 +1,4 @@
+{$M+}
 unit redis;
 
 interface
@@ -7,19 +8,12 @@ uses
   System.Generics.Defaults, System.Generics.Collections;
   
 type
-  TValue = class;
-  TOwner = class(TObject)
-  private
-  protected
-    procedure DoOnChange(AValue : TValue); virtual; abstract;
-  public
-  published
-  end;
+  TRedis = class;
   
-  EValue = (valNull, valInteger, valFloat, valString, valDate, valObject);
+  EValue = (valNull, valInteger, valFloat, valString, valDate,valRedis);
   TValue = class(TObject)
   private
-    FOwner : TOwner;
+    FOwner : TRedis;
     FType : EValue;
     FKey : String;
     FNull : Boolean;
@@ -27,7 +21,7 @@ type
     FFloat : Double;
     FString : String;
     FDate : TDateTime;
-    FObject : TOwner;
+    FRedis : TRedis;
   protected
     procedure Change;
     procedure Load(AFrom : TStream); virtual;
@@ -37,11 +31,13 @@ type
     procedure SetFloat(AValue : Double);
     procedure SetString(AValue : String);
     procedure SetDate(AValue : TDateTime);
+    procedure SetRedis(AValue : TRedis);
   public
-    constructor Create(AOwner : TOwner; AType : EValue; AKey : String);
+    constructor Create(AOwner : TRedis; AKey : String);
     destructor Destroy; override;
 
     function Caption : String;
+    procedure Assign(AFrom : TValue);
     procedure Clear;
     
     property Key : String read FKey;
@@ -51,26 +47,31 @@ type
     property AsFloat : Double read FFloat write SetFloat;
     property AsString : String read FString write SetString;
     property AsDate : TDateTime read FDate write SetDate;
-    property AsObject : TOwner read FObject;
+    property AsRedis : TRedis read FRedis write SetRedis;
   published
   end;
   
   TOnChangeEvent = procedure(AValue : TValue) of object;
-  TRedis = class(TOwner)
+  TRedis = class(TObject)
   private
     FList : TObjectDictionary<String,TValue>;
     FOnChange : TOnChangeEvent;
   protected
-    procedure DoOnChange(AValue : TValue); override;
+    procedure DoOnChange(AValue : TValue); 
   public
     constructor Create;
     destructor  Destroy; override;
 
-//    function Make(AKey : String; AType : EValue) : TValue;
     procedure Load(AFrom : TStream);
     procedure Save(AInto : TStream);
+    procedure Assign(AFrom : TRedis);
     
-    procedure Add(AValue : TValue); 
+    procedure Add(AValue : TValue); overload;
+    procedure Add(AKey : String; AValue : Integer); overload;
+    procedure Add(AKey : String; AValue : Double); overload;
+    procedure Add(AKey : String; AValue : String); overload;
+    procedure Add(AKey : String; AValue : TDateTime); overload;
+    
     function  Exist(AKey : String) : TValue;
     procedure Remove(AKey : String);
     function Count : Integer;
@@ -78,12 +79,19 @@ type
     property OnChange : TOnChangeEvent read FOnChange write FOnChange;
   published
   end;
+
+procedure SetToNil(var AObject);
   
 implementation
 
 uses
   System.SysUtils;
 
+procedure SetToNil(var AObject);
+begin
+  TObject(AObject) := nil;
+end;
+  
 procedure TValue.Change;
 begin
   if assigned(FOWner) then
@@ -93,7 +101,6 @@ end;
 procedure TValue.Load(AFrom : TStream);
 var
   lSize : Integer;
-  lRedis : TRedis;
 begin
   AFrom.Read(FType, SizeOf(FType));
   AFrom.Read(FNull, SizeOf(FNull));
@@ -109,11 +116,11 @@ begin
             AFrom.Read(FString, lSize);
         end;
       valDate : AFrom.Read(FDate, SizeOf(FDate));
-      valObject : 
+      valRedis : 
         begin
-          lRedis := TRedis.Create;
-          FObject := lRedis;
-          lRedis.Load(AFrom);
+          if not assigned(FRedis) then
+            FRedis := TRedis.Create;
+          FRedis.Load(AFrom);
         end;
     end;
 end;
@@ -121,7 +128,6 @@ end;
 procedure TValue.Save(AInto : TStream);
 var
   lSize : Integer;
-  lRedis : TRedis;
 begin
   AInto.Write(FType, SizeOf(FType));
   AInto.Write(FNull, SizeOf(FNull));
@@ -137,26 +143,26 @@ begin
             AInto.Write(FString, lSize);
         end;
       valDate : AInto.Write(FDate, SizeOf(FDate));
-      valObject : 
+      valRedis : 
         begin
-          if assigned(FObject) then begin
-            lRedis := TRedis(FObject);
-            lRedis.Save(AInto);
-          end;
+          if assigned(FRedis) then
+            FRedis.Save(AInto);
         end;
     end;
 end;
 
 procedure TValue.SetInteger(AValue : Integer);
 begin
+  FType := valInteger;
   if FInteger<>AValue then
     Change;
   FInteger := AValue;
   FNull := False;
-end;            
+end;
 
 procedure TValue.SetFloat(AValue : Double);
 begin
+  FType := valFloat;
   if FFloat<>AValue then
     Change;
   FFloat := AValue;
@@ -165,6 +171,7 @@ end;
 
 procedure TValue.SetString(AValue : String);
 begin
+  FType := valString;
   if FString<>AValue then
     Change;
   FString := AValue;
@@ -173,34 +180,54 @@ end;
 
 procedure TValue.SetDate(AValue : TDateTime);
 begin
+  FType := valDate;
   if FDate<>AValue then
     Change;
   FDate := AValue;
   FNull := False;
 end;
 
-constructor TValue.Create(AOwner : TOwner; AType : EValue; AKey : String);
+procedure TValue.SetRedis(AValue : TRedis);
+begin
+  FType := valRedis;
+  if not assigned(FRedis) then
+    FRedis := TRedis.Create;
+  FRedis.Assign(AValue);
+  Change;
+  FNull := False;
+end;
+
+constructor TValue.Create(AOwner : TRedis;  AKey : String);
 begin
   inherited Create;
   FOwner := AOwner;
-  FType := AType;
+  FType := valNull;
   FKey := AKey;
-  FObject := Nil;
-  if FType=valObject then
-    FObject := TRedis.Create;
+  FRedis := Nil;
 end;
 
 destructor TValue.Destroy;
 begin
-  if assigned(FObject) then
-    FObject.Free;
-  FObject := Nil;
+  if assigned(FRedis) then
+    FRedis.Free;
+  FRedis := Nil;
   inherited;
 end;
 
 function TValue.Caption : String;
 begin
   result := 'Key:'+FKey;//+' Int:'+IntToStr(FValue);
+end;
+
+procedure TValue.Assign(AFrom : TValue);
+begin
+  FType := AFrom.FType;
+  FNull := AFrom.FNull;
+  FInteger := AFrom.FInteger;
+  FFloat := AFrom.FFloat;
+  FString := AFrom.FString;
+  FDate := AFrom.FDate;
+  FRedis := Nil;
 end;
 
 procedure TValue.Clear;
@@ -234,10 +261,10 @@ begin
   FList.Clear;
   Afrom.Read(lCount, SizeOf(lCount));
   while lCount>0 do begin
-    lValue := TValue.Create(Self,valNull,'');
+    lValue := TValue.Create(Self,'');
     lValue.Load(AFrom);
     Add(lValue);
-    lValue := Nil;
+    SetToNil(lValue);
 
     Dec(lCount);
   end;
@@ -255,9 +282,63 @@ begin
   end;
 end;
 
+procedure TRedis.Assign(AFrom : TRedis);
+var
+  lValue : TValue;
+  lTemp : TValue;
+begin
+  FList.Clear;
+  for lValue in AFrom.FList.Values do begin
+    lTemp := TValue.Create(Self,lValue.Key);
+    lTemp.Assign(lValue);
+    FList.Add(lTemp.Key,lTemp);
+    SetToNil(lTemp);
+  end;
+end;
+
 procedure TRedis.Add(AValue : TValue); 
 begin
   FList.Add(AValue.Key,AValue);
+end;
+
+procedure TRedis.Add(AKey : String; AValue : Integer);
+var
+  lValue : TValue;
+begin
+  lValue := TValue.Create(Self,AKey);
+  lValue.AsInteger := AValue;
+  FList.Add(AKey,lValue);
+  SetToNil(lValue);
+end;
+
+procedure TRedis.Add(AKey : String; AValue : Double);
+var
+  lValue : TValue;
+begin
+  lValue := TValue.Create(Self,AKey);
+  lValue.AsFloat := AValue;
+  FList.Add(AKey,lValue);
+  SetToNil(lValue);
+end;
+
+procedure TRedis.Add(AKey : String; AValue : String);
+var
+  lValue : TValue;
+begin
+  lValue := TValue.Create(Self,AKey);
+  lValue.AsString := AValue;
+  FList.Add(AKey,lValue);
+  SetToNil(lValue);
+end;
+
+procedure TRedis.Add(AKey : String; AValue : TDateTime);
+var
+  lValue : TValue;
+begin
+  lValue := TValue.Create(Self,AKey);
+  lValue.AsDate := AValue;
+  FList.Add(AKey,lValue);
+  SetToNil(lValue);
 end;
 
 function  TRedis.Exist(AKey : String) : TValue;

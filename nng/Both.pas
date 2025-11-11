@@ -13,6 +13,8 @@ type
     FDial : THandle;
   protected
     FBoth : EBoth;
+    FHost : AnsiString;
+    FPort : Integer;
     FURL : AnsiString;
     
     procedure Setup; override;
@@ -25,11 +27,18 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
+uses
+  System.SysUtils;
+  
 procedure TBoth.Setup;
   function Listen : Integer;
   var
     err : Integer;
   begin
+    FURL := FHost+':'+IntToStr(FPort);
     err := nng_Listen(FSocket, PAnsiChar(FUrl), @FListen, 0);
     if err = NNG_OK then
     else
@@ -40,6 +49,7 @@ procedure TBoth.Setup;
   var
     err : Integer;
   begin
+    FURL := FHost+':'+IntToStr(FPort);
     err := nng_Dial(FSocket, PAnsiChar(FUrl), @FDial, 0);
     if err = NNG_OK then 
     else

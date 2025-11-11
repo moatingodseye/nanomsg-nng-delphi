@@ -10,7 +10,7 @@ type
   private
     FListen : THandle;
   protected
-    FHost : String;
+    FHost : AnsiString;
     FPort : Integer;
     FURL : AnsiString;
     
@@ -18,12 +18,15 @@ type
     procedure Teardown; override;
   public
 
-    property Host : String read FHost write FHost;
+    property Host : AnsiString read FHost write FHost;
     property Port : Integer read FPort write FPort;
   published
   end;
   
 implementation
+
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
   SysUtils;
@@ -34,11 +37,12 @@ var
 begin
   inherited;
   if FStage=2 then begin
-    FURL := FHost + IntToStr(FPort);
+    FURL := FHost + ':' + IntToStr(FPort);
     err := nng_listen(FSocket, PAnsiChar(FUrl), @FListen, 0);
-    if err = NNG_OK then 
-      Inc(FStage)
-     else
+    if err = NNG_OK then begin
+      Log('Listening:'+FURL);
+      Inc(FStage);
+    end else
       Log('Error listening: '+ nng_strerror(err))
   end;
 end;

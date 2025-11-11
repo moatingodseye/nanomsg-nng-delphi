@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, RedisServer;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, RedisServer, baLogger;
 
 type
   TfrmRedisTestServer = class(TForm)
@@ -14,10 +14,13 @@ type
     Host: TLabel;
     edtHost: TEdit;
     mmoLog: TMemo;
+    Label4: TLabel;
+    edtPort: TEdit;
     procedure btnStartClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
   private
     { Private declarations }
+    FLog : TbaLogger;
     FServer : TRedisServer;
     procedure DoOnLog(AMessage : String);
   public
@@ -38,8 +41,12 @@ end;
 
 procedure TfrmRedisTestServer.btnStartClick(Sender: TObject);
 begin
+  FLog := TbaLogger.Create;
+  FLog.OnLog := DoOnLog;
+  
   FServer := TRedisServer.Create;
   FServer.Host := edtHost.Text;
+  FServer.Port := StrToInt(edtPort.Text);
   FServer.OnLog := DoOnLog;
   FServer.Start;
 end;
@@ -49,6 +56,9 @@ begin
   FServer.Stop;
   FServer.Free;
   FServer := Nil;
+
+  FLog.Free;
+  FLog := Nil;
 end;
 
 end.

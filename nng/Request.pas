@@ -3,26 +3,32 @@ unit Request;
 interface
 
 uses
-  Dial;
+  Dial, Packet;
   
 type
-  EState = (stNull, stSent, stReceived);
+  EState = (stNull, stReady, stSent, stReceived);
   
   TRequest = class(TDial)
   strict private
-    FBuffer : Pointer;
     FState : EState;
+    FIn,
+    FOut : TPacket;
   private
   strict protected
     function Protocol : Integer; override;
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
+    procedure Response(AData : TObject; AIn : TPacket); virtual; abstract;
     procedure Teardown; override;
-    procedure Kick; override;
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    procedure Kick; override;
+    procedure Request(AOut : TPacket);
+
+    property State : EState read FState;
   published
   end;
   
@@ -34,20 +40,13 @@ uses
 procedure TRequest.Process(AData : TObject);
 var
   err : Integer;
-  size : Integer;
-  S : AnsiString;
-  req,
-  rep : AnsiString;
-  req_len,
-  rep_len : Integer;
 begin
   case FState of
-    stNull :
+    stNull : asm nop end;
+    stReady : 
       begin
         { Send the request }
-        req := 'Requesting Data';
-        req_len := Length(req);
-        err := nng_send(FSocket, PAnsiChar(req), req_len, 0);
+        err := Send(FOut);
         if err = NNG_OK then begin
           Log('Sent request');
           FState := stSent;
@@ -57,14 +56,13 @@ begin
     stSent :
       begin
         { Waiting on response }
-        size := 1024;
-        err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+        FIn.Used := 0;
+        err := Receive(FIn);
         case err of
           NNG_OK :
             begin
-              S := PAnsiChar(FBuffer); 
-              Log('Received: '+S+' size: '+IntToStr(size));
               FState := stReceived;
+              Response(AData,FIn);
             end;
           NNG_EAGAIN :
             begin
@@ -72,7 +70,6 @@ begin
         else
           Error('Error receiving request: '+ nng_strerror(err))
         end;
-//  end;
       end;
     stReceived :
       begin
@@ -92,7 +89,8 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FIn := TPacket.Create(1024);
+    FOut := TPacket.Create(1024);
   end;
 end;
 
@@ -100,7 +98,8 @@ procedure TRequest.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FOut.Free;
+    FIn.Free;
   end;
   inherited;
 end;
@@ -109,7 +108,8 @@ constructor TRequest.Create;
 begin
   inherited;
   FState := stNull;
-  FURL := 'tcp://127.0.0.1:5555';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5555;
 end;
 
 destructor TRequest.Destroy;
@@ -120,7 +120,14 @@ end;
 procedure TRequest.Kick;
 begin
   inherited;
-  FState := stNull;
+  FState := stReady;
+end;
+
+procedure TRequest.Request(AOut : TPacket);
+begin
+  FOut.Assign(AOut);
+  FState := stReady;
+  Kick;
 end;
 
 end.

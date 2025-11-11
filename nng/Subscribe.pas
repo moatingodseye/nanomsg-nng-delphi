@@ -24,6 +24,9 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
   System.SysUtils;
   
@@ -97,7 +100,8 @@ end;
 constructor TSubscribe.Create;
 begin
   inherited;
-  FURL := 'tcp://127.0.0.1:5557';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5557;
   SetPeriod(100);
 end;
 

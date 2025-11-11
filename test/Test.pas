@@ -1,3 +1,4 @@
+{$M+}
 unit Test;
 
 interface
@@ -19,7 +20,6 @@ type
     FNNG : TNNG;
     FLog : TbaLogger;
     FForm : TfrmLog;
-    FOnKick,
     FOnStop : TNotifyEvent;
   private
   strict protected
@@ -83,7 +83,8 @@ begin
   FNNG.OnLog := Log;
   FNNG.OnError := Error;
   FState := tsNever;
-  FLog := TbaLogger.Create(DoLog);
+  FLog := TbaLogger.Create;
+  FLog.OnLog := DoLog;
   FForm := TfrmLog.Create(Nil);
   FForm.Data := ANNG;
   FForm.OnStop := DoStop;

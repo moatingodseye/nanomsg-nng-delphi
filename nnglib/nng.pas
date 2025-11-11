@@ -64,8 +64,8 @@ begin
   try
     if (FActive>0) and FEnabled then
       Process(AData);
-    if (FActive>0) and FEnabled then
-      FThread.Kick;
+//    if (FActive>0) and FEnabled then
+//      FThread.Kick;
   except
     on E : Exception do
       Error(E.Message);
@@ -76,7 +76,6 @@ procedure TNNG.Setup;
 var
   init_params : nng_init_param;
   err : Integer;
-  url : AnsiString;
 begin
   inherited;
   Log('Initialise');
@@ -154,7 +153,7 @@ begin
   FEnabled := False;
   FActive := 0;
   FStage := 0;
-  FThread := TbaThread.Create(100,100);
+  FThread := TbaThread.Create(1000,100);
   FThread.OnAsThread := DoOnThread;
 //  FThread.OnAsIdle := DoOnThread;
 end;

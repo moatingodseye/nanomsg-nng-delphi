@@ -35,6 +35,9 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
   System.SysUtils;
   
@@ -123,7 +126,8 @@ constructor TPair.Create;
 begin
   inherited;
   FCount := 0;
-  FURL := 'tcp://127.0.0.1:5558';
+  FHost := 'tcp://127.0.0.1';
+  FPort := 5558;
 //  SetPeriod(1000);
 end;
 
