@@ -2,7 +2,7 @@ object frmTestBed: TfrmTestBed
   Left = 0
   Top = 0
   Caption = 'Testbed'
-  ClientHeight = 268
+  ClientHeight = 304
   ClientWidth = 283
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,24 +22,38 @@ object frmTestBed: TfrmTestBed
   end
   object Label1: TLabel
     Left = 8
-    Top = 80
+    Top = 120
     Width = 37
     Height = 15
     Caption = 'Servers'
   end
   object Label2: TLabel
     Left = 88
-    Top = 80
+    Top = 120
     Width = 36
     Height = 15
     Caption = 'Clients'
   end
   object Label3: TLabel
     Left = 169
-    Top = 80
+    Top = 120
     Width = 25
     Height = 15
     Caption = 'Both'
+  end
+  object Label4: TLabel
+    Left = 11
+    Top = 80
+    Width = 25
+    Height = 15
+    Caption = 'Host'
+  end
+  object Label5: TLabel
+    Left = 170
+    Top = 80
+    Width = 22
+    Height = 15
+    Caption = 'Port'
   end
   object btnVersion: TButton
     Left = 8
@@ -61,7 +75,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnResponse: TButton
     Left = 8
-    Top = 101
+    Top = 141
     Width = 75
     Height = 25
     Caption = 'Response'
@@ -70,7 +84,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnRequest: TButton
     Left = 88
-    Top = 101
+    Top = 141
     Width = 75
     Height = 25
     Caption = 'Request'
@@ -79,7 +93,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnPush: TButton
     Left = 8
-    Top = 132
+    Top = 172
     Width = 75
     Height = 25
     Caption = 'Push'
@@ -88,7 +102,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnPull: TButton
     Left = 88
-    Top = 132
+    Top = 172
     Width = 75
     Height = 25
     Caption = 'Pull'
@@ -97,7 +111,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnPublish: TButton
     Left = 7
-    Top = 163
+    Top = 203
     Width = 75
     Height = 25
     Caption = 'Publish'
@@ -106,7 +120,7 @@ object frmTestBed: TfrmTestBed
   end
   object Subscribe: TButton
     Left = 88
-    Top = 163
+    Top = 203
     Width = 75
     Height = 25
     Caption = 'Subscribe'
@@ -115,7 +129,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnSPair: TButton
     Left = 8
-    Top = 194
+    Top = 234
     Width = 75
     Height = 25
     Caption = 'Pair'
@@ -124,7 +138,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnCPair: TButton
     Left = 89
-    Top = 194
+    Top = 234
     Width = 75
     Height = 25
     Caption = 'Pair'
@@ -133,7 +147,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnPair: TButton
     Left = 170
-    Top = 194
+    Top = 234
     Width = 75
     Height = 25
     Caption = 'Pair'
@@ -142,7 +156,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnSBus: TButton
     Left = 8
-    Top = 224
+    Top = 264
     Width = 75
     Height = 25
     Caption = 'Bus'
@@ -151,7 +165,7 @@ object frmTestBed: TfrmTestBed
   end
   object btnCBus: TButton
     Left = 89
-    Top = 225
+    Top = 265
     Width = 75
     Height = 25
     Caption = 'Bus'
@@ -160,11 +174,27 @@ object frmTestBed: TfrmTestBed
   end
   object btnBus: TButton
     Left = 170
-    Top = 225
+    Top = 265
     Width = 75
     Height = 25
     Caption = 'Bus'
     TabOrder = 13
     OnClick = btnBusClick
+  end
+  object edtHost: TEdit
+    Left = 64
+    Top = 77
+    Width = 100
+    Height = 23
+    TabOrder = 14
+    Text = 'tcp://127.0.0.1'
+  end
+  object edtPort: TEdit
+    Left = 210
+    Top = 77
+    Width = 65
+    Height = 23
+    TabOrder = 15
+    Text = '5800'
   end
 end

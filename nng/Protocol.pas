@@ -3,7 +3,8 @@ unit Protocol;
 interface
 
 uses
-  nngdll, nng, Packet;
+  nngdll,
+  nngType, nng, Packet;
 
 type
   TProtocol = class(TNNG)
@@ -35,7 +36,7 @@ var
 begin
   nng := TNNG(arg);
   if assigned(nng.OnLog) then
-    nng.OnLog('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
+    nng.Log(logInfo,'Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
   nng.Pipe(which);
 end;
 
@@ -63,18 +64,18 @@ begin
     if err = NNG_OK then
       Inc(FStage)
     else
-      Log('Error opening responder: '+ nng_strerror(err))
+      Error('Error opening responder: '+ nng_strerror(err))
   end;
   if FStage=2 then begin
     err := nng_pipe_notify(FSocket,pipBefore,@callback,self);
     if err<>NNG_OK then
-      Log('Pipe Error:'+nng_strerror(err));
+      Error('Pipe Error:'+nng_strerror(err));
     err := nng_pipe_notify(FSocket,pipAdd,@callback,self);
     if err<>NNG_OK then
-      Log('Pipe Error:'+nng_strerror(err));
+      Error('Pipe Error:'+nng_strerror(err));
     err := nng_pipe_notify(FSocket,pipRemove,@callback,self);
     if err<>NNG_OK then
-      Log('Pipe Error:'+nng_strerror(err));
+      Error('Pipe Error:'+nng_strerror(err));
   end;
 end;
 
@@ -87,7 +88,7 @@ begin
     Dec(FStage);
     err := nng_socket_close(FSocket);
     if err <> NNG_OK then
-      Log('Error closing socket: '+ nng_strerror(err));
+      Error('Error closing socket: '+ nng_strerror(err));
   end;
   inherited;
 end;

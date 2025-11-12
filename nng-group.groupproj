@@ -36,9 +36,6 @@
         <Projects Include="test\Testbed.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="convert\CommandLine\HEADCONV.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="convert\Gui\GUIHeadConv.dproj">
             <Dependencies/>
         </Projects>
@@ -161,15 +158,6 @@
     <Target Name="Testbed:Make">
         <MSBuild Projects="test\Testbed.dproj" Targets="Make"/>
     </Target>
-    <Target Name="HEADCONV">
-        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj"/>
-    </Target>
-    <Target Name="HEADCONV:Clean">
-        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="HEADCONV:Make">
-        <MSBuild Projects="convert\CommandLine\HEADCONV.dproj" Targets="Make"/>
-    </Target>
     <Target Name="GUIHeadConv">
         <MSBuild Projects="convert\Gui\GUIHeadConv.dproj"/>
     </Target>
@@ -216,13 +204,13 @@
         <MSBuild Projects="redis\redisclienttest.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push;survey;respondent;Testbed;HEADCONV;GUIHeadConv;converted;redistest;redisservertest;redisclienttest"/>
+        <CallTarget Targets="TestNanoMsg;test;publish;subscribe;request;response;pull;push;survey;respondent;Testbed;GUIHeadConv;converted;redistest;redisservertest;redisclienttest"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean;survey:Clean;respondent:Clean;Testbed:Clean;HEADCONV:Clean;GUIHeadConv:Clean;converted:Clean;redistest:Clean;redisservertest:Clean;redisclienttest:Clean"/>
+        <CallTarget Targets="TestNanoMsg:Clean;test:Clean;publish:Clean;subscribe:Clean;request:Clean;response:Clean;pull:Clean;push:Clean;survey:Clean;respondent:Clean;Testbed:Clean;GUIHeadConv:Clean;converted:Clean;redistest:Clean;redisservertest:Clean;redisclienttest:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make;survey:Make;respondent:Make;Testbed:Make;HEADCONV:Make;GUIHeadConv:Make;converted:Make;redistest:Make;redisservertest:Make;redisclienttest:Make"/>
+        <CallTarget Targets="TestNanoMsg:Make;test:Make;publish:Make;subscribe:Make;request:Make;response:Make;pull:Make;push:Make;survey:Make;respondent:Make;Testbed:Make;GUIHeadConv:Make;converted:Make;redistest:Make;redisservertest:Make;redisclienttest:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -3,12 +3,12 @@ unit Pair;
 interface
 
 uses
-  nngdll, Both;
+  nngdll, Both, Packet;
   
 type
   TPair = class(TBoth)
   strict private
-    FBuffer : Pointer;
+    FPacket : TPacket;
     FCount: Integer;
   private
   strict protected
@@ -39,63 +39,59 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType, nngConstant;
   
 procedure TPair.Process(AData : TObject);
 var
   err : Integer;
   rep : AnsiString;
-  rep_len : Integer;
-  size : Integer;
 begin
   Sleep(100); // just for debugging
   if FBoth=bListen then begin
     rep := 'Pair:'+IntToStr(FCount);
-    rep_len := Length(rep);
-    err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+    FPacket.Push(rep);
+    err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
     if err = NNG_OK then
-      Log('Sent:'+rep+' size:'+IntToStr(rep_len))
+      Log(logInfo,'Sent:'+FPacket.Pull)
     else
-      Log('Error sending Pair: '+ nng_strerror(err));
+      Error('Error sending Pair: '+ nng_strerror(err));
     Inc(FCount);
   end;
   if FBoth=bDial then begin
-    size := 1024;
-    err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+    err := Receive(FPacket); //nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log(logInfo,'Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
         end;
       NNG_EAGAIN :
         begin
           asm nop end;
         end;
     else
-      Log('Error receiving: '+ nng_strerror(err));
+      Error('Error receiving: '+ nng_strerror(err));
     end;       
   end;
   if FBoth=bBoth then begin
-    size := 1024;
-    err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+    err := Receive(FPacket); //nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log(logInfo,'Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
     
-          err := nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
+          err := Send(FPacket); //nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
           if err = NNG_OK then
-            Log('Sent:'+rep+' size:'+IntToStr(size))
+            Log(logInfo,'Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
           else
-            Log('Error sending Bus: '+ nng_strerror(err));
+            Error('Error sending Bus: '+ nng_strerror(err));
         end;
       NNG_EAGAIN :
         begin
           asm nop end;
         end;
     else
-      Log('Error receiving: '+ nng_strerror(err));
-    end;       
+      Error('Error receiving: '+ nng_strerror(err));
+    end;
   end;
 end;
 
@@ -109,7 +105,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FPacket := TPacket.Create(nngBuffer);
   end;
 end;
 
@@ -117,7 +113,7 @@ procedure TPair.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FPacket.Free;
   end;
   inherited;
 end;
@@ -128,7 +124,6 @@ begin
   FCount := 0;
   FHost := 'tcp://127.0.0.1';
   FPort := 5558;
-//  SetPeriod(1000);
 end;
 
 destructor TPair.Destroy;

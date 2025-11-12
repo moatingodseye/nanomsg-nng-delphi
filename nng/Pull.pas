@@ -8,8 +8,7 @@ uses
 type
   TPull = class(TDial)
   strict private
-    FIn : TPacket;
-//    FBuffer : Pointer;
+    FPacket : TPacket;
   private
   strict protected
     function Protocol : Integer; override;
@@ -29,23 +28,23 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType, nngConstant;
   
 procedure TPull.Process(AData : TObject);
 var
   err : Integer;
 begin
-  err := Receive(FIn);
+  err := Receive(FPacket);
   case err of
     NNG_OK :
       begin
-        Log('Received: '+FIn.Pull);
+        Log(logInfo,'Received: '+FPacket.Pull);
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Log('Error receiving: '+ nng_strerror(err))
+    Error('Error receiving: '+ nng_strerror(err))
   end;
 end;
 
@@ -59,7 +58,8 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    FIn := TPacket.Create(128);
+    FPoll := True;
+    FPacket := TPacket.Create(nngBuffer);
   end;
 end;
 
@@ -67,7 +67,7 @@ procedure TPull.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FIn.Free;
+    FPacket.Free;
   end;
   inherited;
 end;

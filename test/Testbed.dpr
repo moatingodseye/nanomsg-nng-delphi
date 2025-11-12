@@ -12,7 +12,7 @@ uses
   Dummy in 'Dummy.pas',
   Request in '..\nng\Request.pas',
   Protocol in '..\nng\Protocol.pas',
-  nng in '..\nnglib\nng.pas',
+  nng in '..\nng\nng.pas',
   Listen in '..\nng\Listen.pas',
   Dial in '..\nng\Dial.pas',
   Pull in '..\nng\Pull.pas',
@@ -22,7 +22,9 @@ uses
   Bus in '..\nng\Bus.pas',
   Pair in '..\nng\Pair.pas',
   Both in '..\nng\Both.pas',
-  Packet in '..\nng\Packet.pas';
+  Packet in '..\nng\Packet.pas',
+  nngConstant in '..\nng\nngConstant.pas',
+  nngType in '..\nng\nngType.pas';
 
 {$R *.res}
 

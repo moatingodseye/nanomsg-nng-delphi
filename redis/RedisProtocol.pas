@@ -6,11 +6,10 @@ uses
   nng, nngdll, Redis, Packet, Request, Response, Publish;
   
 type
-  TRequestEvent = procedure(AData : TObject; AIn,AOut : TRedis) of object;
+  TRequestEvent = procedure(AData : TObject; ARedis : TRedis) of object;
   TIncoming = class(TResponse)
   private
-    FIn,
-    FOut : TRedis;
+    FRedis : TRedis;
     FOnAction : TRequestEvent;
   protected
     procedure Request(AData : TObject; AIn,AOut : TPacket); override;
@@ -22,11 +21,10 @@ type
   published
   end;
 
-  TResponseEvent = procedure(AData : TObject; AIn : TRedis) of object;
+  TResponseEvent = procedure(AData : TObject; ARedis : TRedis) of object;
   TOutgoing = class(TRequest)
   private
-    FIn,
-    FOut : TRedis;
+    FRedis : TRedis;
     FOnAction : TResponseEvent;
   protected
     procedure Response(AData : TObject; AIn : TPacket); override;
@@ -34,7 +32,7 @@ type
     constructor Create; override;
     destructor Destroy;  override;
 
-    procedure Request(AOut : TRedis); overload;
+    procedure Request(ARedis : TRedis); overload;
     
     property OnAction : TResponseEvent read FOnAction write FOnAction;
   published
@@ -43,7 +41,7 @@ type
 implementation
 
 uses
-  System.Classes;
+  System.Classes, nngConstant;
   
 procedure TIncoming.Request(AData : TObject; AIn,AOut : TPacket);
 var
@@ -52,13 +50,13 @@ begin
   M := TMemoryStream.Create;
   M.Write(AIn.Buffer^,AIn.Used);
   M.Seek(0,soFromBeginning);
-  FIn.Load(M);
+  FRedis.Load(M);
   AOut.Clear;
-  FOnAction(AData,Fin,FOut);
-  if FOut.Count>0 then begin
+  FOnAction(AData,FRedis);
+  if FRedis.Count>0 then begin
     M.Clear;
     M.Seek(0,soFromBeginning);
-    FOut.Save(M);
+    FRedis.Save(M);
     M.Seek(0,soFromBeginning);
     M.Read(AIn.Buffer^, M.Size);
   end;
@@ -68,14 +66,13 @@ end;
 constructor TIncoming.Create;
 begin
   inherited;
-  FIn := TRedis.Create;
-  FOut := TRedis.Create;
+  FRedis := TRedis.Create;
 end;
 
 destructor TIncoming.Destroy;
 begin
-  FOut.Free;
-  FIn.Free;
+  FRedis.Free;
+  inherited;
 end;
 
 procedure TOutgoing.Response(AData : TObject; AIn : TPacket);
@@ -85,32 +82,32 @@ begin
   M := TMemoryStream.Create;
   M.Write(AIn.Buffer^,AIn.Used);
   M.Seek(0,soFromBeginning);
-  FIn.Load(M);
-  FOnAction(AData,Fin);
+  FRedis.Load(M);
+  FOnAction(AData,FRedis);
   M.Free;
 end;
 
 constructor TOutgoing.Create;
 begin
   inherited;
-  FIn := TRedis.Create;
-  FOut := TRedis.Create;
+  FRedis := TRedis.Create;
 end;
 
 destructor TOutgoing.Destroy;
 begin
-  FOut.Free;
-  FIn.Free;
+  FRedis.Free;
+  inherited;
 end;
 
-procedure TOutgoing.Request(AOut : TRedis);
+procedure TOutgoing.Request(ARedis : TRedis);
 var
   M : TMemoryStream;
   lOut :TPacket;
 begin
-  lOut := TPacket.Create(1024);
+//  FRedis.Clear;
+  lOut := TPacket.Create(nngBuffer);
   M := TMemoryStream.Create;
-  AOut.Save(M);
+  ARedis.Save(M);
   M.Seek(0,soFromBeginning);
   lOut.Used := M.Size;
   M.Write(lOut.Buffer^,M.Size);

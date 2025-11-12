@@ -75,6 +75,7 @@ type
     function  Exist(AKey : String) : TValue;
     procedure Remove(AKey : String);
     function Count : Integer;
+    procedure Clear;
 
     property OnChange : TOnChangeEvent read FOnChange write FOnChange;
   published
@@ -358,6 +359,11 @@ end;
 function TRedis.Count : Integer;
 begin
   result := FList.Count;
+end;
+
+procedure TRedis.Clear;
+begin
+  FList.Clear;
 end;
 
 end.

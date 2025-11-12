@@ -6,13 +6,10 @@ uses
   nngdll, Listen, Packet;
   
 type
-  TRequestEvent = procedure(ASender : TObject; AIn,AOut : TPacket) of object;
- 
   TResponse = class(TListen)
   strict private
     FIn,
     FOut : TPacket;
-    FOnRequest : TRequestEvent;
   private
   strict protected
     function Protocol : Integer; override;
@@ -24,15 +21,16 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
-
-    property OnRequest : TRequestEvent read FOnRequest write FOnRequest;
   published
   end;
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
-  System.SysUtils;
+  System.SysUtils, nngType;
   
 procedure TResponse.Process(AData : TObject);
 var
@@ -42,20 +40,19 @@ begin
   case err of
     NNG_OK :
       begin
+        Log(logInfo,'Received:'+FIn.Pull);
         FOut.Used := 0;
-        if assigned(FOnRequest) then
-          FOnRequest(Self,FIn,FOut)
+        Request(AData,FIn,FOut);
+        if Send(FOut)=NNG_OK then
+          Log(logInfo,'Sent:'+FOut.Pull)
         else
-          // Send NULL response otherwise client will lock!
-          Request(AData,FIn,FOut);
-        if Send(FOut)<>NNG_OK then
-          Log('Error sending : '+ nng_strerror(err))
+          Error('Error sending : '+ nng_strerror(err))
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Log('Error receiving : '+ nng_strerror(err))
+    Error('Error receiving : '+ nng_strerror(err))
   end;
 end;
 
@@ -69,6 +66,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
+    FPoll := True;
     FIn := TPacket.Create(1024);
     FOut := TPacket.Create(1024);
   end;

@@ -34,8 +34,12 @@ type
   
 implementation
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
-  nngdll, System.SysUtils;
+  System.SysUtils,
+  nngdll, nngType, nngConstant;
   
 procedure TRequest.Process(AData : TObject);
 var
@@ -48,7 +52,8 @@ begin
         { Send the request }
         err := Send(FOut);
         if err = NNG_OK then begin
-          Log('Sent request');
+          Log(logInfo,'Sent request');
+          FPoll := True;
           FState := stSent;
         end else
           Error('Error sending request: '+ nng_strerror(err))
@@ -61,7 +66,9 @@ begin
         case err of
           NNG_OK :
             begin
+              Log(logInfo,'Received:'+FIn.Pull);
               FState := stReceived;
+              FPoll := False;
               Response(AData,FIn);
             end;
           NNG_EAGAIN :
@@ -89,8 +96,8 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    FIn := TPacket.Create(1024);
-    FOut := TPacket.Create(1024);
+    FIn := TPacket.Create(nngBuffer);
+    FOut := TPacket.Create(nngBuffer);
   end;
 end;
 

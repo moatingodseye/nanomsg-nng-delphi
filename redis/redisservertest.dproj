@@ -135,7 +135,7 @@
         <DCCReference Include="RedisServer.pas"/>
         <DCCReference Include="redis.pas"/>
         <DCCReference Include="..\nng\Publish.pas"/>
-        <DCCReference Include="..\nnglib\nng.pas"/>
+        <DCCReference Include="..\nng\nng.pas"/>
         <DCCReference Include="..\nng\Response.pas"/>
         <DCCReference Include="..\nnglib\nngdll.pas"/>
         <DCCReference Include="..\nng\Listen.pas"/>
@@ -147,6 +147,8 @@
         <DCCReference Include="..\nng\Dial.pas"/>
         <DCCReference Include="..\nng\Packet.pas"/>
         <DCCReference Include="..\basic\BaLogger.pas"/>
+        <DCCReference Include="..\nng\nngConstant.pas"/>
+        <DCCReference Include="..\nng\nngType.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

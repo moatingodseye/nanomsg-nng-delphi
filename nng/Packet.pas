@@ -72,7 +72,6 @@ end;
 function TPacket.Pull : AnsiString;
 var
   T : AnsiString;
-  P : PAnsiChar;
 begin
 //  T := AnsiString(FBuffer);
 //  SetLength(T,FUsed);

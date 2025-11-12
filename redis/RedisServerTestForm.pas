@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, RedisServer, baLogger;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, RedisServer, baLogger, nngType;
 
 type
   TfrmRedisTestServer = class(TForm)
@@ -22,7 +22,9 @@ type
     { Private declarations }
     FLog : TbaLogger;
     FServer : TRedisServer;
+    procedure DoLog(ALevel : ELog; AMessage : String); // could be threaded!
     procedure DoOnLog(AMessage : String);
+    procedure Log(AMessage : String);
   public
     { Public declarations }
   end;
@@ -34,7 +36,17 @@ implementation
 
 {$R *.dfm}
 
+procedure TfrmRedisTestServer.DoLog(ALevel : ELog; AMessage : String); // could be threaded!
+begin
+  FLog.Log(cLog[ALevel]+AMessage); // cache for later
+end;
+
 procedure TfrmRedisTestServer.DoOnLog(AMessage : String);
+begin
+  Log(AMessage);
+end;
+
+procedure TfrmRedisTestServer.Log(AMessage : String);
 begin
   mmoLog.Lines.Add(AMessage);
 end;
@@ -47,7 +59,7 @@ begin
   FServer := TRedisServer.Create;
   FServer.Host := edtHost.Text;
   FServer.Port := StrToInt(edtPort.Text);
-  FServer.OnLog := DoOnLog;
+  FServer.OnLog := DoLog;
   FServer.Start;
 end;
 

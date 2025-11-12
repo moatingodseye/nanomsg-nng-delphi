@@ -3,13 +3,14 @@ unit Subscribe;
 interface
 
 uses
-  nngdll, Dial;
+  nngdll, Dial, Packet;
   
 type
   TSubscribe = class(TDial)
   strict private
-    FBuffer : Pointer;
+    FPacket : TPacket;
   private
+    FWhat : AnsiString;
   strict protected
     function Protocol : Integer; override;
   protected
@@ -19,6 +20,8 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    property What : AnsiString read FWhat write FWhat; // what are you subscribing to!
   published
   end;
   
@@ -28,27 +31,23 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType, nngConstant;
   
 procedure TSubscribe.Process(AData : TObject);
 var
   err : Integer;
-  size : Integer;
-  S : AnsiString;
 begin
-  size := 1024;
-  err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+  err := Receive(FPacket); //nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
   case err of
     NNG_OK :
       begin
-        S := PAnsiChar(FBuffer); 
-        Log('Received: '+S+' size: '+IntToStr(size));
+        Log(logInfo,'Received: '+FPacket.Pull+' size: '+IntToStr(FPacket.Used));
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Log('Error receiving: '+ nng_strerror(err))
+    Error('Error receiving: '+ nng_strerror(err))
   end;
 end;
 
@@ -60,18 +59,17 @@ end;
 procedure TSubscribe.Setup;
 var
   err : Integer;
-  what : AnsiString;
   what_len : Integer;
 begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FPoll := True;
+    FPacket := TPacket.Create(nngBuffer);
   end;
   if FStage=4 then begin
-    what := '';
-    what_len := Length(what);
-    err := nng_sub0_socket_subscribe(FSocket, PAnsiChar(what), what_len);
+    what_len := Length(FWhat);
+    err := nng_sub0_socket_subscribe(FSocket, PAnsiChar(FWhat), what_len);
     if err <> NNG_OK  then
       Error('Subscribe failed'+nng_strerror(err));
   end;
@@ -80,19 +78,17 @@ end;
 procedure TSubscribe.Teardown;
 var
   err : Integer;
-  what : AnsiString;
   what_len : Integer;
 begin
   if FStage=5 then begin
-    what := '';
-    what_len := Length(what);
-    err := nng_sub0_socket_unsubscribe(FSocket,PAnsiChar(what),what_len);
+    what_len := Length(FWhat);
+    err := nng_sub0_socket_unsubscribe(FSocket,PAnsiChar(FWhat),what_len);
     if err <> NNG_OK then
       Error('Unsubscribe failed'+nng_strerror(err));
   end;
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FPacket.Free;
   end;
   inherited;
 end;
@@ -102,7 +98,6 @@ begin
   inherited;
   FHost := 'tcp://127.0.0.1';
   FPort := 5557;
-  SetPeriod(100);
 end;
 
 destructor TSubscribe.Destroy;

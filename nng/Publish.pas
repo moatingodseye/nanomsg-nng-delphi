@@ -3,12 +3,12 @@ unit Publish;
 interface
 
 uses
-  nngdll, Listen;
+  nngdll, Listen, Packet;
   
 type
   TPublish = class(TListen)
   strict private
-    FBuffer : Pointer;
+    FPacket : TPacket;
     FCount: Integer;
   private
   strict protected
@@ -29,22 +29,21 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType, nngConstant;
   
 procedure TPublish.Process(AData : TObject);
 var
   err : Integer;
   rep : AnsiString;
-  rep_len : Integer;
 begin
   // Send Publish
   rep := 'Publish:'+IntToStr(FCount);
-  rep_len := Length(rep);
-  err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+  FPacket.Push(rep);
+  err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
   if err = NNG_OK then
-    Log('Sent:'+rep+' size:'+IntToStr(rep_len))
+    Log(logInfo,'Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
   else
-    Log('Error sending Publish: '+ nng_strerror(err));
+    Error('Error sending Publish: '+ nng_strerror(err));
   Inc(FCount);
 //  FEnabled := False;
 end;
@@ -59,7 +58,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    GetMem(FBuffer,1024);
+    FPacket := TPacket.Create(nngBuffer);
   end;
 end;
 
@@ -67,7 +66,7 @@ procedure TPublish.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FreeMem(FBuffer, 1024);
+    FPacket.Free;
   end;
   inherited;
 end;
@@ -78,7 +77,6 @@ begin
   FCount := 0;
   FHost := 'tcp://127.0.0.1';
   FPort := 5557;
-  SetPeriod(1000);
 end;
 
 destructor TPublish.Destroy;

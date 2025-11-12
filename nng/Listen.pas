@@ -3,23 +3,17 @@ unit Listen;
 interface
 
 uses
-  nngdll, Protocol;
+  nngdll, nng, Protocol;
 
 type
   TListen = class(TProtocol)
   private
     FListen : THandle;
-  protected
-    FHost : AnsiString;
-    FPort : Integer;
     FURL : AnsiString;
-    
+  protected
     procedure Setup; override;
     procedure Teardown; override;
   public
-
-    property Host : AnsiString read FHost write FHost;
-    property Port : Integer read FPort write FPort;
   published
   end;
   
@@ -29,7 +23,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  SysUtils;
+  SysUtils, nngType;
   
 procedure TListen.Setup;
 var
@@ -40,10 +34,11 @@ begin
     FURL := FHost + ':' + IntToStr(FPort);
     err := nng_listen(FSocket, PAnsiChar(FUrl), @FListen, 0);
     if err = NNG_OK then begin
-      Log('Listening:'+FURL);
+      Log(logInfo,'Listening:'+FURL);
+      FPoll := True;
       Inc(FStage);
     end else
-      Log('Error listening: '+ nng_strerror(err))
+      Error('Error listening: '+ nng_strerror(err))
   end;
 end;
 
@@ -55,7 +50,7 @@ begin
     Dec(FStage);
     err := nng_listener_close(FListen);
     if err<>NNG_OK then
-      Log('Listener close failed:'+ nng_strerror(err));
+      Error('Listener close failed:'+ nng_strerror(err));
   end;
 
   inherited;

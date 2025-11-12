@@ -8,7 +8,7 @@ uses
 type
   TPush = class(TListen)
   strict private
-    FOut : TPacket;
+    FPacket : TPacket;
     FCount: Integer;
   private
   strict protected
@@ -29,7 +29,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType, nngConstant;
 
 procedure TPush.Process(AData : TObject);
 var
@@ -38,12 +38,12 @@ var
 begin
   // Send Push
   rep := 'Push:'+IntToStr(FCount);
-  FOut.Push(rep);
-  err := Send(FOut); 
+  FPacket.Push(rep);
+  err := Send(FPacket); 
   if err = NNG_OK then
-    Log('Sent:'+FOut.Pull)
+    Log(logInfo,'Sent:'+FPacket.Pull)
   else
-    Log('Error sending Push: '+ nng_strerror(err));
+    Error('Error sending Push: '+ nng_strerror(err));
   Inc(FCount);
 //  FEnabled := False;
 end;
@@ -58,7 +58,7 @@ begin
   inherited;
   if FStage=3 then begin
     Inc(FStage);
-    FOut := TPacket.Create(128);
+    FPacket := TPacket.Create(nngBuffer);
   end;
 end;
 
@@ -66,7 +66,7 @@ procedure TPush.Teardown;
 begin
   if FStage=4 then begin
     Dec(FStage);
-    FOut.Free;
+    FPacket.Free;
   end;
   inherited;
 end;

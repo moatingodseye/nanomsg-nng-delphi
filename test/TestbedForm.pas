@@ -26,6 +26,10 @@ type
     btnSBus: TButton;
     btnCBus: TButton;
     btnBus: TButton;
+    Label4: TLabel;
+    edtHost: TEdit;
+    Label5: TLabel;
+    edtPort: TEdit;
     procedure btnVersionClick(Sender: TObject);
     procedure btnTestClick(Sender: TObject);
     procedure btnResponseClick(Sender: TObject);
@@ -63,8 +67,11 @@ implementation
 
 {$R *.dfm}
 
+{$WARN IMPLICIT_STRING_CAST OFF}
+{$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
+
 uses
-  nngdll, Dummy, Response, Request, Push, Pull, Publish, Subscribe, Both, Pair, Bus;
+  nngdll, Dummy, Response, Request, Push, Pull, Publish, Subscribe, Both, Pair, Bus, Packet;
 
 procedure TfrmTestBed.DoOnStop(ATest : TObject);
 begin
@@ -110,6 +117,8 @@ var
   lTest : TTest;
 begin
   lTest := TTest.Create(Anng);
+  Anng.Host := edtHost.Text;
+  Anng.Port := StrToInt(edtPort.Text);
   Monitor(lTest);
   lTest.Start;
 end;
@@ -180,14 +189,43 @@ begin
   Test(TPush.Create);
 end;
 
+type
+  TTestRequest = class(TRequest)
+  private
+  protected
+    procedure Response(AData : TObject; AIn : TPacket); override;
+  public                              
+  published
+  end;
+
+procedure TTestRequest.Response(AData : TObject; AIn : TPacket);
+begin
+  // a request was sent and a response received
+end;
+
 procedure TfrmTestBed.btnRequestClick(Sender: TObject);
 begin
-  Test(TRequest.Create);
+  Test(TTestRequest.Create);
+end;
+
+type
+  TTestResponse = class(TResponse)
+  private
+  protected
+    procedure Request(AData : TObject; AIn,AOut : TPacket); override;
+  public
+  published
+  end;
+
+procedure TTestResponse.Request(AData : TObject; AIn,AOut : TPacket);
+begin
+  // request receivned (in AIn) need a response (Put in AOut)
+  AOut.Push('Received thanks');
 end;
 
 procedure TfrmTestBed.btnResponseClick(Sender: TObject);
 begin
-  Test(TResponse.Create);
+  Test(TTestResponse.Create);
 end;
 
 procedure TfrmTestBed.btnSBusClick(Sender: TObject);

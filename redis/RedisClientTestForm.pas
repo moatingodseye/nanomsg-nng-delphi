@@ -37,6 +37,7 @@ type
     { Private declarations }
     FLog : TbaLogger;
     FClient : TRedisClient;
+    procedure DoLog(AMessage : String); //threaded!
     procedure DoOnLog(AMessage : String);
     procedure Log(AMessage : String);
   public                   
@@ -52,6 +53,11 @@ implementation
 
 uses
   Redis;
+
+procedure TfrmRedisClientTest.DoLog(AMessage : String);
+begin
+  FLog.Log(AMessage); // logger caches and does a synchronised DoOnLog later.
+end;
 
 procedure TfrmRedisClientTest.DoOnLog(AMessage : String);
 begin
@@ -71,7 +77,7 @@ begin
   FClient := TRedisClient.Create;
   FClient.Host := edtHost.Text;
   FClient.Port := StrToInt(edtPort.Text);
-  FClient.OnLog := DoOnLog;
+  FClient.OnLog := DoLog;
   FClient.Start;
 end;
 

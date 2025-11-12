@@ -5,7 +5,7 @@ interface
 
 uses
   System.Classes,
-  baThread, baLogger, LogForm, NNG;
+  baThread, baLogger, LogForm, NNG, nngType;
   
 const
   tsNever = 0;
@@ -26,8 +26,8 @@ type
     FState : Integer;
     procedure DoLog(AMessage : String); // synchronised
   protected
-    procedure Log(AMessage : String);
-    procedure Error(AMessage : String);
+    procedure Log(ALevel :ELog; AMessage : String);
+    procedure Error(ALevel : ELog; AMessage : String);
     procedure DoStop(Sender : TObject);
     procedure DoKick(Sender : TObject);
   public
@@ -40,7 +40,7 @@ type
     
     function State : Integer;
 
-    property OnStop : TNotifyEvent read FOnStop write FOnStop;  
+    property OnStop : TNotifyEvent read FOnStop write FOnStop;
   published
   end;
   
@@ -55,14 +55,14 @@ begin
     FForm.Log(AMessage);
 end;
 
-procedure TTest.Log(AMessage : String);
+procedure TTest.Log(ALevel : ELog; AMessage : String);
 begin
-  FLog.Log(AMessage);
+  FLog.Log(cLog[ALevel]+AMessage);
 end;
 
-procedure TTest.Error(AMessage : String);
+procedure TTest.Error(ALevel : ELog; AMessage : String);
 begin
-  FLog.Log(AMessage);
+  FLog.Log(cLog[ALevel]+AMessage);
   FState := tsError;
 end;
 

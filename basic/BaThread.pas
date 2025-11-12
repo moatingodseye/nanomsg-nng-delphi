@@ -55,7 +55,7 @@ type
     procedure SetOnAsIdle(AEvent : TbaThreadEvent);
     procedure SetOnSyThread(AEvent : TbaThreadEvent);
     procedure SetOnSyIdle(AEvent : TbaThreadEvent);
-  public                                             
+  public
     constructor Create(APeriod, AGranularity : Integer); virtual;
     destructor  Destroy; override;
     

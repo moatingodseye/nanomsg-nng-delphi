@@ -39,7 +39,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngType;
   
 procedure TBus.Process(AData : TObject);
 var
@@ -54,9 +54,9 @@ begin
     rep_len := Length(rep);
     err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
     if err = NNG_OK then
-      Log('Sent:'+rep+' size:'+IntToStr(rep_len))
+      Log(logInfo,'Sent:'+rep+' size:'+IntToStr(rep_len))
     else
-      Log('Error sending Bus: '+ nng_strerror(err));
+      Error('Error sending Bus: '+ nng_strerror(err));
     Inc(FCount);
   end;
   if FBoth=bDial then begin
@@ -65,14 +65,14 @@ begin
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log(logInfo,'Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
         end;
       NNG_EAGAIN :
         begin
           asm nop end;
         end;
     else
-      Log('Error receiving: '+ nng_strerror(err));
+      Error('Error receiving: '+ nng_strerror(err));
     end;       
   end;
   if FBoth=bBoth then begin
@@ -81,20 +81,20 @@ begin
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log(logInfo,'Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
     
           err := nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
           if err = NNG_OK then
-            Log('Sent:'+rep+' size:'+IntToStr(size))
+            Log(logInfo,'Sent:'+rep+' size:'+IntToStr(size))
           else
-            Log('Error sending Bus: '+ nng_strerror(err));
+            Error('Error sending Bus: '+ nng_strerror(err));
         end;
       NNG_EAGAIN :
         begin
           asm nop end;
         end;
     else
-      Log('Error receiving: '+ nng_strerror(err));
+      Error('Error receiving: '+ nng_strerror(err));
     end;       
   end;
 end;

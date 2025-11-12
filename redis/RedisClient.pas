@@ -4,7 +4,7 @@ unit RedisClient;
 interface
 
 uses
-  nngdll,
+  nngdll, nngType,
   Redis, RedisProtocol;
   
 type
@@ -21,8 +21,8 @@ type
   protected
     procedure DoOnAction(ASender : TObject; AIncoming  : TRedis);
     procedure DoOnChange(AValue : TValue);
-    procedure DoOnLog(AMessage : String);
-    procedure Log(AMessage : String);
+    procedure DoOnLog(ALevel : ELog; AMessage : String);
+    procedure Log(ALevel : ELog; AMessage : String);
   public
     constructor Create;
     destructor Destroy; override;
@@ -60,7 +60,7 @@ var
   lTemp :TValue;
   lI,lO : TRedis;
 begin
-  Log('Action:');
+  Log(logInfo,'Action:');
   lKey := AIncoming.Exist(keyKey);
   lType := AIncoming.Exist(keyType);
   lValue := AIncoming.Exist(keyValue);
@@ -90,18 +90,18 @@ end;
 procedure TRedisClient.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log('Change-'+AValue.Caption);
+    Log(logInfo,'Change-'+AValue.Caption);
 end;
 
-procedure TRedisClient.DoOnLog(AMessage : String);
+procedure TRedisClient.DoOnLog(ALevel : ELog; AMessage : String);
 begin
-  Log(AMessage);
+  Log(ALevel,AMessage);
 end;
 
-procedure TRedisClient.Log(AMessage : String);
+procedure TRedisClient.Log(ALevel : ELog; AMessage : String);
 begin
   if assigned(FOnLog) then
-    FOnLog(AMEssage);
+    FOnLog(cLog[ALevel]+AMEssage);
 end;
 
 constructor TRedisClient.Create;

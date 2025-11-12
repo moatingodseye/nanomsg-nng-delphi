@@ -4,12 +4,10 @@ unit RedisServer;
 interface
 
 uses
-  nngdll,
+  nngdll, nngType,
   Redis, RedisProtocol;
   
 type
-  TLogEvent = procedure(AMessage : String) of object;
-  
   TRedisServer = class(TObject)
   private
     FRedis : TRedis;
@@ -17,12 +15,12 @@ type
     FResponse : TIncoming;
     FHost : String;
     FPort : Integer;
-    FOnLog : TLogEvent;
+    FOnLog : TOnLog;
   protected
-    procedure DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
+    procedure DoOnAction(ASender : TObject; ARedis : TRedis);
     procedure DoOnChange(AValue : TValue);
-    procedure DoOnLog(AMessage : String);
-    procedure Log(AMessage : String);
+    procedure DoOnLog(ALevel : ELog; AMessage : String);
+    procedure Log(ALevel : ELog; AMessage : String);
   public
     constructor Create;
     destructor Destroy; override;
@@ -32,7 +30,7 @@ type
 
     property Host : String read FHost write FHost;
     property Port : Integer read FPort write FPort;
-    property OnLog : TLogEvent read FOnLog write FOnLog;
+    property OnLog : TOnLog read FOnLog write FOnLog;
   published
   end;
   
@@ -42,12 +40,15 @@ const
   keyCommand = 'CMD';
   keyKey = 'KEY';
   keyType = 'TYP';
-  keyValue = 'VAL';
+//  keyValue = 'VAL';
   cmdAdd = 1;
   cndExist = 2;
   cmdRemove = 3;
+  keyResponse = 'RES';
+  repACK = 0;
+  repNACK = 1;
   
-procedure TRedisServer.DoOnAction(ASender : TObject; AIncoming, AOutgoing : TRedis);
+procedure TRedisServer.DoOnAction(ASender : TObject; ARedis : TRedis);
 var
   lCommand,
   lKey,
@@ -56,14 +57,14 @@ var
   lTemp :TValue;
   lI,lO : TRedis;
 begin
-  lCommand := AIncoming.Exist(keyCommand);
-  lKey := AIncoming.Exist(keyKey);
-  lType := AIncoming.Exist(keyType);
-  lValue := AIncoming.Exist(keyValue);
+  lCommand := ARedis.Exist(keyCommand);
+  lKey := ARedis.Exist(keyKey);
+  lType := ARedis.Exist(keyType);
   if assigned(lCommand) then begin
     case lCommand.AsInteger of
       cmdAdd : 
         begin
+          lValue := ARedis.Exist(lKey.AsString);
           lTemp := TValue.Create(FRedis,lKey.AsString);
           case EValue(lTemp.AsInteger) of
             valInteger : lTemp.AsInteger := lValue.AsInteger;
@@ -79,7 +80,17 @@ begin
           end;
           FRedis.Add(lTemp);
           SetToNil(lTemp);
+
+          { Setup response }
+          ARedis.Clear;
+          ARedis.Add(keyResponse,repACK);
         end;
+    else
+      begin
+        { Response fail }
+        ARedis.Clear;
+        ARedis.Add(keyResponse,repNACK);
+      end;
     end;
   end;
 end;
@@ -87,18 +98,18 @@ end;
 procedure TRedisServer.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log('Change-'+AValue.Caption);
+    Log(logInfo,'Change-'+AValue.Caption);
 end;
 
-procedure TRedisServer.DoOnLog(AMessage : String);
+procedure TRedisServer.DoOnLog(ALevel : ELog; AMessage : String);
 begin
-  Log(AMessage);
+  Log(ALevel,AMessage);
 end;
 
-procedure TRedisServer.Log(AMessage : String);
+procedure TRedisServer.Log(ALevel : ELog; AMessage : String);
 begin
   if assigned(FOnLog) then
-    FOnLog(AMEssage);
+    FOnLog(ALevel,AMEssage);
 end;
 
 constructor TRedisServer.Create;

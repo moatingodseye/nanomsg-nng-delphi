@@ -3,23 +3,17 @@ unit Dial;
 interface
 
 uses
-  nngdll, Protocol;
+  Protocol;
 
 type
   TDial = class(TProtocol)
   private
     FDial : THandle;
-  protected
-    FHost : AnsiString;
-    FPort : Integer;
     FURL : AnsiString;
-
+  protected
     procedure Setup; override;
     procedure Teardown; override;
   public
-  
-    property Host : AnsiString read FHost write FHost;
-    property Port : Integer read FPort write FPort;
   published
   end;
   
@@ -29,7 +23,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngdll, nngType;
   
 procedure TDial.Setup;
 var
@@ -40,10 +34,10 @@ begin
     FURL := FHost + ':' + IntToStr(FPort);
     err := nng_dial(FSocket, PAnsiChar(FUrl), @FDial, 0);
     if err = NNG_OK then begin
-      Log('Dialed:'+FURL);
+      Log(logInfo,'Dialed:'+FURL);
       Inc(FStage);
     end else
-      Log('Error Dialing: '+ nng_strerror(err))
+      Error('Error Dialing: '+ nng_strerror(err))
   end;
 end;
 
@@ -54,8 +48,10 @@ begin
   if FStage=3 then begin
     Dec(FStage);
     err := nng_Dialer_close(FDial);
-    if err<>NNG_OK then
-      Log('Dialer close failed:'+ nng_strerror(err));
+    if err=NNG_OK then
+      Log(logInfo,'Dialer Closed:'+FURL)
+    else
+      Error('Dialer close failed:'+ nng_strerror(err));
   end;
 
   inherited;

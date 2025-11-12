@@ -133,7 +133,7 @@
         </DCCReference>
         <DCCReference Include="RedisClient.pas"/>
         <DCCReference Include="redis.pas"/>
-        <DCCReference Include="..\nnglib\nng.pas"/>
+        <DCCReference Include="..\nng\nng.pas"/>
         <DCCReference Include="..\nnglib\nngdll.pas"/>
         <DCCReference Include="..\basic\BaThread.pas"/>
         <DCCReference Include="..\nng\Request.pas"/>
@@ -145,6 +145,8 @@
         <DCCReference Include="RedisProtocol.pas"/>
         <DCCReference Include="..\nng\Packet.pas"/>
         <DCCReference Include="..\basic\BaLogger.pas"/>
+        <DCCReference Include="..\nng\nngConstant.pas"/>
+        <DCCReference Include="..\nng\nngType.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
