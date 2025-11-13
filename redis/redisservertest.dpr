@@ -19,7 +19,8 @@ uses
   Packet in '..\nng\Packet.pas',
   BaLogger in '..\basic\BaLogger.pas',
   nngConstant in '..\nng\nngConstant.pas',
-  nngType in '..\nng\nngType.pas';
+  nngType in '..\nng\nngType.pas',
+  redisConstant in 'redisConstant.pas';
 
 {$R *.res}
 

@@ -51,14 +51,15 @@ begin
   M.Write(AIn.Buffer^,AIn.Used);
   M.Seek(0,soFromBeginning);
   FRedis.Load(M);
-  AOut.Clear;
   FOnAction(AData,FRedis);
   if FRedis.Count>0 then begin
+    AOut.Clear;
     M.Clear;
     M.Seek(0,soFromBeginning);
     FRedis.Save(M);
     M.Seek(0,soFromBeginning);
-    M.Read(AIn.Buffer^, M.Size);
+    AOut.Used := M.Size;
+    M.Read(AOut.Buffer^, M.Size);
   end;
   M.Free;
 end;
@@ -82,6 +83,7 @@ begin
   M := TMemoryStream.Create;
   M.Write(AIn.Buffer^,AIn.Used);
   M.Seek(0,soFromBeginning);
+  FRedis.Clear;
   FRedis.Load(M);
   FOnAction(AData,FRedis);
   M.Free;
@@ -110,7 +112,7 @@ begin
   ARedis.Save(M);
   M.Seek(0,soFromBeginning);
   lOut.Used := M.Size;
-  M.Write(lOut.Buffer^,M.Size);
+  M.Read(lOut.Buffer^,M.Size);
   Request(lOut);
   M.Free;
   lOut.Free;

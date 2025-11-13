@@ -67,7 +67,7 @@ end;
 
 procedure TNNG.DoOnThread(ASender: TObject; AData: TObject);
 begin
-  Log(logInfo, DateTimeToStr(Now)+' '+IntToStr(FActive)+' '+IIF(FEnabled,'Yes','No'));
+  Log(logLow, DateTimeToStr(Now)+' '+IntToStr(FActive)+' '+IIF(FEnabled,'Yes','No'));
   try
     if (FActive>0) and FEnabled then
       Process(AData);

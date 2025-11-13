@@ -47,11 +47,15 @@ begin
   size := AIn.Space;
   result := nng_recv(FSocket, AIn.Buffer, @size, NNG_FLAG_NONBLOCK);
   AIn.Used := size;
+  if result=NNG_OK then
+    Log(logInfo,'Receive:'+IntToStr(AIn.Used)+' '+AIn.Dump);
 end;
 
 function TProtocol.Send(AOut : TPacket) : Integer;
 begin
   result := nng_send(FSocket, AOut.Buffer, AOut.Used, 0);
+  if result=NNG_OK then
+    Log(logInfo,'Send:'+InttoStr(AOut.Used)+' '+AOut.Dump);
 end;
 
 procedure TProtocol.Setup;

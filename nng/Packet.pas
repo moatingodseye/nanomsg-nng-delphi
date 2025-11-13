@@ -3,9 +3,6 @@ unit Packet;
 
 interface
 
-uses
-  nngdll, nng;
-
 type
   TPacket = class(TObject)
   private
@@ -20,6 +17,7 @@ type
     procedure Assign(AFrom : TPacket);
     procedure Push(AString : AnsiString);
     function Pull : AnsiString;
+    function Dump : String;
     procedure Clear;
     
     property Space : Integer read FSpace;
@@ -31,7 +29,7 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, System.Classes;
 
 constructor TPacket.Create(ASpace : Integer);
 begin
@@ -86,6 +84,20 @@ end;
 
 //  Move(@rep[0],FOut.Buffer,Length(rep));
 //  FOut.Used := Length(rep);
+
+function TPacket.Dump : String;
+var
+  S : String;
+  P : PByte;
+  C : Integer;
+begin
+  P := FBuffer;
+  for C := 0 to FUsed do begin
+    S := S + IntToHex(P^);
+    Inc(P);
+  end;
+  result := S;
+end;
 
 procedure TPacket.Clear;
 begin

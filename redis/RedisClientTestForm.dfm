@@ -122,14 +122,14 @@ object frmRedisClientTest: TfrmRedisClientTest
       Height = 23
       TabOrder = 1
     end
-    object Button1: TButton
+    object btnAdd: TButton
       Left = 88
       Top = 8
       Width = 75
       Height = 25
       Caption = 'btnAdd'
       TabOrder = 2
-      OnClick = Button1Click
+      OnClick = btnAddClick
     end
     object rdoFloat: TRadioButton
       Left = 422

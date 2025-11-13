@@ -8,9 +8,14 @@ uses
   System.Generics.Defaults, System.Generics.Collections;
   
 type
+  EValue = (valNull, valInteger, valFloat, valString, valDate,valRedis);
+
+const
+  cValue : Array[EValue] of String = ('','Int','Float','String','Date','Redis');
+  
+type
   TRedis = class;
   
-  EValue = (valNull, valInteger, valFloat, valString, valDate,valRedis);
   TValue = class(TObject)
   private
     FOwner : TRedis;
@@ -36,7 +41,7 @@ type
     constructor Create(AOwner : TRedis; AKey : String);
     destructor Destroy; override;
 
-    function Caption : String;
+    procedure Dump(AInto : TStringList);
     procedure Assign(AFrom : TValue);
     procedure Clear;
     
@@ -77,6 +82,8 @@ type
     function Count : Integer;
     procedure Clear;
 
+    function Dump : String;
+
     property OnChange : TOnChangeEvent read FOnChange write FOnChange;
   published
   end;
@@ -97,59 +104,6 @@ procedure TValue.Change;
 begin
   if assigned(FOWner) then
     FOwner.DoOnChange(Self);
-end;
-
-procedure TValue.Load(AFrom : TStream);
-var
-  lSize : Integer;
-begin
-  AFrom.Read(FType, SizeOf(FType));
-  AFrom.Read(FNull, SizeOf(FNull));
-  if not FNull then
-    case FType of
-      valInteger : AFrom.Read(FInteger, SizeOf(FInteger));
-      valFloat : AFrom.Read(FFloat, SizeOf(FFloat));
-      valString : 
-        begin
-          AFrom.Read(lSize, SizeOf(lSize));
-          SetLength(FString, lSize);
-          if lSize>0 then
-            AFrom.Read(FString, lSize);
-        end;
-      valDate : AFrom.Read(FDate, SizeOf(FDate));
-      valRedis : 
-        begin
-          if not assigned(FRedis) then
-            FRedis := TRedis.Create;
-          FRedis.Load(AFrom);
-        end;
-    end;
-end;
-
-procedure TValue.Save(AInto : TStream);
-var
-  lSize : Integer;
-begin
-  AInto.Write(FType, SizeOf(FType));
-  AInto.Write(FNull, SizeOf(FNull));
-  if not Fnull then
-    case FType of
-      valInteger : AInto.Write(FInteger, SizeOf(FInteger));
-      valFloat : AInto.Write(FFloat, SizeOf(FFloat));
-      valString :
-        begin
-          lSize := Length(FString);
-          AInto.Write(lSize, SizeOf(lSize));
-          if lSize>0 then
-            AInto.Write(FString, lSize);
-        end;
-      valDate : AInto.Write(FDate, SizeOf(FDate));
-      valRedis : 
-        begin
-          if assigned(FRedis) then
-            FRedis.Save(AInto);
-        end;
-    end;
 end;
 
 procedure TValue.SetInteger(AValue : Integer);
@@ -204,6 +158,7 @@ begin
   FOwner := AOwner;
   FType := valNull;
   FKey := AKey;
+  FNull := True;
   FRedis := Nil;
 end;
 
@@ -215,9 +170,86 @@ begin
   inherited;
 end;
 
-function TValue.Caption : String;
+function IIF(ACheck : Boolean;  ANo,AYes : String) : String;
 begin
-  result := 'Key:'+FKey;//+' Int:'+IntToStr(FValue);
+  result := ANo;
+  if ACheck then
+    result := AYes;
+end;
+
+procedure TValue.Dump(AInto : TStringList);
+begin
+  AInto.Add('{key='+FKey+';');
+  AInto.Add('type='+cValue[FType]+';');
+  AInto.Add('null='+IIF(FNull,'No','Yes')+';');
+  case FType of
+    valInteger : AInto.Add('value='+IntToStr(FInteger)+';');
+    valFloat  : AInto.Add('value='+FloatToStr(FFloat)+';');
+    valString : AInto.Add('value='+FString+';');
+    valDate : AInto.Add('value='+DateTimeToStr(FDate)+';');
+    valRedis : AInto.Add('REDIS!');
+  end;
+  AInto.Add('}');
+end;
+
+procedure TValue.Load(AFrom : TStream);
+var
+  lSize : Integer;
+begin
+  AFrom.Read(lSize, SizeOf(lSize));
+  SetLength(FKey, lSize);
+  if lSize>0 then 
+    AFrom.ReadBUffer(Pointer(FKey)^, lSize*SizeOf(Char));
+  AFrom.Read(FType, SizeOf(FType));
+  AFrom.Read(FNull, SizeOf(FNull));
+  if not FNull then
+    case FType of
+      valInteger : AFrom.Read(FInteger, SizeOf(FInteger));
+      valFloat : AFrom.Read(FFloat, SizeOf(FFloat));
+      valString : 
+        begin
+          AFrom.Read(lSize, SizeOf(lSize));
+          SetLength(FString, lSize);
+          if lSize>0 then
+            AFrom.ReadBuffer(Pointer(FString)^, lSize*SizeOf(Char));
+        end;
+      valDate : AFrom.Read(FDate, SizeOf(FDate));
+      valRedis : 
+        begin
+          if not assigned(FRedis) then
+            FRedis := TRedis.Create;
+          FRedis.Load(AFrom);
+        end;
+    end;
+end;
+
+procedure TValue.Save(AInto : TStream);
+var
+  lSize : Integer;
+begin
+  lSize := Length(FKey);
+  AInto.Write(lSize, SizeOf(lSize));
+  AInto.WriteBuffer(Pointer(FKey)^, lSize*SizeOf(Char));
+  AInto.Write(FType, SizeOf(FType));
+  AInto.Write(FNull, SizeOf(FNull));
+  if not Fnull then
+    case FType of
+      valInteger : AInto.Write(FInteger, SizeOf(FInteger));
+      valFloat : AInto.Write(FFloat, SizeOf(FFloat));
+      valString :
+        begin
+          lSize := Length(FString);
+          AInto.Write(lSize, SizeOf(lSize));
+          if lSize>0 then
+            AInto.WriteBuffer(Pointer(FString)^, lSize*SizeOf(Char));
+        end;
+      valDate : AInto.Write(FDate, SizeOf(FDate));
+      valRedis : 
+        begin
+          if assigned(FRedis) then
+            FRedis.Save(AInto);
+        end;
+    end;
 end;
 
 procedure TValue.Assign(AFrom : TValue);
@@ -260,11 +292,12 @@ var
   lCount : Integer;
 begin
   FList.Clear;
+  AFrom.Seek(0,soFromBeginning);
   Afrom.Read(lCount, SizeOf(lCount));
   while lCount>0 do begin
     lValue := TValue.Create(Self,'');
     lValue.Load(AFrom);
-    Add(lValue);
+    FList.Add(lValue.Key,lValue);
     SetToNil(lValue);
 
     Dec(lCount);
@@ -364,6 +397,19 @@ end;
 procedure TRedis.Clear;
 begin
   FList.Clear;
+end;
+
+function TRedis.Dump : String;
+var
+  lS : TStringList;
+  lValue : TValue;
+begin
+  lS := TStringList.Create;
+  for lValue in FList.Values do begin
+    lValue.Dump(lS);
+  end;
+  result := lS.Text;
+  lS.Free;
 end;
 
 end.

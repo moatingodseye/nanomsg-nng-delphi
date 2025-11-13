@@ -4,6 +4,7 @@ unit RedisClient;
 interface
 
 uses
+  Vcl.Forms, // for application
   nngdll, nngType,
   Redis, RedisProtocol;
   
@@ -41,56 +42,32 @@ implementation
 
 uses
   System.SysUtils,
-  Request;
-  
-const
-  keyCommand = 'CMD';
-  keyKey = 'KEY';
-  keyType = 'TYP';
-  keyValue = 'VAL';
-  cmdAdd = 1;
-  cndExist = 2;
-  cmdRemove = 3;
+  Request, redisConstant;
   
 procedure TRedisClient.DoOnAction(ASender : TObject; AIncoming : TRedis);
 var
+  lResponse,
   lKey,
-  lType,
   lValue : TValue;
   lTemp :TValue;
   lI,lO : TRedis;
 begin
   Log(logInfo,'Action:');
+  lResponse := AIncoming.Exist(keyResponse);
   lKey := AIncoming.Exist(keyKey);
-  lType := AIncoming.Exist(keyType);
-  lValue := AIncoming.Exist(keyValue);
-//    case lCommand.AsInteger of
-//      cmdAdd : 
-        begin
-          lTemp := TValue.Create(FRedis,lKey.AsString);
-          case EValue(lType.AsInteger) of
-            valInteger : lTemp.AsInteger := lValue.AsInteger;
-            valFloat : lTemp.AsFloat :=- lValue.AsFloat;
-            valString : lTemp.AsString := lValue.AsString;
-            valDate : lTemp.AsDate := lValue.AsDate;
-            valRedis :
-              begin
-                lO := lTemp.AsRedis as TRedis;
-                lI := lValue.AsRedis as TRedis;
-                lO.Assign(lI);
-              end;
-          end;
-          FRedis.Add(lTemp);
-          SetToNil(lTemp);
-        end;
-//    end;
-//  end;
+  if assigned(lKey) then begin
+    lValue := AIncoming.Exist(lKey.AsString);
+    lTemp := TValue.Create(FRedis,lKey.AsString);
+    lTemp.Assign(lValue);
+    FRedis.Add(lTemp);
+    SetToNil(lTemp);
+  end;
 end;
 
 procedure TRedisClient.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log(logInfo,'Change-'+AValue.Caption);
+    Log(logInfo,'Change-'+AValue.Key);
 end;
 
 procedure TRedisClient.DoOnLog(ALevel : ELog; AMessage : String);
@@ -118,6 +95,7 @@ begin
   FRequest := TOutgoing.Create;
   FRequest.OnAction := DoOnAction;
   FRequest.OnLog := DoOnLog;
+  FRequest.Level := logInfo;
 end;
 
 destructor TRedisClient.Destroy;
@@ -150,12 +128,13 @@ var
 begin
   lRedis := TRedis.Create;
   lRedis.Add(keyCommand,cmdAdd);
-  lRedis.Add(keyType,Ord(AValue.&Type));
   lRedis.Add(keyKey,AValue.Key);
   lRedis.Add(AValue);
   FRequest.Request(lRedis);
-  while FRequest.State<>stReceived do
+  while FRequest.State<>stReceived do begin
     Sleep(100);
+    Application.ProcessMessages;
+  end;
   lRedis.Free;
 end;
 

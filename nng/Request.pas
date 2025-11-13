@@ -52,7 +52,6 @@ begin
         { Send the request }
         err := Send(FOut);
         if err = NNG_OK then begin
-          Log(logInfo,'Sent request');
           FPoll := True;
           FState := stSent;
         end else
@@ -66,7 +65,6 @@ begin
         case err of
           NNG_OK :
             begin
-              Log(logInfo,'Received:'+FIn.Pull);
               FState := stReceived;
               FPoll := False;
               Response(AData,FIn);
@@ -132,7 +130,9 @@ end;
 
 procedure TRequest.Request(AOut : TPacket);
 begin
+  Log(logInfo,'Request:'+IntToStr(AOut.Used)+' '+AOut.Dump);
   FOut.Assign(AOut);
+  Log(logInfo,'Sending:'+IntToStr(FOut.Used)+' '+FOut.Dump);
   FState := stReady;
   Kick;
 end;

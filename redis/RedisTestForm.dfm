@@ -3,7 +3,7 @@ object frmRedisTest: TfrmRedisTest
   Top = 0
   Caption = 'Redis test'
   ClientHeight = 441
-  ClientWidth = 624
+  ClientWidth = 694
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,10 +14,11 @@ object frmRedisTest: TfrmRedisTest
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 624
+    Width = 694
     Height = 105
     Align = alTop
     TabOrder = 0
+    ExplicitWidth = 624
     object Label1: TLabel
       Left = 391
       Top = 11
@@ -123,17 +124,61 @@ object frmRedisTest: TfrmRedisTest
       TabOrder = 9
       OnClick = btnRemoveClick
     end
+    object btnSave: TButton
+      Left = 536
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = 'btnSave'
+      TabOrder = 10
+      OnClick = btnSaveClick
+    end
+    object btnLoad: TButton
+      Left = 536
+      Top = 39
+      Width = 75
+      Height = 25
+      Caption = 'btnLoad'
+      TabOrder = 11
+      OnClick = btnLoadClick
+    end
+    object btnDestroy: TButton
+      Left = 8
+      Top = 40
+      Width = 75
+      Height = 25
+      Caption = 'btnDestroy'
+      TabOrder = 12
+      OnClick = btnDestroyClick
+    end
+    object btnDump: TButton
+      Left = 616
+      Top = 8
+      Width = 75
+      Height = 25
+      Caption = 'btnDump'
+      TabOrder = 13
+      OnClick = btnDumpClick
+    end
+    object btnClear: TButton
+      Left = 617
+      Top = 39
+      Width = 75
+      Height = 25
+      Caption = 'btnClear'
+      TabOrder = 14
+      OnClick = btnClearClick
+    end
   end
   object mmoLog: TMemo
     Left = 0
     Top = 105
-    Width = 624
+    Width = 694
     Height = 336
     Align = alClient
     Lines.Strings = (
       'mmoLog')
     TabOrder = 1
-    ExplicitTop = 127
-    ExplicitHeight = 314
+    ExplicitWidth = 624
   end
 end

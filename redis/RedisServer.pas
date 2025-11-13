@@ -36,48 +36,31 @@ type
   
 implementation
 
-const
-  keyCommand = 'CMD';
-  keyKey = 'KEY';
-  keyType = 'TYP';
-//  keyValue = 'VAL';
-  cmdAdd = 1;
-  cndExist = 2;
-  cmdRemove = 3;
-  keyResponse = 'RES';
-  repACK = 0;
-  repNACK = 1;
+uses
+  System.SysUtils, redisConstant;
   
 procedure TRedisServer.DoOnAction(ASender : TObject; ARedis : TRedis);
 var
   lCommand,
   lKey,
-  lType,
   lValue : TValue;
   lTemp :TValue;
   lI,lO : TRedis;
 begin
+  Log(logInfo,ARedis.Dump);
+  
   lCommand := ARedis.Exist(keyCommand);
   lKey := ARedis.Exist(keyKey);
-  lType := ARedis.Exist(keyType);
   if assigned(lCommand) then begin
     case lCommand.AsInteger of
       cmdAdd : 
         begin
+          Log(logInfo,'Add:'+lKey.AsString);
+          Log(logInfo,ARedis.Dump); 
+          
           lValue := ARedis.Exist(lKey.AsString);
           lTemp := TValue.Create(FRedis,lKey.AsString);
-          case EValue(lTemp.AsInteger) of
-            valInteger : lTemp.AsInteger := lValue.AsInteger;
-            valFloat : lTemp.AsFloat :=- lValue.AsFloat;
-            valString : lTemp.AsString := lValue.AsString;
-            valDate : lTemp.AsDate := lValue.AsDate;
-            valRedis :
-              begin
-                lO := lTemp.AsRedis;
-                lI := lValue.AsRedis;
-                lO.Assign(lI);
-              end;
-          end;
+          lTemp.Assign(lValue);
           FRedis.Add(lTemp);
           SetToNil(lTemp);
 
@@ -98,7 +81,7 @@ end;
 procedure TRedisServer.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log(logInfo,'Change-'+AValue.Caption);
+    Log(logInfo,'Change-'+AValue.Key);
 end;
 
 procedure TRedisServer.DoOnLog(ALevel : ELog; AMessage : String);
@@ -125,6 +108,7 @@ begin
   FResponse := TIncoming.Create;
   FResponse.OnAction := DoOnAction;
   FResponse.OnLog := DoOnLog;
+  FResponse.Level := logInfo;
 end;
 
 destructor TRedisServer.Destroy;

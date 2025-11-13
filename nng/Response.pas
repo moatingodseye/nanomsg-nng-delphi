@@ -40,19 +40,16 @@ begin
   case err of
     NNG_OK :
       begin
-        Log(logInfo,'Received:'+FIn.Pull);
         FOut.Used := 0;
         Request(AData,FIn,FOut);
-        if Send(FOut)=NNG_OK then
-          Log(logInfo,'Sent:'+FOut.Pull)
-        else
-          Error('Error sending : '+ nng_strerror(err))
+        if Send(FOut)<>NNG_OK then
+          Error('Send: '+ nng_strerror(err))
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Error('Error receiving : '+ nng_strerror(err))
+    Error('Receive: '+ nng_strerror(err))
   end;
 end;
 

@@ -20,7 +20,7 @@ type
     Label3: TLabel;
     rdoInteger: TRadioButton;
     edtKey: TEdit;
-    Button1: TButton;
+    btnAdd: TButton;
     rdoFloat: TRadioButton;
     rdoString: TRadioButton;
     rdoDate: TRadioButton;
@@ -32,7 +32,7 @@ type
     edtPort: TEdit;
     procedure btnStartClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure btnAddClick(Sender: TObject);
   private
     { Private declarations }
     FLog : TbaLogger;
@@ -91,9 +91,10 @@ begin
   FLog := Nil;
 end;
 
-procedure TfrmRedisClientTest.Button1Click(Sender: TObject);
+procedure TfrmRedisClientTest.btnAddClick(Sender: TObject);
 var
   lValue : TValue;
+  lS : TStringList;
 begin
   lValue := TValue.Create(Nil,edtKey.Text);
   if rdoInteger.Checked then
@@ -106,8 +107,11 @@ begin
     lValue.AsDate := StrToDateTime(edtValue.Text);
 
   try
+    lS := TStringList.Create;
+    lValue.Dump(lS);
+    Log('Add:'+lS.Text);
+    lS.Free;
     FClient.Add(lValue);
-    Log('Add-'+lValue.Caption);
   except
     on E : EListError do
       Log('OK:'+E.Message);

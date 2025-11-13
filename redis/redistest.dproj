@@ -132,6 +132,8 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="redis.pas"/>
+        <DCCReference Include="..\nng\Packet.pas"/>
+        <DCCReference Include="..\nng\nngConstant.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -158,7 +160,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">
-                <DeployFile LocalName="Win32\Debug\redistest.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\Win32\Debug\redistest.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>redistest.exe</RemoteName>
                         <Overwrite>true</Overwrite>
