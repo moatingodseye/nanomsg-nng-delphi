@@ -34,11 +34,11 @@ begin
     FURL := FHost + ':' + IntToStr(FPort);
     err := nng_listen(FSocket, PAnsiChar(FUrl), @FListen, 0);
     if err = NNG_OK then begin
-      Log(logInfo,'Listening:'+FURL);
+      Log(logInfo,'Listen:'+FURL);
       FPoll := True;
       Inc(FStage);
     end else
-      Error('Error listening: '+ nng_strerror(err))
+      Error('Listen: '+ nng_strerror(err))
   end;
 end;
 
@@ -50,7 +50,7 @@ begin
     Dec(FStage);
     err := nng_listener_close(FListen);
     if err<>NNG_OK then
-      Error('Listener close failed:'+ nng_strerror(err));
+      Error('unlisten:'+ nng_strerror(err));
   end;
 
   inherited;

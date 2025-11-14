@@ -55,7 +55,7 @@ begin
           FPoll := True;
           FState := stSent;
         end else
-          Error('Error sending request: '+ nng_strerror(err))
+          Error('Send: '+ nng_strerror(err))
       end;
     stSent :
       begin
@@ -73,7 +73,7 @@ begin
             begin
             end;
         else
-          Error('Error receiving request: '+ nng_strerror(err))
+          Error('Receive: '+ nng_strerror(err))
         end;
       end;
     stReceived :
@@ -130,9 +130,7 @@ end;
 
 procedure TRequest.Request(AOut : TPacket);
 begin
-  Log(logInfo,'Request:'+IntToStr(AOut.Used)+' '+AOut.Dump);
   FOut.Assign(AOut);
-  Log(logInfo,'Sending:'+IntToStr(FOut.Used)+' '+FOut.Dump);
   FState := stReady;
   Kick;
 end;

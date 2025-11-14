@@ -147,6 +147,7 @@
         <DCCReference Include="..\basic\BaLogger.pas"/>
         <DCCReference Include="..\nng\nngConstant.pas"/>
         <DCCReference Include="..\nng\nngType.pas"/>
+        <DCCReference Include="redisConstant.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

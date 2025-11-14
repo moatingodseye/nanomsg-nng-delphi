@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, RedisClient, baLogger;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Redis,  RedisClient, baLogger;
 
 type
   TfrmRedisClientTest = class(TForm)
@@ -33,10 +33,13 @@ type
     procedure btnStartClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
     procedure btnAddClick(Sender: TObject);
+    procedure btnExistClick(Sender: TObject);
+    procedure btnRemoveClick(Sender: TObject);
   private
     { Private declarations }
     FLog : TbaLogger;
     FClient : TRedisClient;
+    procedure DoOnResponse(ASender : TObject; ACommand : Integer; AKey : String; AValue : TValue; AResponse : Integer);
     procedure DoLog(AMessage : String); //threaded!
     procedure DoOnLog(AMessage : String);
     procedure Log(AMessage : String);
@@ -52,7 +55,21 @@ implementation
 {$R *.dfm}
 
 uses
-  Redis;
+  redisConstant;
+
+function IIF(ACheck : Boolean; ANo,AYes : String) : String;
+begin
+  result := ANo;
+  if ACheck then
+    result := AYes;
+end;
+
+procedure TfrmRedisClientTest.DoOnResponse(ASender: TObject; ACommand : Integer; AKey : String; AValue : TValue; AResponse : Integer);
+begin
+  Log('Response:'+cCommand[ACommand]+' '+AKey+' '+cResponse[AResponse]);
+  if assigned(AValue) then
+    Log(AValue.Dump);
+end;
 
 procedure TfrmRedisClientTest.DoLog(AMessage : String);
 begin
@@ -69,6 +86,18 @@ begin
   mmoLog.Lines.Add(AMessage);
 end;
 
+procedure TfrmRedisClientTest.btnExistClick(Sender: TObject);
+begin
+  Log('Exist:'+edtKey.Text);
+  FClient.Exist(edtKey.Text);
+end;
+
+procedure TfrmRedisClientTest.btnRemoveClick(Sender: TObject);
+begin
+  Log('Remove:'+edtKey.Text);
+  FClient.Remove(edtKey.Text);
+end;
+
 procedure TfrmRedisClientTest.btnStartClick(Sender: TObject);
 begin
   FLog := TbaLogger.Create;
@@ -78,6 +107,7 @@ begin
   FClient.Host := edtHost.Text;
   FClient.Port := StrToInt(edtPort.Text);
   FClient.OnLog := DoLog;
+  FClient.OnResponse := DoOnResponse;
   FClient.Start;
 end;
 
@@ -94,7 +124,6 @@ end;
 procedure TfrmRedisClientTest.btnAddClick(Sender: TObject);
 var
   lValue : TValue;
-  lS : TStringList;
 begin
   lValue := TValue.Create(Nil,edtKey.Text);
   if rdoInteger.Checked then
@@ -107,10 +136,7 @@ begin
     lValue.AsDate := StrToDateTime(edtValue.Text);
 
   try
-    lS := TStringList.Create;
-    lValue.Dump(lS);
-    Log('Add:'+lS.Text);
-    lS.Free;
+    Log('Add:'+lValue.Dump);
     FClient.Add(lValue);
   except
     on E : EListError do

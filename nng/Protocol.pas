@@ -68,18 +68,18 @@ begin
     if err = NNG_OK then
       Inc(FStage)
     else
-      Error('Error opening responder: '+ nng_strerror(err))
+      Error('Protocol: '+ nng_strerror(err))
   end;
   if FStage=2 then begin
     err := nng_pipe_notify(FSocket,pipBefore,@callback,self);
     if err<>NNG_OK then
-      Error('Pipe Error:'+nng_strerror(err));
+      Error('Pipe:'+nng_strerror(err));
     err := nng_pipe_notify(FSocket,pipAdd,@callback,self);
     if err<>NNG_OK then
-      Error('Pipe Error:'+nng_strerror(err));
+      Error('Pipe:'+nng_strerror(err));
     err := nng_pipe_notify(FSocket,pipRemove,@callback,self);
     if err<>NNG_OK then
-      Error('Pipe Error:'+nng_strerror(err));
+      Error('Pipe:'+nng_strerror(err));
   end;
 end;
 

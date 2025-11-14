@@ -47,7 +47,7 @@ var
   lTemp :TValue;
   lI,lO : TRedis;
 begin
-  Log(logInfo,ARedis.Dump);
+  Log(logInfo,'Process:'+ARedis.Dump);
   
   lCommand := ARedis.Exist(keyCommand);
   lKey := ARedis.Exist(keyKey);
@@ -56,7 +56,6 @@ begin
       cmdAdd : 
         begin
           Log(logInfo,'Add:'+lKey.AsString);
-          Log(logInfo,ARedis.Dump); 
           
           lValue := ARedis.Exist(lKey.AsString);
           lTemp := TValue.Create(FRedis,lKey.AsString);
@@ -65,13 +64,45 @@ begin
           SetToNil(lTemp);
 
           { Setup response }
-          ARedis.Clear;
-          ARedis.Add(keyResponse,repACK);
+          ARedis.Remove(lKey.AsString);
+//          ARedis.Add(keyCommand,cmdAdd);
+//          ARedis.Add(keyKey,lKey.AsString);
+          ARedis.Add(keyResponse,repACK);  
+        end;
+      cmdExist : 
+        begin
+          Log(logInfo,'Exist:'+lKey.AsString);
+        
+          lTemp := FRedis.Exist(lKey.AsString);
+
+          if assigned(lTemp) then begin
+//            ARedis.Clear;
+//            ARedis.Add(keyCommand,cmdExist);
+            ARedis.Add(keyResponse,repACK);
+//            ARedis.Add(keyKey,lKey.AsString);
+            AREdis.Add(TValue.Clone(Nil,lTemp));
+          end else begin
+//            ARedis.Clear;
+//            ARedis.Add(keyCommand,cmdExist);
+            ARedis.Add(keyResponse,repNACK);
+//            ARedis.Add(keyKey,lKey.AsString);
+          end;
+        end;
+      cmdRemove :
+        begin
+          Log(logInfo,'Remove:'+lKey.AsString);
+          
+          FRedis.Remove(lKey.AsString);
+          
+//          ARedis.Clear;
+//          ARedis.Add(keyCommand,cmdRemove);
+//          ARedis.Add(keyKey,lKey.AsString);
+          ARedis.Add(keyResponse,repACK);  
         end;
     else
       begin
         { Response fail }
-        ARedis.Clear;
+//        ARedis.Clear;
         ARedis.Add(keyResponse,repNACK);
       end;
     end;

@@ -40,10 +40,8 @@ begin
   rep := 'Publish:'+IntToStr(FCount);
   FPacket.Push(rep);
   err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
-  if err = NNG_OK then
-    Log(logInfo,'Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
-  else
-    Error('Error sending Publish: '+ nng_strerror(err));
+  if err<>NNG_OK then
+    Error('Sending: '+ nng_strerror(err));
   Inc(FCount);
 //  FEnabled := False;
 end;

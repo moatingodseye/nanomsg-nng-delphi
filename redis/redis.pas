@@ -41,7 +41,8 @@ type
     constructor Create(AOwner : TRedis; AKey : String);
     destructor Destroy; override;
 
-    procedure Dump(AInto : TStringList);
+    class function Clone(AOwner : TRedis; AFrom : TValue) : TValue;
+    function Dump : String;
     procedure Assign(AFrom : TValue);
     procedure Clear;
     
@@ -177,19 +178,24 @@ begin
     result := AYes;
 end;
 
-procedure TValue.Dump(AInto : TStringList);
+function TValue.Dump : String;
+var
+  lS : TStringList;
 begin
-  AInto.Add('{key='+FKey+';');
-  AInto.Add('type='+cValue[FType]+';');
-  AInto.Add('null='+IIF(FNull,'No','Yes')+';');
+  lS := TStringList.Create;
+  lS.Add('{key='+FKey+';');
+  lS.Add('type='+cValue[FType]+';');
+  lS.Add('null='+IIF(FNull,'No','Yes')+';');
   case FType of
-    valInteger : AInto.Add('value='+IntToStr(FInteger)+';');
-    valFloat  : AInto.Add('value='+FloatToStr(FFloat)+';');
-    valString : AInto.Add('value='+FString+';');
-    valDate : AInto.Add('value='+DateTimeToStr(FDate)+';');
-    valRedis : AInto.Add('REDIS!');
+    valInteger : lS.Add('value='+IntToStr(FInteger)+';');
+    valFloat  : lS.Add('value='+FloatToStr(FFloat)+';');
+    valString : lS.Add('value='+FString+';');
+    valDate : lS.Add('value='+DateTimeToStr(FDate)+';');
+    valRedis : lS.Add('REDIS!');
   end;
-  AInto.Add('}');
+  lS.Add('}');
+  result := lS.Text;
+  lS.Free;
 end;
 
 procedure TValue.Load(AFrom : TStream);
@@ -250,6 +256,15 @@ begin
             FRedis.Save(AInto);
         end;
     end;
+end;
+
+class function TValue.Clone(AOwner : TRedis; AFrom : TValue) : TValue;
+var
+  lValue : TValue;
+begin
+  lValue := TValue.Create(AOwner,'');
+  lValue.Assign(AFrom);
+  result := lValue;
 end;
 
 procedure TValue.Assign(AFrom : TValue);
@@ -406,7 +421,7 @@ var
 begin
   lS := TStringList.Create;
   for lValue in FList.Values do begin
-    lValue.Dump(lS);
+    lS.Add(lValue.Dump);
   end;
   result := lS.Text;
   lS.Free;

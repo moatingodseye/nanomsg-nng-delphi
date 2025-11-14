@@ -91,7 +91,7 @@ var
   err : Integer;
 begin
   inherited;
-  Log(logInfo,'Initialise');
+  Log(logInfo,'Initialise:');
   init_params.num_task_threads := 2;
   init_params.max_task_threads := 4;
   init_params.num_expire_threads := 1;
@@ -105,7 +105,7 @@ begin
   if (err = NNG_OK) or (err = NNG_EBUSY) then
     Inc(FStage)
   else
-    Error('Error initializing nng: '+ nng_strerror(err));
+    Error('Initialise:'+ nng_strerror(err));
 end;    
 
 procedure TNNG.Teardown;
@@ -113,11 +113,12 @@ var
   err : Integer;
 begin
   if FStage=1 then begin
+    log(logInfo,'Finalise:');
     Dec(FStage);
     // Cleanup
     err := nng_fini();
     if err <> NNG_OK then
-      Error('Error finalizing nng: '+ nng_strerror(err));
+      Error('Finalise: '+ nng_strerror(err));
   end;
   inherited;
 end;
@@ -138,7 +139,7 @@ begin
       begin
         Dec(FActive);
         if FActive=0 then
-          Log(logInfo,'In-active');
+          Log(logInfo,'Inactive');
       end;
   end;
 end;

@@ -85,28 +85,28 @@ object frmRedisClientTest: TfrmRedisClientTest
     Align = alTop
     TabOrder = 2
     object Label1: TLabel
-      Left = 391
+      Left = 311
       Top = 11
       Width = 25
       Height = 15
       Caption = 'Type'
     end
     object Label2: TLabel
-      Left = 215
+      Left = 135
       Top = 11
       Width = 19
       Height = 15
       Caption = 'Key'
     end
     object Label3: TLabel
-      Left = 215
+      Left = 135
       Top = 40
       Width = 28
       Height = 15
       Caption = 'Value'
     end
     object rdoInteger: TRadioButton
-      Left = 422
+      Left = 342
       Top = 12
       Width = 73
       Height = 17
@@ -116,14 +116,14 @@ object frmRedisClientTest: TfrmRedisClientTest
       TabStop = True
     end
     object edtKey: TEdit
-      Left = 264
+      Left = 184
       Top = 8
       Width = 121
       Height = 23
       TabOrder = 1
     end
     object btnAdd: TButton
-      Left = 88
+      Left = 8
       Top = 8
       Width = 75
       Height = 25
@@ -132,7 +132,7 @@ object frmRedisClientTest: TfrmRedisClientTest
       OnClick = btnAddClick
     end
     object rdoFloat: TRadioButton
-      Left = 422
+      Left = 342
       Top = 35
       Width = 113
       Height = 17
@@ -140,7 +140,7 @@ object frmRedisClientTest: TfrmRedisClientTest
       TabOrder = 3
     end
     object rdoString: TRadioButton
-      Left = 422
+      Left = 342
       Top = 55
       Width = 113
       Height = 17
@@ -148,7 +148,7 @@ object frmRedisClientTest: TfrmRedisClientTest
       TabOrder = 4
     end
     object rdoDate: TRadioButton
-      Left = 422
+      Left = 342
       Top = 78
       Width = 113
       Height = 17
@@ -156,7 +156,7 @@ object frmRedisClientTest: TfrmRedisClientTest
       TabOrder = 5
     end
     object rdoObject: TRadioButton
-      Left = 422
+      Left = 342
       Top = 101
       Width = 113
       Height = 17
@@ -164,27 +164,29 @@ object frmRedisClientTest: TfrmRedisClientTest
       TabOrder = 6
     end
     object edtValue: TEdit
-      Left = 264
+      Left = 184
       Top = 37
       Width = 121
       Height = 23
       TabOrder = 7
     end
     object btnExist: TButton
-      Left = 89
+      Left = 9
       Top = 40
       Width = 75
       Height = 25
       Caption = 'btnExist'
       TabOrder = 8
+      OnClick = btnExistClick
     end
     object btnRemove: TButton
-      Left = 89
+      Left = 9
       Top = 71
       Width = 75
       Height = 25
       Caption = 'btnRemove'
       TabOrder = 9
+      OnClick = btnRemoveClick
     end
   end
 end

@@ -37,7 +37,7 @@ begin
       Log(logInfo,'Dialed:'+FURL);
       Inc(FStage);
     end else
-      Error('Error Dialing: '+ nng_strerror(err))
+      Error('Dialing: '+ nng_strerror(err))
   end;
 end;
 
@@ -51,7 +51,7 @@ begin
     if err=NNG_OK then
       Log(logInfo,'Dialer Closed:'+FURL)
     else
-      Error('Dialer close failed:'+ nng_strerror(err));
+      Error('Undial:'+ nng_strerror(err));
   end;
 
   inherited;
