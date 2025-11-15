@@ -3,23 +3,24 @@ unit Push;
 interface
 
 uses
-  nngdll, Listen, Packet;
+  nngType, Listen, Packet;
   
 type
   TPush = class(TListen)
   strict private
     FPacket : TPacket;
-    FCount: Integer;
   private
   strict protected
     function Protocol : Integer; override;
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : Enngstate); override;
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    procedure Push(AFrom : TPacket);
   published
   end;
   
@@ -29,23 +30,20 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType, nngConstant;
+  System.SysUtils, nngdll, nng, nngConstant;
 
 procedure TPush.Process(AData : TObject);
 var
   err : Integer;
-  rep : AnsiString;
 begin
   // Send Push
-  rep := 'Push:'+IntToStr(FCount);
-  FPacket.Push(rep);
-  err := Send(FPacket); 
-  if err = NNG_OK then
-    Log(logInfo,'Sent:'+FPacket.Pull)
-  else
-    Error('Error sending Push: '+ nng_strerror(err));
-  Inc(FCount);
-//  FEnabled := False;
+  if FPacket.Used>0 then begin
+    err := Send(FPacket); 
+    if err=NNG_OK then
+      FPacket.Clear
+    else
+      Error('Send: '+ nng_strerror(err));
+  end;
 end;
 
 function TPush.Protocol : Integer;
@@ -56,34 +54,40 @@ end;
 procedure TPush.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
     FPacket := TPacket.Create(nngBuffer);
+    FState := Succ(FState);
   end;
 end;
 
-procedure TPush.Teardown;
+procedure TPush.Teardown(ATo : Enngstate);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FPacket.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FPacket.Free;
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 
 constructor TPush.Create;
 begin
   inherited;
-  FCount := 0;
   FHost := 'tcp://127.0.0.1';
   FPort := 5556;
-  SetPeriod(1000);
 end;
 
 destructor TPush.Destroy;
 begin
   inherited;
 end;
+
+procedure TPush.Push(AFrom : TPacket);
+begin
+  FPacket.Assign(AFrom);
+  KIck;
+end;
+
 
 end.
 

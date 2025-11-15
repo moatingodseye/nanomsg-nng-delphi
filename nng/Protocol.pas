@@ -18,7 +18,7 @@ type
     function Protocol : Integer; virtual; abstract;
   protected
     procedure Setup; override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : Enngstate); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -36,7 +36,7 @@ var
 begin
   nng := TNNG(arg);
   if assigned(nng.OnLog) then
-    nng.Log(logInfo,'Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
+    nng.Log('Pipe: '+IntToStr(pipe)+' which:'+IntToStr(which));
   nng.Pipe(which);
 end;
 
@@ -48,14 +48,14 @@ begin
   result := nng_recv(FSocket, AIn.Buffer, @size, NNG_FLAG_NONBLOCK);
   AIn.Used := size;
   if result=NNG_OK then
-    Log(logInfo,'Receive:'+IntToStr(AIn.Used)+' '+AIn.Dump);
+    Log('Receive:'+IntToStr(AIn.Used)+' '+AIn.Dump);
 end;
 
 function TProtocol.Send(AOut : TPacket) : Integer;
 begin
   result := nng_send(FSocket, AOut.Buffer, AOut.Used, 0);
   if result=NNG_OK then
-    Log(logInfo,'Send:'+InttoStr(AOut.Used)+' '+AOut.Dump);
+    Log('Send:'+InttoStr(AOut.Used)+' '+AOut.Dump);
 end;
 
 procedure TProtocol.Setup;
@@ -63,37 +63,36 @@ var
   err : Integer;
 begin
   inherited;
-  if FStage=1 then begin
+  if FState=statInitialised then begin
     err := Protocol; //nng_rep0_open(FSocket);
-    if err = NNG_OK then
-      Inc(FStage)
-    else
+    if err= NNG_OK then begin
+      err := nng_pipe_notify(FSocket,pipBefore,@callback,self);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+      err := nng_pipe_notify(FSocket,pipAdd,@callback,self);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+      err := nng_pipe_notify(FSocket,pipRemove,@callback,self);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+      FState := Succ(FState);
+    end else
       Error('Protocol: '+ nng_strerror(err))
-  end;
-  if FStage=2 then begin
-    err := nng_pipe_notify(FSocket,pipBefore,@callback,self);
-    if err<>NNG_OK then
-      Error('Pipe:'+nng_strerror(err));
-    err := nng_pipe_notify(FSocket,pipAdd,@callback,self);
-    if err<>NNG_OK then
-      Error('Pipe:'+nng_strerror(err));
-    err := nng_pipe_notify(FSocket,pipRemove,@callback,self);
-    if err<>NNG_OK then
-      Error('Pipe:'+nng_strerror(err));
   end;
 end;
 
-procedure TProtocol.Teardown;
+procedure TProtocol.Teardown(ATo : Enngstate);
 var
   err : Integer;
 begin
   inherited;
-  if FStage=2 then begin
-    Dec(FStage);
-    err := nng_socket_close(FSocket);
-    if err <> NNG_OK then
-      Error('Error closing socket: '+ nng_strerror(err));
-  end;
+  if FState>ATo then
+    if FState=statProtocol then begin
+      err := nng_socket_close(FSocket);
+      if err <> NNG_OK then
+        Error('Protocol: '+ nng_strerror(err));
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 

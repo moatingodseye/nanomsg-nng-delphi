@@ -14,38 +14,38 @@ type
     procedure DoOnThread(ASender,AData : TObject);
     procedure DoOnIdle(ASender, AData : TObject);
   private   
-    FLevel : ELog;
     FOnLog : TOnLog;
-    FOnError : TOnLog;
+    FOnState : TnngStateEvent;
   strict protected
     FHost : AnsiString;
     FPort : Integer;
-    FStage : Integer;
+    FDesired : EnngDesired;
+    FState : EnngState;
     FData : TObject;
     FActive : Integer;
     FPoll : Boolean;
     
     procedure Setup; virtual; 
     procedure Process(AData : TObject); virtual; abstract;
-    procedure Teardown; virtual; 
+    procedure Teardown(ATo : Enngstate); virtual; 
   protected
     FEnabled : Boolean;
-    procedure SetPeriod(APeriod : Integer);
+    
     procedure Error(AMessage : String);
   public
     constructor Create; virtual;
     destructor Destroy; override;
 
-    procedure Log(ALevel : ELog; AMessage : String);
-    procedure Start;
+    procedure Log(AMessage : String);
+    procedure Connect;
     procedure Kick; virtual;
-    procedure Stop;
+    procedure Disconnect;
 
-    procedure Pipe(Which : Integer);
+    procedure Pipe(AWhich : Integer); // callback from nng dll - only reason its public don't call yourself!
+
+    property State : EnngState read FState;
     
-    property Level : ELog read FLevel write FLevel;
     property OnLog : TOnLog read FOnLog write FOnLog;
-    property OnError : TOnLog read FOnError write FOnError;
     property Data : TObject read FData write FData;
     
     property Host : AnsiString read FHost write FHost;
@@ -67,12 +67,9 @@ end;
 
 procedure TNNG.DoOnThread(ASender: TObject; AData: TObject);
 begin
-  Log(logLow, DateTimeToStr(Now)+' '+IntToStr(FActive)+' '+IIF(FEnabled,'Yes','No'));
   try
     if (FActive>0) and FEnabled then
       Process(AData);
-//    if (FActive>0) and FEnabled then
-//      FThread.Kick; this makes thread run 100%
   except
     on E : Exception do
       Error(E.Message);
@@ -81,8 +78,40 @@ end;
 
 procedure TNNG.DoOnIdle(ASender, AData : TObject);
 begin
-  if (FActive>0) and FEnabled and FPoll then
-    FThread.Kick;
+  case FDesired of
+    desNull :
+      case FState of
+        statProtocol,
+        statReady,
+        statActive,
+        statConnect :
+          begin
+            Teardown(statNUll);
+          end;
+      end;
+    desReady : 
+      case FState of
+        statNull,
+        statProtocol :
+          begin
+            Sleep(250);
+            Setup;
+            if (FState=statReady) or (FState=statActive) then
+              FEnabled := True
+            else
+              Teardown(statProtocol);
+          end;
+        statReady : ;
+        statActive : FState := statReady;
+      end;
+    desActive :
+      case FState of
+        statReady : FState := statActive;
+        statActive : 
+          if (FActive>0) and FEnabled and FPoll then
+            FThread.Kick;
+      end;
+  end;
 end;
 
 procedure TNNG.Setup;
@@ -91,84 +120,84 @@ var
   err : Integer;
 begin
   inherited;
-  Log(logInfo,'Initialise:');
-  init_params.num_task_threads := 2;
-  init_params.max_task_threads := 4;
-  init_params.num_expire_threads := 1;
-  init_params.max_expire_threads := 2;
-  init_params.num_poller_threads := 1;
-  init_params.max_poller_threads := 2;
-  init_params.num_resolver_threads := 1;
+  if FState=statNull then begin
+    Log('Initialise:');
+    init_params.num_task_threads := 2;
+    init_params.max_task_threads := 4;
+    init_params.num_expire_threads := 1;
+    init_params.max_expire_threads := 2;
+    init_params.num_poller_threads := 1;
+    init_params.max_poller_threads := 2;
+    init_params.num_resolver_threads := 1;
 
-  // Initialize the nng library
-  err := nng_init(@init_params);
-  if (err = NNG_OK) or (err = NNG_EBUSY) then
-    Inc(FStage)
-  else
-    Error('Initialise:'+ nng_strerror(err));
+    // Initialize the nng library
+    err := nng_init(@init_params);
+    if (err = NNG_OK) or (err = NNG_EBUSY) then
+      FState := Succ(FState)
+    else
+      Error('Initialise:'+ nng_strerror(err));
+  end;
 end;    
 
-procedure TNNG.Teardown;
+procedure TNNG.Teardown(ATo : Enngstate);
 var
   err : Integer;
 begin
-  if FStage=1 then begin
-    log(logInfo,'Finalise:');
-    Dec(FStage);
-    // Cleanup
-    err := nng_fini();
-    if err <> NNG_OK then
-      Error('Finalise: '+ nng_strerror(err));
-  end;
+  if FState>ATo then
+    if FState=statInitialised then begin
+      log('Finalise:');
+      FState := Pred(FState);
+      // Cleanup
+      err := nng_fini();
+      if err <> NNG_OK then
+        Error('Finalise: '+ nng_strerror(err));
+    end;
   inherited;
 end;
 
-procedure TNNG.Pipe(which : Integer);
+procedure TNNG.Pipe(AWhich : Integer);
 begin
-  case which of
+  case AWhich of
     1 : { Before add } ;
     2 : { Add }
       begin
         Inc(FActive);
         if FActive>0 then begin
-          Log(logInfo,'Active');
+          Log('Active');
+          FDesired := desActive;
           FThread.Kick;
         end;
       end;
     3 : { Remove }
       begin
         Dec(FActive);
-        if FActive=0 then
-          Log(logInfo,'Inactive');
+        if FActive=0 then begin
+          FDesired := desReady;
+          Log('Inactive');
+        end;
       end;
   end;
 end;
 
-procedure TNNG.SetPeriod(APeriod : Integer);
+procedure TNNG.Log(AMessage : String);
 begin
-  FThread.SetPeriod(APeriod);
-end;
-
-procedure TNNG.Log(ALevel :ELog; AMessage : String);
-begin
-  if assigned(FOnLog) and (ALevel>=FLevel) then
-    FOnLog(ALevel,AMessage);
+  if assigned(FOnLog) then
+    FOnLog(ClassName+':'+AMessage);
 end;
 
 procedure TNNG.Error(AMessage : String);
 begin
-  if assigned(FOnError) then
-    FOnError(logError,AMessage);
+  Log('Error:'+AMessage);
 end;
 
 constructor TNNG.Create;
 begin
   inherited Create;
-  FLevel := logNone;
   FPoll := False;
   FEnabled := False;
   FActive := 0;
-  FStage := 0;
+  FDesired := desNull;
+  FState := statNull;
   FThread := TbaThread.Create(nngPeriod,nngGranularity);
   FThread.OnAsThread := DoOnThread;
   FThread.OnAsIdle := DoOnIdle;
@@ -180,23 +209,23 @@ begin
   inherited;
 end;
 
-procedure TNNG.Start;
+procedure TNNG.Connect;
 begin
-  Setup;
-  FEnabled := True;
+  FDesired := desReady;
   FThread.Kick;
 end;
 
 procedure TNNG.Kick;
 begin
-  FEnabled := True;
+//  FEnabled := True;
   FThread.Kick;
 end;
 
-procedure TNNG.Stop;
+procedure TNNG.Disconnect;
 begin
-  FThread.OnAsThread := Nil;
-  Teardown;
+  FDesired := desNull;
+//  FThread.OnAsThread := Nil;
+//  Teardown;
 end;
 
 end.

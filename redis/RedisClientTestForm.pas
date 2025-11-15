@@ -43,7 +43,7 @@ type
     procedure DoLog(AMessage : String); //threaded!
     procedure DoOnLog(AMessage : String);
     procedure Log(AMessage : String);
-  public                   
+  public
     { Public declarations }
   end;
 

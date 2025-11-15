@@ -3,7 +3,7 @@ unit Pull;
 interface
 
 uses
-  nngdll, Packet, Dial;
+  nngdll, nngType, Packet, Dial;
   
 type
   TPull = class(TDial)
@@ -15,7 +15,8 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Pull(AData : TObject; AIn : TPacket); virtual; abstract;
+    procedure Teardown(ATo : Enngstate); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -28,7 +29,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType, nngConstant;
+  System.SysUtils, nng, nngConstant;
   
 procedure TPull.Process(AData : TObject);
 var
@@ -38,7 +39,7 @@ begin
   case err of
     NNG_OK :
       begin
-        Log(logInfo,'Received: '+FPacket.Pull);
+        Pull(AData,FPacket);
       end;
     NNG_EAGAIN :
       begin
@@ -56,19 +57,21 @@ end;
 procedure TPull.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
-    FPoll := True;
+  if FState=statConnect then begin
     FPacket := TPacket.Create(nngBuffer);
+    FState := Succ(FState);
+    FPoll := True;
   end;
 end;
 
-procedure TPull.Teardown;
+procedure TPull.Teardown(ATo : Enngstate);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FPacket.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FPoll := False;
+      FPacket.Free;
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 
@@ -77,7 +80,6 @@ begin
   inherited;
   FHost := 'tcp://127.0.0.1';
   FPort := 5556;
-  SetPeriod(100);
 end;
 
 destructor TPull.Destroy;

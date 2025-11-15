@@ -103,7 +103,7 @@ procedure TTest.Start;
 begin
   FState := tsReady;
   FForm.Show;
-  FNNG.Start;
+  FNNG.Connect;
 end;
 
 procedure TTest.Kick;
@@ -116,7 +116,7 @@ begin
   FForm.Hide;
   FForm.Free;
   FForm := Nil;
-  FNNG.Stop;
+  FNNG.Disconnect;
   FState := tsClose;
   if assigned(FOnStop) then
     FOnStop(Self);

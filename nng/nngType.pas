@@ -3,11 +3,15 @@ unit nngType;
 interface
 
 type
-  ELog = (logNone, logLow, logInfo, logWarning, logError);
-  TOnLog = procedure(ALevel : ELog; AMessage : String) of object;
+  TOnLog = procedure(AMessage : String) of object;
+
+type
+  EnngDesired = (desNull, desReady, desActive);
+  EnngState = (statNull, statInitialised, statProtocol, statConnect, statReady, statActive);
+  TnngStateEvent = procedure(ASender : TObject; AState : EnngState) of object;
 
 const
-  cLog : Array[ELog] of String = ('','Tick','Info:','Warning:','Error:');
+  cState : Array[EnngState] of String = ('','Initialised','Protocol','Connect','Ready','Active');
   
 implementation
 
