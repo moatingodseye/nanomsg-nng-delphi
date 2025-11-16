@@ -134,18 +134,18 @@
         </DCCReference>
         <DCCReference Include="RedisServer.pas"/>
         <DCCReference Include="redis.pas"/>
-        <DCCReference Include="..\nng\Publish.pas"/>
+        <DCCReference Include="..\nng\nngPublish.pas"/>
         <DCCReference Include="..\nng\nng.pas"/>
-        <DCCReference Include="..\nng\Response.pas"/>
+        <DCCReference Include="..\nng\nngResponse.pas"/>
         <DCCReference Include="..\nnglib\nngdll.pas"/>
-        <DCCReference Include="..\nng\Listen.pas"/>
-        <DCCReference Include="..\nng\Protocol.pas"/>
+        <DCCReference Include="..\nng\nngListen.pas"/>
+        <DCCReference Include="..\nng\nngProtocol.pas"/>
         <DCCReference Include="..\basic\BaThread.pas"/>
         <DCCReference Include="RedisProtocol.pas"/>
         <DCCReference Include="RedisClient.pas"/>
-        <DCCReference Include="..\nng\Request.pas"/>
-        <DCCReference Include="..\nng\Dial.pas"/>
-        <DCCReference Include="..\nng\Packet.pas"/>
+        <DCCReference Include="..\nng\nngRequest.pas"/>
+        <DCCReference Include="..\nng\nngDial.pas"/>
+        <DCCReference Include="..\nng\nngPacket.pas"/>
         <DCCReference Include="..\basic\BaLogger.pas"/>
         <DCCReference Include="..\nng\nngConstant.pas"/>
         <DCCReference Include="..\nng\nngType.pas"/>

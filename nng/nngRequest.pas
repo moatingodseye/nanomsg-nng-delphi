@@ -1,32 +1,32 @@
-unit Request;
+unit nngRequest;
 
 interface
 
 uses
-  nngType, Dial, Packet;
+  nngType, nngDial, nngPacket;
   
 type
   EnngRequest = (stNull, stReady, stSent, stReceived);
   
-  TRequest = class(TDial)
+  TnngRequest = class(TnngDial)
   strict private
     FRequest : EnngRequest;
     FIn,
-    FOut : TPacket;
+    FOut : TnngPacket;
   private
   strict protected
     function Protocol : Integer; override;
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Response(AData : TObject; AIn : TPacket); virtual; abstract;
+    procedure Response(AData : TObject; AIn : TnngPacket); virtual; abstract;
     procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
     destructor Destroy; override;
 
     procedure Kick; override;
-    procedure Request(AOut : TPacket);
+    procedure Request(AOut : TnngPacket);
 
     property Stage : EnngRequest read FRequest;
   published
@@ -41,7 +41,7 @@ uses
   System.SysUtils,
   nngdll, nngConstant;
   
-procedure TRequest.Process(AData : TObject);
+procedure TnngRequest.Process(AData : TObject);
 var
   err : Integer;
 begin
@@ -84,23 +84,23 @@ begin
   end;
 end;
 
-function TRequest.Protocol : Integer;
+function TnngRequest.Protocol : Integer;
 begin
   result := nng_req0_open(FSocket);
 end;
 
-procedure TRequest.Setup;
+procedure TnngRequest.Setup;
 begin
   inherited;
   if FState=statConnect then begin
-    FIn := TPacket.Create(nngBuffer);
-    FOut := TPacket.Create(nngBuffer);
+    FIn := TnngPacket.Create(nngBuffer);
+    FOut := TnngPacket.Create(nngBuffer);
 
     FState := Succ(FState);
   end;
 end;
 
-procedure TRequest.Teardown(ATo : EnngState);
+procedure TnngRequest.Teardown(ATo : EnngState);
 begin
   if FState>ATo then
     if FState=statReady then begin
@@ -112,7 +112,7 @@ begin
   inherited;
 end;
 
-constructor TRequest.Create;
+constructor TnngRequest.Create;
 begin
   inherited;
   FRequest := stNull;
@@ -120,18 +120,18 @@ begin
   FPort := 5555;
 end;
 
-destructor TRequest.Destroy;
+destructor TnngRequest.Destroy;
 begin
   inherited;
 end;
 
-procedure TRequest.Kick;
+procedure TnngRequest.Kick;
 begin
   inherited;
 //  FRequest := stReady;
 end;
 
-procedure TRequest.Request(AOut : TPacket);
+procedure TnngRequest.Request(AOut : TnngPacket);
 begin
   FOut.Assign(AOut);
   FRequest := stReady;

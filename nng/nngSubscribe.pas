@@ -1,14 +1,14 @@
-unit Subscribe;
+unit nngSubscribe;
 
 interface
 
 uses
-  nngType, Dial, Packet;
+  nngType, nngDial, nngPacket;
   
 type
-  TSubscribe = class(TDial)
+  TnngSubscribe = class(TnngDial)
   strict private
-    FPacket : TPacket;
+    FPacket : TnngPacket;
   private
     FWhat : AnsiString;
   strict protected
@@ -16,7 +16,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Publish(AData : TObject; AIn : TPacket); virtual; abstract;
+    procedure Publish(AData : TObject; AIn : TnngPacket); virtual; abstract;
     procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
@@ -34,7 +34,7 @@ implementation
 uses
   System.SysUtils, nngdll, nngConstant;
   
-procedure TSubscribe.Process(AData : TObject);
+procedure TnngSubscribe.Process(AData : TObject);
 var
   err : Integer;
 begin
@@ -53,19 +53,19 @@ begin
   end;
 end;
 
-function TSubscribe.Protocol : Integer;
+function TnngSubscribe.Protocol : Integer;
 begin
   result := nng_sub0_open(FSocket);
 end;
 
-procedure TSubscribe.Setup;
+procedure TnngSubscribe.Setup;
 var
   err : Integer;
   what_len : Integer;
 begin
   inherited;
   if FState=statConnect then begin
-    FPacket := TPacket.Create(nngBuffer);
+    FPacket := TnngPacket.Create(nngBuffer);
     what_len := Length(FWhat);
     err := nng_sub0_socket_subscribe(FSocket, PAnsiChar(FWhat), what_len);
     if err <> NNG_OK  then
@@ -76,7 +76,7 @@ begin
   end;
 end;
 
-procedure TSubscribe.Teardown(ATo : EnngState);
+procedure TnngSubscribe.Teardown(ATo : EnngState);
 var
   err : Integer;
   what_len : Integer;
@@ -94,14 +94,14 @@ begin
   inherited;
 end;
 
-constructor TSubscribe.Create;
+constructor TnngSubscribe.Create;
 begin
   inherited;
   FHost := 'tcp://127.0.0.1';
   FPort := 5557;
 end;
 
-destructor TSubscribe.Destroy;
+destructor TnngSubscribe.Destroy;
 begin
   inherited;
 end;

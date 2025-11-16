@@ -1,22 +1,22 @@
-unit Response;
+unit nngResponse;
 
 interface
 
 uses
-  nngType, Listen, Packet;
+  nngType, nngListen, nngPacket;
   
 type
-  TResponse = class(TListen)
+  TnngResponse = class(TnngListen)
   strict private
     FIn,
-    FOut : TPacket;
+    FOut : TnngPacket;
   private
   strict protected
     function Protocol : Integer; override;
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Request(AData : TObject; AIn,AOut : TPacket); virtual; abstract;
+    procedure Request(AData : TObject; AIn,AOut : TnngPacket); virtual; abstract;
     procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
@@ -32,7 +32,7 @@ implementation
 uses
   System.SysUtils, nngdll, nngConstant;
   
-procedure TResponse.Process(AData : TObject);
+procedure TnngResponse.Process(AData : TObject);
 var
   err : Integer;
 begin
@@ -53,24 +53,24 @@ begin
   end;
 end;
 
-function TResponse.Protocol : Integer;
+function TnngResponse.Protocol : Integer;
 begin
   result := nng_rep0_open(FSocket);
 end;
 
-procedure TResponse.Setup;
+procedure TnngResponse.Setup;
 begin
   inherited;
   if FState=statConnect then begin
-    FIn := TPacket.Create(nngBuffer);
-    FOut := TPacket.Create(nngBuffer);
+    FIn := TnngPacket.Create(nngBuffer);
+    FOut := TnngPacket.Create(nngBuffer);
 
     FState := Succ(FState);
     FPoll := True;
   end;
 end;
 
-procedure TResponse.Teardown(ATo : EnngState);
+procedure TnngResponse.Teardown(ATo : EnngState);
 begin
   if FState>ATo then
     if FState=statReady then begin
@@ -82,14 +82,14 @@ begin
   inherited;
 end;
 
-constructor TResponse.Create;
+constructor TnngResponse.Create;
 begin
   inherited;
   FHost := 'tcp://127.0.0.1';
   FPort := 5555;
 end;
 
-destructor TResponse.Destroy;
+destructor TnngResponse.Destroy;
 begin
   inherited;
 end;

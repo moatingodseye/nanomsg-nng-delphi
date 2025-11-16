@@ -3,16 +3,16 @@ unit RedisProtocol;
 interface
 
 uses
-  nng, nngdll, Redis, Packet, Request, Response, Publish;
+  nng, nngdll, Redis, nngPacket, nngRequest, nngResponse, nngPublish;
   
 type
   TRequestEvent = procedure(AData : TObject; ARedis : TRedis) of object;
-  TIncoming = class(TResponse)
+  TIncoming = class(TnngResponse)
   private
     FRedis : TRedis;
     FOnAction : TRequestEvent;
   protected
-    procedure Request(AData : TObject; AIn,AOut : TPacket); override;
+    procedure Request(AData : TObject; AIn,AOut : TnngPacket); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -22,12 +22,12 @@ type
   end;
 
   TResponseEvent = procedure(AData : TObject; ARedis : TRedis) of object;
-  TOutgoing = class(TRequest)
+  TOutgoing = class(TnngRequest)
   private
     FRedis : TRedis;
     FOnAction : TResponseEvent;
   protected
-    procedure Response(AData : TObject; AIn : TPacket); override;
+    procedure Response(AData : TObject; AIn : TnngPacket); override;
   public
     constructor Create; override;
     destructor Destroy;  override;
@@ -43,7 +43,7 @@ implementation
 uses
   System.Classes, nngConstant;
   
-procedure TIncoming.Request(AData : TObject; AIn,AOut : TPacket);
+procedure TIncoming.Request(AData : TObject; AIn,AOut : TnngPacket);
 var
   M : TMemoryStream;
 begin
@@ -76,7 +76,7 @@ begin
   inherited;
 end;
 
-procedure TOutgoing.Response(AData : TObject; AIn : TPacket);
+procedure TOutgoing.Response(AData : TObject; AIn : TnngPacket);
 var
   M : TMemoryStream;
 begin
@@ -104,10 +104,10 @@ end;
 procedure TOutgoing.Request(ARedis : TRedis);
 var
   M : TMemoryStream;
-  lOut :TPacket;
+  lOut :TnngPacket;
 begin
 //  FRedis.Clear;
-  lOut := TPacket.Create(nngBuffer);
+  lOut := TnngPacket.Create(nngBuffer);
   M := TMemoryStream.Create;
   ARedis.Save(M);
   M.Seek(0,soFromBeginning);

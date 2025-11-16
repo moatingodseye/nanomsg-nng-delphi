@@ -53,7 +53,7 @@ implementation
 
 uses
   System.SysUtils,
-  Request, redisConstant;
+  nngRequest, redisConstant;
   
 type
   TInternal = class(TObject)

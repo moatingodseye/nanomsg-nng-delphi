@@ -1,10 +1,10 @@
 {$M+}
-unit Packet;
+unit nngPacket;
 
 interface
 
 type
-  TPacket = class(TObject)
+  TnngPacket = class(TObject)
   private
     FBuffer : Pointer;
     FUsed,
@@ -14,7 +14,7 @@ type
     constructor Create(ASpace : Integer);
     destructor Destroy; override;
 
-    procedure Assign(AFrom : TPacket);
+    procedure Assign(AFrom : TnngPacket);
     procedure Push(AString : AnsiString);
     function Pull : AnsiString;
     function Dump : String;
@@ -31,26 +31,26 @@ implementation
 uses
   System.SysUtils, System.Classes;
 
-constructor TPacket.Create(ASpace : Integer);
+constructor TnngPacket.Create(ASpace : Integer);
 begin
   inherited Create;
   FSpace := ASpace;
   GetMem(FBuffer,FSpace);
 end;
 
-destructor TPacket.Destroy;
+destructor TnngPacket.Destroy;
 begin
   FreeMem(FBuffer,FSpace);
   inherited;
 end;
 
-procedure TPacket.Assign(AFrom : TPacket);
+procedure TnngPacket.Assign(AFrom : TnngPacket);
 begin
   FUsed := AFrom.Used;
   Move(AFrom.Buffer^,FBuffer^,FUsed);
 end;
 
-procedure TPacket.Push(AString : AnsiString);
+procedure TnngPacket.Push(AString : AnsiString);
 var
   T : AnsiString;
   lP : PAnsiChar;
@@ -67,7 +67,7 @@ begin
 //  T := AnsiString(FBuffer);
 end;
 
-function TPacket.Pull : AnsiString;
+function TnngPacket.Pull : AnsiString;
 var
   T : AnsiString;
 begin
@@ -85,7 +85,7 @@ end;
 //  Move(@rep[0],FOut.Buffer,Length(rep));
 //  FOut.Used := Length(rep);
 
-function TPacket.Dump : String;
+function TnngPacket.Dump : String;
 var
   S : String;
   P : PByte;
@@ -99,7 +99,7 @@ begin
   result := S;
 end;
 
-procedure TPacket.Clear;
+procedure TnngPacket.Clear;
 begin
   FUsed := 0;
 end;

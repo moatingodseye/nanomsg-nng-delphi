@@ -5,17 +5,17 @@ uses
   debugClientTestForm in 'debugClientTestForm.pas' {frmDebugClientTest},
   debugClient in 'debugClient.pas',
   debugProtocol in 'debugProtocol.pas',
-  Pull in '..\nng\Pull.pas',
-  Push in '..\nng\Push.pas',
-  Dial in '..\nng\Dial.pas',
-  Listen in '..\nng\Listen.pas',
+  nngPull in '..\nng\nngPull.pas',
+  nngPush in '..\nng\nngPush.pas',
+  nngDial in '..\nng\nngDial.pas',
+  nngListen in '..\nng\nngListen.pas',
   nng in '..\nng\nng.pas',
   nngConstant in '..\nng\nngConstant.pas',
   nngType in '..\nng\nngType.pas',
   nngdll in '..\nnglib\nngdll.pas',
   BaThread in '..\basic\BaThread.pas',
-  Packet in '..\nng\Packet.pas',
-  Protocol in '..\nng\Protocol.pas',
+  nngPacket in '..\nng\nngPacket.pas',
+  nngProtocol in '..\nng\nngProtocol.pas',
   BaLogger in '..\basic\BaLogger.pas';
 
 {$R *.res}

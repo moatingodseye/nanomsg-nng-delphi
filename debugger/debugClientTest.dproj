@@ -133,17 +133,17 @@
         </DCCReference>
         <DCCReference Include="debugClient.pas"/>
         <DCCReference Include="debugProtocol.pas"/>
-        <DCCReference Include="..\nng\Pull.pas"/>
-        <DCCReference Include="..\nng\Push.pas"/>
-        <DCCReference Include="..\nng\Dial.pas"/>
-        <DCCReference Include="..\nng\Listen.pas"/>
+        <DCCReference Include="..\nng\nngPull.pas"/>
+        <DCCReference Include="..\nng\nngPush.pas"/>
+        <DCCReference Include="..\nng\nngDial.pas"/>
+        <DCCReference Include="..\nng\nngListen.pas"/>
         <DCCReference Include="..\nng\nng.pas"/>
         <DCCReference Include="..\nng\nngConstant.pas"/>
         <DCCReference Include="..\nng\nngType.pas"/>
         <DCCReference Include="..\nnglib\nngdll.pas"/>
         <DCCReference Include="..\basic\BaThread.pas"/>
-        <DCCReference Include="..\nng\Packet.pas"/>
-        <DCCReference Include="..\nng\Protocol.pas"/>
+        <DCCReference Include="..\nng\nngPacket.pas"/>
+        <DCCReference Include="..\nng\nngProtocol.pas"/>
         <DCCReference Include="..\basic\BaLogger.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

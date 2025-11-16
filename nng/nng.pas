@@ -15,9 +15,8 @@ type
     procedure DoOnIdle(ASender, AData : TObject);
   private   
     FOnLog : TOnLog;
-    FOnState : TnngStateEvent;
   strict protected
-    FHost : AnsiString;
+    FHost : String;
     FPort : Integer;
     FDesired : EnngDesired;
     FState : EnngState;
@@ -48,7 +47,7 @@ type
     property OnLog : TOnLog read FOnLog write FOnLog;
     property Data : TObject read FData write FData;
     
-    property Host : AnsiString read FHost write FHost;
+    property Host : String read FHost write FHost;
     property Port : Integer read FPort write FPort;
   published
   end;

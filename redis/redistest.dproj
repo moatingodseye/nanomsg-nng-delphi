@@ -132,7 +132,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="redis.pas"/>
-        <DCCReference Include="..\nng\Packet.pas"/>
+        <DCCReference Include="..\nng\nngPacket.pas"/>
         <DCCReference Include="..\nng\nngConstant.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

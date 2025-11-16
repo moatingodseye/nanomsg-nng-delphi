@@ -1,14 +1,14 @@
-unit Publish;
+unit nngPublish;
 
 interface
 
 uses
-  nngType, Listen, Packet;
+  nngType, nngListen, nngPacket;
   
 type
-  TPublish = class(TListen)
+  TnngPublish = class(TnngListen)
   strict private
-    FPacket : TPacket;
+    FPacket : TnngPacket;
     FCount: Integer;
   private
   strict protected
@@ -31,7 +31,7 @@ implementation
 uses
   System.SysUtils, nngdll, nngConstant;
   
-procedure TPublish.Process(AData : TObject);
+procedure TnngPublish.Process(AData : TObject);
 var
   err : Integer;
 begin
@@ -44,22 +44,22 @@ begin
   end;
 end;
 
-function TPublish.Protocol : Integer;
+function TnngPublish.Protocol : Integer;
 begin
   result := nng_pub0_open(FSocket);
 end;
 
-procedure TPublish.Setup;
+procedure TnngPublish.Setup;
 begin
   inherited;
   if FState=statConnect then begin
-    FPacket := TPacket.Create(nngBuffer);
+    FPacket := TnngPacket.Create(nngBuffer);
 
     FState := Succ(FState);
   end;
 end;
 
-procedure TPublish.Teardown(ATo : EnngState);
+procedure TnngPublish.Teardown(ATo : EnngState);
 begin
   if FState>ATo then
     if FState=statReady then begin
@@ -70,7 +70,7 @@ begin
   inherited;
 end;
 
-constructor TPublish.Create;
+constructor TnngPublish.Create;
 begin
   inherited;
   FCount := 0;
@@ -78,7 +78,7 @@ begin
   FPort := 5557;
 end;
 
-destructor TPublish.Destroy;
+destructor TnngPublish.Destroy;
 begin
   inherited;
 end;

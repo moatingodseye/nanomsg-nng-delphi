@@ -4,7 +4,7 @@ uses
   Vcl.Forms,
   RedisTestForm in 'RedisTestForm.pas' {frmRedisTest},
   redis in 'redis.pas',
-  Packet in '..\nng\Packet.pas',
+  nngPacket in '..\nng\nngPacket.pas',
   nngConstant in '..\nng\nngConstant.pas';
 
 {$R *.res}

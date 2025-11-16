@@ -1,20 +1,20 @@
-unit Protocol;
+unit nngProtocol;
 
 interface
 
 uses
   nngdll,
-  nngType, nng, Packet;
+  nngType, nng, nngPacket;
 
 type
-  TProtocol = class(TNNG)
+  TnngProtocol = class(TNNG)
   strict private
   private
   strict protected
     FSocket : nng_socket;
     
-    function Receive(AIn : TPacket) : Integer;
-    function Send(AOut :TPacket) : Integer;
+    function Receive(AIn : TnngPacket) : Integer;
+    function Send(AOut :TnngPacket) : Integer;
     function Protocol : Integer; virtual; abstract;
   protected
     procedure Setup; override;
@@ -40,7 +40,7 @@ begin
   nng.Pipe(which);
 end;
 
-function TProtocol.Receive(AIn : TPacket) : Integer;
+function TnngProtocol.Receive(AIn : TnngPacket) : Integer;
 var
   size : Integer;
 begin
@@ -51,14 +51,14 @@ begin
     Log('Receive:'+IntToStr(AIn.Used)+' '+AIn.Dump);
 end;
 
-function TProtocol.Send(AOut : TPacket) : Integer;
+function TnngProtocol.Send(AOut : TnngPacket) : Integer;
 begin
   result := nng_send(FSocket, AOut.Buffer, AOut.Used, 0);
   if result=NNG_OK then
     Log('Send:'+InttoStr(AOut.Used)+' '+AOut.Dump);
 end;
 
-procedure TProtocol.Setup;
+procedure TnngProtocol.Setup;
 var
   err : Integer;
 begin
@@ -81,7 +81,7 @@ begin
   end;
 end;
 
-procedure TProtocol.Teardown(ATo : Enngstate);
+procedure TnngProtocol.Teardown(ATo : Enngstate);
 var
   err : Integer;
 begin
@@ -96,13 +96,13 @@ begin
   inherited;
 end;
 
-constructor TProtocol.Create;
+constructor TnngProtocol.Create;
 begin
   inherited;
   FSocket := 0;
 end;
 
-destructor TProtocol.Destroy;
+destructor TnngProtocol.Destroy;
 begin
   inherited;
 end;

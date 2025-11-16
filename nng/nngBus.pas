@@ -1,14 +1,14 @@
-unit Pair;
+unit nngBus;
 
 interface
 
 uses
-  nngType, Both, Packet;
+  nngType, nngBoth;
   
 type
-  TPair = class(TBoth)
+  TnngBus = class(TnngBoth)
   strict private
-    FPacket : TPacket;
+    FBuffer : Pointer;
     FCount: Integer;
   private
   strict protected
@@ -23,12 +23,12 @@ type
   published
   end;
   
-  TSPair = class(TPair)
+  TnngDialBus = class(TnngBus)
   public
     constructor Create; reintroduce;
   end;
 
-  TCPair = class(TPair)
+  TnngListenBus = class(TnngBus)
   public
     constructor Create; reintroduce;
   end;
@@ -41,28 +41,31 @@ implementation
 uses
   System.SysUtils, nngdll, nngConstant;
   
-procedure TPair.Process(AData : TObject);
+procedure TnngBus.Process(AData : TObject);
 var
   err : Integer;
   rep : AnsiString;
+  rep_len : Integer;
+  size : Integer;
 begin
   Sleep(100); // just for debugging
   if FBoth=bListen then begin
-    rep := 'Pair:'+IntToStr(FCount);
-    FPacket.Push(rep);
-    err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+    rep := 'Bus:'+IntToStr(FCount);
+    rep_len := Length(rep);
+    err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
     if err = NNG_OK then
-      Log('Sent:'+FPacket.Pull)
+      Log('Sent:'+rep+' size:'+IntToStr(rep_len))
     else
-      Error('Error sending Pair: '+ nng_strerror(err));
+      Error('Error sending Bus: '+ nng_strerror(err));
     Inc(FCount);
   end;
   if FBoth=bDial then begin
-    err := Receive(FPacket); //nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+    size := 1024;
+    err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
+          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
         end;
       NNG_EAGAIN :
         begin
@@ -73,15 +76,16 @@ begin
     end;       
   end;
   if FBoth=bBoth then begin
-    err := Receive(FPacket); //nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
+    size := 1024;
+    err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
       NNG_OK :
         begin
-          Log('Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
+          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
     
-          err := Send(FPacket); //nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
+          err := nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
           if err = NNG_OK then
-            Log('Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
+            Log('Sent:'+rep+' size:'+IntToStr(size))
           else
             Error('Error sending Bus: '+ nng_strerror(err));
         end;
@@ -91,55 +95,55 @@ begin
         end;
     else
       Error('Error receiving: '+ nng_strerror(err));
-    end;
+    end;       
   end;
 end;
 
-function TPair.Protocol : Integer;
+function TnngBus.Protocol : Integer;
 begin
-  result := nng_pair0_open(FSocket);
+  result := nng_Bus0_open(FSocket);
 end;
 
-procedure TPair.Setup;
+procedure TnngBus.Setup;
 begin
   inherited;
   if FState=statConnect then begin
-    FPacket := TPacket.Create(nngBuffer);
+    GetMem(FBuffer,1024);
 
     FState := Succ(FState);
   end;
 end;
 
-procedure TPair.Teardown(ATo : EnngState);
+procedure TnngBus.Teardown(ATo : EnngState);
 begin
   if FState>ATo then
     if FState=statReady then begin
-      FPacket.Free;
+      FreeMem(FBuffer, 1024);
 
       FState := Pred(FState);
     end;
   inherited;
 end;
 
-constructor TPair.Create;
+constructor TnngBus.Create;
 begin
   inherited;
   FCount := 0;
   FHost := 'tcp://127.0.0.1';
-  FPort := 5558;
+  FPort := 5559;
 end;
 
-destructor TPair.Destroy;
+destructor TnngBus.Destroy;
 begin
   inherited;
 end;
 
-constructor TSPair.Create;
+constructor TnngListenBus.Create;
 begin
   inherited Create(bListen);
 end;
 
-constructor TCPair.Create;
+constructor TnngDialBus.Create;
 begin
   inherited Create(bDial);
 end;

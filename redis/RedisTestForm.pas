@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Redis, Packet;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Redis, nngPacket;
 
 type
   TfrmRedisTest = class(TForm)
@@ -43,7 +43,7 @@ type
     FSize : Integer;
     FMemory : TMemoryStream;
     FRedis : TRedis;
-    FIn,FOut : TPacket;
+    FIn,FOut : TnngPacket;
     procedure Dump(AValue : TValue);
     procedure Log(AMessage : String);
     procedure DoOnChange(AValue : TValue);
@@ -111,8 +111,8 @@ begin
   FRedis := TRedis.Create;
   FRedis.OnChange := DoOnChange;
   FMemory := TMemoryStream.Create;
-  FIn := TPacket.Create(128);
-  FOut := TPacket.Create(128);
+  FIn := TnngPacket.Create(128);
+  FOut := TnngPacket.Create(128);
   GetMem(FBuffer,1024);
 end;
 

@@ -1,3 +1,4 @@
+{$M+}
 unit debugProtocol;
 
 interface
@@ -6,7 +7,7 @@ uses
   System.Classes, System.Contnrs, System.SyncObjs,
   baThread,
   nngType,
-  Pull, Push, Packet;
+  nngPull, nngPush, nngPacket;
   
 type
   TCommand = class(TObject)
@@ -23,8 +24,8 @@ type
     constructor Create;
     destructor Destroy; override;
     
-    procedure Load(AFrom : TPacket);
-    procedure Save(AInto : TPacket);
+    procedure Load(AFrom : TnngPacket);
+    procedure Save(AInto : TnngPacket);
   published
   end;
   TPullEvent = procedure(ACommand : TCommand) of object;
@@ -46,11 +47,11 @@ type
   TServer = class(TObject)
   private
     type
-      TIncoming = class(TPull)
+      TIncoming = class(TnngPull)
       private
         FServer : TServer;
       protected
-        procedure Pull(AData : TObject; AIn : TPacket); override;
+        procedure Pull(AData : TObject; AIn : TnngPacket); override;
       public
         constructor Create(AServer : TServer); reintroduce;
       published
@@ -77,9 +78,8 @@ type
       end;
       
     var
-      FID : Integer;
       FPull : TIncoming;
-      FPush : TPush;
+      FPush : TnngPush;
       FOnPull : TPullEvent;
       FOnLog : TOnLog;
   protected
@@ -150,7 +150,7 @@ begin
   inherited;
 end;
 
-procedure TCommand.Load(AFrom : TPacket);
+procedure TCommand.Load(AFrom : TnngPacket);
 begin
   FMemory.Clear;
   FMemory.Write(AFrom.Buffer^,AFrom.Used);
@@ -159,7 +159,7 @@ begin
   StreamTo;
 end;
 
-procedure TCommand.Save(AInto : TPacket);
+procedure TCommand.Save(AInto : TnngPacket);
 begin
   FMemory.Clear;
   ToStream;
@@ -198,7 +198,7 @@ begin
   inherited;
 end;
 
-procedure TServer.TIncoming.Pull(AData : TObject; AIn : TPacket); 
+procedure TServer.TIncoming.Pull(AData : TObject; AIn : TnngPacket); 
 var
   lCommand : TCommand;
 begin
@@ -282,7 +282,7 @@ begin
   FPull := TIncoming.Create(Self);
   FPull.Host := AHost;
   FPull.Port := APull;
-  FPush := TPush.Create;
+  FPush := TnngPush.Create;
   FPush.Host := AHost;
   FPush.Port := APush;
 end;
@@ -309,9 +309,9 @@ end;
 
 procedure TServer.Push(ACommand : TCommand);
 var
-  lPacket :  TPacket;
+  lPacket :  TnngPacket;
 begin
-  lPacket := TPacket.Create(nngBuffer);
+  lPacket := TnngPacket.Create(nngBuffer);
   ACommand.Save(lPacket);
   FPush.Push(lPacket);
   lPacket.Free;

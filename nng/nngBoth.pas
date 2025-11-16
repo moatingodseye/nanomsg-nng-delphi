@@ -1,13 +1,13 @@
-unit Both;
+unit nngBoth;
 
 interface
 
 uses
-  nngType, Protocol;
+  nngType, nngProtocol;
 
 type
   EBoth = (bListen, bDial, bBoth);
-  TBoth = class(TProtocol)
+  TnngBoth = class(TnngProtocol)
   private
     FListen,
     FDial : THandle;
@@ -33,7 +33,7 @@ implementation
 uses
   System.SysUtils, nngdll, nngConstant;
   
-procedure TBoth.Setup;
+procedure TnngBoth.Setup;
   function Listen : Integer;
   var
     err : Integer;
@@ -76,7 +76,7 @@ begin
   end;
 end;
 
-procedure TBoth.Teardown(ATo :  EnngState);
+procedure TnngBoth.Teardown(ATo :  EnngState);
 var
   err : Integer;
 begin           
@@ -99,7 +99,7 @@ begin
   inherited;
 end;
 
-constructor TBoth.Create(ABoth : EBoth);
+constructor TnngBoth.Create(ABoth : EBoth);
 begin
   inherited Create;
   FListen := 0;
@@ -107,7 +107,7 @@ begin
   FBoth := ABoth;
 end;
 
-destructor TBoth.Destroy;
+destructor TnngBoth.Destroy;
 begin
   inherited;
 end;

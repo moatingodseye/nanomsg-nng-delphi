@@ -1,25 +1,26 @@
-unit Pull;
+unit nngPush;
 
 interface
 
 uses
-  nngdll, nngType, Packet, Dial;
+  nngType, nngListen, nngPacket;
   
 type
-  TPull = class(TDial)
+  TnngPush = class(TnngListen)
   strict private
-    FPacket : TPacket;
+    FPacket : TnngPacket;
   private
   strict protected
     function Protocol : Integer; override;
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Pull(AData : TObject; AIn : TPacket); virtual; abstract;
     procedure Teardown(ATo : Enngstate); override;
   public
     constructor Create; override;
     destructor Destroy; override;
+
+    procedure Push(AFrom : TnngPacket);
   published
   end;
   
@@ -29,63 +30,64 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nng, nngConstant;
-  
-procedure TPull.Process(AData : TObject);
+  System.SysUtils, nngdll, nng, nngConstant;
+
+procedure TnngPush.Process(AData : TObject);
 var
   err : Integer;
 begin
-  err := Receive(FPacket);
-  case err of
-    NNG_OK :
-      begin
-        Pull(AData,FPacket);
-      end;
-    NNG_EAGAIN :
-      begin
-      end;
-  else
-    Error('Error receiving: '+ nng_strerror(err))
+  // Send Push
+  if FPacket.Used>0 then begin
+    err := Send(FPacket); 
+    if err=NNG_OK then
+      FPacket.Clear
+    else
+      Error('Send: '+ nng_strerror(err));
   end;
 end;
 
-function TPull.Protocol : Integer;
+function TnngPush.Protocol : Integer;
 begin
-  result := nng_pull0_open(FSocket);
+  result := nng_push0_open(FSocket);
 end;
 
-procedure TPull.Setup;
+procedure TnngPush.Setup;
 begin
   inherited;
   if FState=statConnect then begin
-    FPacket := TPacket.Create(nngBuffer);
+    FPacket := TnngPacket.Create(nngBuffer);
     FState := Succ(FState);
-    FPoll := True;
   end;
 end;
 
-procedure TPull.Teardown(ATo : Enngstate);
+procedure TnngPush.Teardown(ATo : Enngstate);
 begin
   if FState>ATo then
     if FState=statReady then begin
-      FPoll := False;
       FPacket.Free;
       FState := Pred(FState);
     end;
   inherited;
 end;
 
-constructor TPull.Create;
+constructor TnngPush.Create;
 begin
   inherited;
   FHost := 'tcp://127.0.0.1';
   FPort := 5556;
 end;
 
-destructor TPull.Destroy;
+destructor TnngPush.Destroy;
 begin
   inherited;
 end;
+
+procedure TnngPush.Push(AFrom : TnngPacket);
+begin
+  FPacket.Assign(AFrom);
+  KIck;
+end;
+
 
 end.
 

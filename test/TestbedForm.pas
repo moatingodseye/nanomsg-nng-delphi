@@ -71,7 +71,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  nngdll, Dummy, Response, Request, Push, Pull, Publish, Subscribe, Both, Pair, Bus, Packet;
+  nngdll, Dummy, nngResponse, nngRequest, nngPush, nngPull, nngPublish, nngSubscribe, nngBoth, nngPair, nngBus, nngPacket;
 
 procedure TfrmTestBed.DoOnStop(ATest : TObject);
 begin
@@ -92,7 +92,7 @@ end;
   
 procedure TfrmTestBed.SubscribeClick(Sender: TObject);
 begin
-  Test(TSubscribe.Create);
+  Test(TnngSubscribe.Create);
 end;
 
 procedure TfrmTestBed.DoOnSyThread(ASender,AData : TObject);
@@ -146,17 +146,17 @@ end;
 
 procedure TfrmTestBed.btnBusClick(Sender: TObject);
 begin
-  Test(TBus.Create(bBoth));
+  Test(TnngBus.Create(bBoth));
 end;
 
 procedure TfrmTestBed.btnCBusClick(Sender: TObject);
 begin
-  Test(TCBus.Create);
+  Test(TnngDialBus.Create);
 end;
 
 procedure TfrmTestBed.btnCPairClick(Sender: TObject);
 begin
-  Test(TCPair.Create);
+  Test(TnngDialPair.Create);
 end;
 
 procedure TfrmTestBed.btnKickRequestClick(Sender: TObject);
@@ -171,34 +171,34 @@ end;
 
 procedure TfrmTestBed.btnPairClick(Sender: TObject);
 begin
-  Test(TPair.Create(bBoth));
+  Test(TnngPair.Create(bBoth));
 end;
 
 procedure TfrmTestBed.btnPublishClick(Sender: TObject);
 begin
-  Test(TPublish.Create);
+  Test(TnngPublish.Create);
 end;
 
 procedure TfrmTestBed.btnPullClick(Sender: TObject);
 begin
-  Test(TPull.Create);
+  Test(TnngPull.Create);
 end;
 
 procedure TfrmTestBed.btnPushClick(Sender: TObject);
 begin
-  Test(TPush.Create);
+  Test(TnngPush.Create);
 end;
 
 type
-  TTestRequest = class(TRequest)
+  TTestRequest = class(TnngRequest)
   private
   protected
-    procedure Response(AData : TObject; AIn : TPacket); override;
+    procedure Response(AData : TObject; AIn : TnngPacket); override;
   public                              
   published
   end;
 
-procedure TTestRequest.Response(AData : TObject; AIn : TPacket);
+procedure TTestRequest.Response(AData : TObject; AIn : TnngPacket);
 begin
   // a request was sent and a response received
 end;
@@ -209,15 +209,15 @@ begin
 end;
 
 type
-  TTestResponse = class(TResponse)
+  TTestResponse = class(TnngResponse)
   private
   protected
-    procedure Request(AData : TObject; AIn,AOut : TPacket); override;
+    procedure Request(AData : TObject; AIn,AOut : TnngPacket); override;
   public
   published
   end;
 
-procedure TTestResponse.Request(AData : TObject; AIn,AOut : TPacket);
+procedure TTestResponse.Request(AData : TObject; AIn,AOut : TnngPacket);
 begin
   // request receivned (in AIn) need a response (Put in AOut)
   AOut.Push('Received thanks');
@@ -230,12 +230,12 @@ end;
 
 procedure TfrmTestBed.btnSBusClick(Sender: TObject);
 begin
-  Test(TSBus.Create);
+  Test(TnngListenBus.Create);
 end;
 
 procedure TfrmTestBed.btnSPairClick(Sender: TObject);
 begin
-  Test(TSPair.Create);
+  Test(TnngListenPair.Create);
 end;
 
 procedure TfrmTestBed.btnStopClick(Sender: TObject);
