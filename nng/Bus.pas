@@ -3,7 +3,7 @@ unit Bus;
 interface
 
 uses
-  nngdll, Both;
+  nngType, Both;
   
 type
   TBus = class(TBoth)
@@ -16,7 +16,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create(ABoth : EBoth); override;
     destructor Destroy; override;
@@ -39,7 +39,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TBus.Process(AData : TObject);
 var
@@ -54,7 +54,7 @@ begin
     rep_len := Length(rep);
     err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
     if err = NNG_OK then
-      Log(logInfo,'Sent:'+rep+' size:'+IntToStr(rep_len))
+      Log('Sent:'+rep+' size:'+IntToStr(rep_len))
     else
       Error('Error sending Bus: '+ nng_strerror(err));
     Inc(FCount);
@@ -65,7 +65,7 @@ begin
     case err of
       NNG_OK :
         begin
-          Log(logInfo,'Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
         end;
       NNG_EAGAIN :
         begin
@@ -81,11 +81,11 @@ begin
     case err of
       NNG_OK :
         begin
-          Log(logInfo,'Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
+          Log('Receive:'+PAnsiChar(FBuffer)+' size:'+IntToStr(size));
     
           err := nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
           if err = NNG_OK then
-            Log(logInfo,'Sent:'+rep+' size:'+IntToStr(size))
+            Log('Sent:'+rep+' size:'+IntToStr(size))
           else
             Error('Error sending Bus: '+ nng_strerror(err));
         end;
@@ -107,18 +107,21 @@ end;
 procedure TBus.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
     GetMem(FBuffer,1024);
+
+    FState := Succ(FState);
   end;
 end;
 
-procedure TBus.Teardown;
+procedure TBus.Teardown(ATo : EnngState);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FreeMem(FBuffer, 1024);
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FreeMem(FBuffer, 1024);
+
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 

@@ -3,7 +3,7 @@ unit Pair;
 interface
 
 uses
-  nngdll, Both, Packet;
+  nngType, Both, Packet;
   
 type
   TPair = class(TBoth)
@@ -16,7 +16,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create(ABoth : EBoth); override;
     destructor Destroy; override;
@@ -39,7 +39,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType, nngConstant;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TPair.Process(AData : TObject);
 var
@@ -52,7 +52,7 @@ begin
     FPacket.Push(rep);
     err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
     if err = NNG_OK then
-      Log(logInfo,'Sent:'+FPacket.Pull)
+      Log('Sent:'+FPacket.Pull)
     else
       Error('Error sending Pair: '+ nng_strerror(err));
     Inc(FCount);
@@ -62,7 +62,7 @@ begin
     case err of
       NNG_OK :
         begin
-          Log(logInfo,'Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
+          Log('Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
         end;
       NNG_EAGAIN :
         begin
@@ -77,11 +77,11 @@ begin
     case err of
       NNG_OK :
         begin
-          Log(logInfo,'Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
+          Log('Receive:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used));
     
           err := Send(FPacket); //nng_send(FSocket, PAnsiChar(FBuffer), size, 0); 
           if err = NNG_OK then
-            Log(logInfo,'Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
+            Log('Sent:'+FPacket.Pull+' size:'+IntToStr(FPacket.Used))
           else
             Error('Error sending Bus: '+ nng_strerror(err));
         end;
@@ -103,18 +103,21 @@ end;
 procedure TPair.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
     FPacket := TPacket.Create(nngBuffer);
+
+    FState := Succ(FState);
   end;
 end;
 
-procedure TPair.Teardown;
+procedure TPair.Teardown(ATo : EnngState);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FPacket.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FPacket.Free;
+
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 

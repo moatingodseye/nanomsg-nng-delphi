@@ -29,18 +29,19 @@ type
     procedure DoOnResponse(ASender,AData : TObject);
     procedure DoOnAction(ASender : TObject; AIncoming  : TRedis);
     procedure DoOnChange(AValue : TValue);
-    procedure DoOnLog(ALevel : ELog; AMessage : String);
-    procedure Log(ALevel : ELog; AMessage : String);
+    procedure Log(AMessage : String);
+    function GetState : EnngState;
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure Start;
+    procedure Connect;
     procedure Add(AValue : TValue);
     procedure Exist(AKey : String);
     procedure Remove(AKey : String);
-    procedure Stop;
+    procedure Disconnect;
 
+    property State : EnngState read GetState;
     property Host : String read FHost write FHost;
     property Port : Integer read FPort write FPort;
     property OnLog : TLogEvent read FOnLog write FOnLog;
@@ -90,7 +91,7 @@ var
   lObj : TInternal;
 begin
   // Threaded!
-  Log(logInfo,'Action:');
+  Log('Action:');
   lCommand := AIncoming.Exist(keyCommand);
   lResponse := AIncoming.Exist(keyResponse);
   lKey := AIncoming.Exist(keyKey);
@@ -119,18 +120,18 @@ end;
 procedure TRedisClient.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log(logInfo,'Change-'+AValue.Key);
+    Log('Change-'+AValue.Key);
 end;
 
-procedure TRedisClient.DoOnLog(ALevel : ELog; AMessage : String);
-begin
-  Log(ALevel,AMessage);
-end;
-
-procedure TRedisClient.Log(ALevel : ELog; AMessage : String);
+procedure TRedisClient.Log(AMessage : String);
 begin
   if assigned(FOnLog) then
-    FOnLog(cLog[ALevel]+AMEssage);
+    FOnLog(AMEssage);
+end;
+
+function TRedisClient.GetState : EnngState;
+begin
+  result := FRequest.State;
 end;
 
 constructor TRedisClient.Create;
@@ -150,8 +151,7 @@ begin
 ///  FPublish.OnLog := DoOnLog;
   FRequest := TOutgoing.Create;
   FRequest.OnAction := DoOnAction;
-  FRequest.OnLog := DoOnLog;
-  FRequest.Level := logInfo;
+  FRequest.OnLog := Log;
 end;
 
 destructor TRedisClient.Destroy;
@@ -175,14 +175,14 @@ end;
 {$WARN IMPLICIT_STRING_CAST OFF}
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
-procedure TRedisClient.Start;
+procedure TRedisClient.Connect;
 begin
 //  FPublish.Host := FHost;
 //  FPublish.Port := FPort+1;
   FRequest.Host := FHost;
   FRequest.Port := FPort;
 //  FPublish.Start;
-  FRequest.Start;
+  FRequest.Connect;
 end;
 
 procedure TRedisClient.Add(AValue : TValue);
@@ -219,10 +219,14 @@ begin
   lRedis.Free;
 end;
 
-procedure TRedisClient.Stop;
+procedure TRedisClient.Disconnect;
 begin
 //  FPublish.Stop;
-  FRequest.Stop;
+  FRequest.Disconnect;
+  while FRequest.State<>statNull do begin
+    Sleep(250);
+    Application.ProcessMessages;
+  end;
 end;
 
 end.

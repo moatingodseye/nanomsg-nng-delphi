@@ -3,7 +3,7 @@ unit Dummy;
 interface
 
 uses 
-  System.SysUtils, nng;
+  System.SysUtils, nng, nngType;
 
 type
   TDummy = class(TNNG)
@@ -11,7 +11,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
   published
   end;
@@ -29,7 +29,7 @@ begin
   Sleep(1000);
 end;
 
-procedure TDummy.Teardown;
+procedure TDummy.Teardown(ATo : EnngState);
 begin
   inherited;
 end;

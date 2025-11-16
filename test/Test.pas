@@ -26,8 +26,8 @@ type
     FState : Integer;
     procedure DoLog(AMessage : String); // synchronised
   protected
-    procedure Log(ALevel :ELog; AMessage : String);
-    procedure Error(ALevel : ELog; AMessage : String);
+    procedure Log(AMessage : String);
+    procedure Error(AMessage : String);
     procedure DoStop(Sender : TObject);
     procedure DoKick(Sender : TObject);
   public
@@ -55,14 +55,14 @@ begin
     FForm.Log(AMessage);
 end;
 
-procedure TTest.Log(ALevel : ELog; AMessage : String);
+procedure TTest.Log(AMessage : String);
 begin
-  FLog.Log(cLog[ALevel]+AMessage);
+  FLog.Log(AMessage);
 end;
 
-procedure TTest.Error(ALevel : ELog; AMessage : String);
+procedure TTest.Error(AMessage : String);
 begin
-  FLog.Log(cLog[ALevel]+AMessage);
+  FLog.Log(AMessage);
   FState := tsError;
 end;
 
@@ -81,10 +81,11 @@ begin
   inherited Create;
   FNNG := ANNG;
   FNNG.OnLog := Log;
-  FNNG.OnError := Error;
+  
   FState := tsNever;
   FLog := TbaLogger.Create;
   FLog.OnLog := DoLog;
+  
   FForm := TfrmLog.Create(Nil);
   FForm.Data := ANNG;
   FForm.OnStop := DoStop;

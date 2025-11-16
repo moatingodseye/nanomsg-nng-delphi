@@ -3,7 +3,7 @@ unit Both;
 interface
 
 uses
-  nngdll, Protocol;
+  nngType, Protocol;
 
 type
   EBoth = (bListen, bDial, bBoth);
@@ -18,7 +18,7 @@ type
     FURL : AnsiString;
     
     procedure Setup; override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create(ABoth : EBoth); reintroduce; virtual; 
     destructor Destroy; override;
@@ -31,7 +31,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TBoth.Setup;
   function Listen : Integer;
@@ -58,41 +58,43 @@ procedure TBoth.Setup;
   end;
 begin
   inherited;
-  if FStage=2 then begin
+  if FState=statProtocol then begin
     case FBoth of
       bListen : 
         if Listen=NNG_OK then
-          Inc(FStage);
+          FState := Succ(FState);
       bDial : 
         if Dial=NNG_OK then
-          Inc(FStage);
+          FState := Succ(FState);
       bBoth :
         begin
           if Listen=NNG_OK then
             if Dial=NNG_OK then
-              Inc(FStage);
+              FState := Succ(FState);
         end;
     end;
   end;
 end;
 
-procedure TBoth.Teardown;
+procedure TBoth.Teardown(ATo :  EnngState);
 var
   err : Integer;
 begin           
-  if FStage=3 then begin
-    Dec(FStage);
-    if FListen<>0 then begin
-      err := nng_Listener_close(FListen);
-      if err<>NNG_OK then
-        Error('Listen close failed:'+ nng_strerror(err));
+  if FState>ATo then
+    if FState=statConnect then begin
+      if FListen<>0 then begin
+        err := nng_Listener_close(FListen);
+        if err<>NNG_OK then
+          Error('Listen:'+ nng_strerror(err));
+      end;
+      if FDial<>0 then begin
+        err := nng_Dialer_close(FDial);
+        if err<>NNG_OK then
+          Error('Dialer:'+ nng_strerror(err));
+      end;
+
+      FState := Pred(FState);
     end;
-    if FDial<>0 then begin
-      err := nng_Dialer_close(FDial);
-      if err<>NNG_OK then
-        Error('Dialer close failed:'+ nng_strerror(err));
-    end;
-  end;
 
   inherited;
 end;

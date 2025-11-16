@@ -3,14 +3,14 @@ unit Request;
 interface
 
 uses
-  Dial, Packet;
+  nngType, Dial, Packet;
   
 type
-  EState = (stNull, stReady, stSent, stReceived);
+  EnngRequest = (stNull, stReady, stSent, stReceived);
   
   TRequest = class(TDial)
   strict private
-    FState : EState;
+    FRequest : EnngRequest;
     FIn,
     FOut : TPacket;
   private
@@ -20,7 +20,7 @@ type
     procedure Setup; override;
     procedure Process(AData : TObject); override;
     procedure Response(AData : TObject; AIn : TPacket); virtual; abstract;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -28,7 +28,7 @@ type
     procedure Kick; override;
     procedure Request(AOut : TPacket);
 
-    property State : EState read FState;
+    property Stage : EnngRequest read FRequest;
   published
   end;
   
@@ -39,13 +39,13 @@ implementation
 
 uses
   System.SysUtils,
-  nngdll, nngType, nngConstant;
+  nngdll, nngConstant;
   
 procedure TRequest.Process(AData : TObject);
 var
   err : Integer;
 begin
-  case FState of
+  case FRequest of
     stNull : asm nop end;
     stReady : 
       begin
@@ -53,7 +53,7 @@ begin
         err := Send(FOut);
         if err = NNG_OK then begin
           FPoll := True;
-          FState := stSent;
+          FRequest := stSent;
         end else
           Error('Send: '+ nng_strerror(err))
       end;
@@ -65,7 +65,7 @@ begin
         case err of
           NNG_OK :
             begin
-              FState := stReceived;
+              FRequest := stReceived;
               FPoll := False;
               Response(AData,FIn);
             end;
@@ -92,27 +92,30 @@ end;
 procedure TRequest.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
     FIn := TPacket.Create(nngBuffer);
     FOut := TPacket.Create(nngBuffer);
+
+    FState := Succ(FState);
   end;
 end;
 
-procedure TRequest.Teardown;
+procedure TRequest.Teardown(ATo : EnngState);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FOut.Free;
-    FIn.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FOut.Free;
+      FIn.Free;
+
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 
 constructor TRequest.Create;
 begin
   inherited;
-  FState := stNull;
+  FRequest := stNull;
   FHost := 'tcp://127.0.0.1';
   FPort := 5555;
 end;
@@ -125,13 +128,13 @@ end;
 procedure TRequest.Kick;
 begin
   inherited;
-  FState := stReady;
+//  FRequest := stReady;
 end;
 
 procedure TRequest.Request(AOut : TPacket);
 begin
   FOut.Assign(AOut);
-  FState := stReady;
+  FRequest := stReady;
   Kick;
 end;
 

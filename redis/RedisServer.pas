@@ -19,18 +19,20 @@ type
   protected
     procedure DoOnAction(ASender : TObject; ARedis : TRedis);
     procedure DoOnChange(AValue : TValue);
-    procedure DoOnLog(ALevel : ELog; AMessage : String);
-    procedure Log(ALevel : ELog; AMessage : String);
+    procedure DoOnLog(AMessage : String);
+    procedure Log(AMessage : String);
+    function GetState: EnngState;
   public
     constructor Create;
     destructor Destroy; override;
 
-    procedure Start;
-    procedure Stop;
+    procedure Connect;
+    procedure Disconnect;
 
     property Host : String read FHost write FHost;
     property Port : Integer read FPort write FPort;
     property OnLog : TOnLog read FOnLog write FOnLog;
+    property State  : EnngState read GetState;
   published
   end;
   
@@ -47,7 +49,7 @@ var
   lTemp :TValue;
   lI,lO : TRedis;
 begin
-  Log(logInfo,'Process:'+ARedis.Dump);
+  Log('Process:'+ARedis.Dump);
   
   lCommand := ARedis.Exist(keyCommand);
   lKey := ARedis.Exist(keyKey);
@@ -55,7 +57,7 @@ begin
     case lCommand.AsInteger of
       cmdAdd : 
         begin
-          Log(logInfo,'Add:'+lKey.AsString);
+          Log('Add:'+lKey.AsString);
           
           lValue := ARedis.Exist(lKey.AsString);
           lTemp := TValue.Create(FRedis,lKey.AsString);
@@ -71,7 +73,7 @@ begin
         end;
       cmdExist : 
         begin
-          Log(logInfo,'Exist:'+lKey.AsString);
+          Log('Exist:'+lKey.AsString);
         
           lTemp := FRedis.Exist(lKey.AsString);
 
@@ -90,7 +92,7 @@ begin
         end;
       cmdRemove :
         begin
-          Log(logInfo,'Remove:'+lKey.AsString);
+          Log('Remove:'+lKey.AsString);
           
           FRedis.Remove(lKey.AsString);
           
@@ -112,18 +114,23 @@ end;
 procedure TRedisServer.DoOnChange(AValue : TValue);
 begin
   if assigned(FOnLog) then
-    Log(logInfo,'Change-'+AValue.Key);
+    Log('Change-'+AValue.Key);
 end;
 
-procedure TRedisServer.DoOnLog(ALevel : ELog; AMessage : String);
+procedure TRedisServer.DoOnLog(AMessage : String);
 begin
-  Log(ALevel,AMessage);
+  Log(AMessage);
 end;
 
-procedure TRedisServer.Log(ALevel : ELog; AMessage : String);
+procedure TRedisServer.Log(AMessage : String);
 begin
   if assigned(FOnLog) then
-    FOnLog(ALevel,AMEssage);
+    FOnLog(AMEssage);
+end;
+
+function TRedisServer.GetState: EnngState;
+begin
+  result := FResponse.State;
 end;
 
 constructor TRedisServer.Create;
@@ -139,7 +146,6 @@ begin
   FResponse := TIncoming.Create;
   FResponse.OnAction := DoOnAction;
   FResponse.OnLog := DoOnLog;
-  FResponse.Level := logInfo;
 end;
 
 destructor TRedisServer.Destroy;
@@ -156,20 +162,20 @@ end;
 {$WARN IMPLICIT_STRING_CAST OFF}
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
-procedure TRedisServer.Start;
+procedure TRedisServer.Connect;
 begin
 //  FPublish.Host := FHost;
 //  FPublish.Port := FPort+1;
   FResponse.Host := FHost;
   FResponse.Port := FPort;
 //  FPublish.Start;
-  FResponse.Start;
+  FResponse.Connect;
 end;
 
-procedure TRedisServer.Stop;
+procedure TRedisServer.Disconnect;
 begin
 //  FPublish.Stop;
-  FResponse.Stop;
+  FResponse.Disconnect;
 end;
 
 end.

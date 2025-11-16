@@ -3,7 +3,7 @@ unit Response;
 interface
 
 uses
-  nngdll, Listen, Packet;
+  nngType, Listen, Packet;
   
 type
   TResponse = class(TListen)
@@ -17,7 +17,7 @@ type
     procedure Setup; override;
     procedure Process(AData : TObject); override;
     procedure Request(AData : TObject; AIn,AOut : TPacket); virtual; abstract;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -30,7 +30,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TResponse.Process(AData : TObject);
 var
@@ -61,21 +61,24 @@ end;
 procedure TResponse.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
+    FIn := TPacket.Create(nngBuffer);
+    FOut := TPacket.Create(nngBuffer);
+
+    FState := Succ(FState);
     FPoll := True;
-    FIn := TPacket.Create(1024);
-    FOut := TPacket.Create(1024);
   end;
 end;
 
-procedure TResponse.Teardown;
+procedure TResponse.Teardown(ATo : EnngState);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FOut.Free;
-    FIn.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FOut.Free;
+      FIn.Free;
+
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 

@@ -3,7 +3,7 @@ unit Publish;
 interface
 
 uses
-  nngdll, Listen, Packet;
+  nngType, Listen, Packet;
   
 type
   TPublish = class(TListen)
@@ -16,7 +16,7 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -29,21 +29,19 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType, nngConstant;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TPublish.Process(AData : TObject);
 var
   err : Integer;
-  rep : AnsiString;
 begin
-  // Send Publish
-  rep := 'Publish:'+IntToStr(FCount);
-  FPacket.Push(rep);
-  err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
-  if err<>NNG_OK then
-    Error('Sending: '+ nng_strerror(err));
-  Inc(FCount);
-//  FEnabled := False;
+  if FPacket.Used>0 then begin
+    err := Send(FPacket); //nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
+    if err=NNG_OK then
+      FPacket.Clear
+    else
+      Error('Sending: '+ nng_strerror(err));
+  end;
 end;
 
 function TPublish.Protocol : Integer;
@@ -54,18 +52,21 @@ end;
 procedure TPublish.Setup;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
+  if FState=statConnect then begin
     FPacket := TPacket.Create(nngBuffer);
+
+    FState := Succ(FState);
   end;
 end;
 
-procedure TPublish.Teardown;
+procedure TPublish.Teardown(ATo : EnngState);
 begin
-  if FStage=4 then begin
-    Dec(FStage);
-    FPacket.Free;
-  end;
+  if FState>ATo then
+    if FState=statReady then begin
+      FPacket.Free;
+
+      FState := Pred(FState);
+    end;
   inherited;
 end;
 

@@ -3,7 +3,7 @@ unit Subscribe;
 interface
 
 uses
-  nngdll, Dial, Packet;
+  nngType, Dial, Packet;
   
 type
   TSubscribe = class(TDial)
@@ -16,7 +16,8 @@ type
   protected
     procedure Setup; override;
     procedure Process(AData : TObject); override;
-    procedure Teardown; override;
+    procedure Publish(AData : TObject; AIn : TPacket); virtual; abstract;
+    procedure Teardown(ATo : EnngState); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -31,7 +32,7 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  System.SysUtils, nngType, nngConstant;
+  System.SysUtils, nngdll, nngConstant;
   
 procedure TSubscribe.Process(AData : TObject);
 var
@@ -41,13 +42,14 @@ begin
   case err of
     NNG_OK :
       begin
-        Log(logInfo,'Received: '+FPacket.Pull+' size: '+IntToStr(FPacket.Used));
+        Log('Received: '+FPacket.Pull+' size: '+IntToStr(FPacket.Used));
+        Publish(AData,FPacket);
       end;
     NNG_EAGAIN :
       begin
       end;
   else
-    Error('Error receiving: '+ nng_strerror(err))
+    Error('Receive: '+ nng_strerror(err))
   end;
 end;
 
@@ -62,33 +64,32 @@ var
   what_len : Integer;
 begin
   inherited;
-  if FStage=3 then begin
-    Inc(FStage);
-    FPoll := True;
+  if FState=statConnect then begin
     FPacket := TPacket.Create(nngBuffer);
-  end;
-  if FStage=4 then begin
     what_len := Length(FWhat);
     err := nng_sub0_socket_subscribe(FSocket, PAnsiChar(FWhat), what_len);
     if err <> NNG_OK  then
       Error('Subscribe failed'+nng_strerror(err));
+
+    FState := Succ(FState);
+    FPoll := True;
   end;
 end;
 
-procedure TSubscribe.Teardown;
+procedure TSubscribe.Teardown(ATo : EnngState);
 var
   err : Integer;
   what_len : Integer;
 begin
-  if FStage=5 then begin
+  if FState>ATo then
+  if FState=statReady then begin
     what_len := Length(FWhat);
     err := nng_sub0_socket_unsubscribe(FSocket,PAnsiChar(FWhat),what_len);
     if err <> NNG_OK then
       Error('Unsubscribe failed'+nng_strerror(err));
-  end;
-  if FStage=4 then begin
-    Dec(FStage);
     FPacket.Free;
+
+    FState := Pred(FState);
   end;
   inherited;
 end;

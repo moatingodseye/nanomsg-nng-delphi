@@ -59,13 +59,8 @@ implementation
 {$R *.dfm}
 
 procedure TfrmRedisTest.Dump(AValue : TValue);
-var
-  lS : TStringList;
 begin
-  lS := TStringList.Create;
-  AValue.Dump(lS);
-  Log(lS.Text);
-  lS.Free;
+  Log(AValue.Dump);
 end;
 
 procedure TfrmRedisTest.Log(AMessage : String);

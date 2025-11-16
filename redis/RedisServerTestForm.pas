@@ -22,8 +22,7 @@ type
     { Private declarations }
     FLog : TbaLogger;
     FServer : TRedisServer;
-    procedure DoLog(ALevel : ELog; AMessage : String); // could be threaded!
-    procedure DoOnLog(AMessage : String);
+    procedure DoLog(AMessage : String); // could be threaded!
     procedure Log(AMessage : String);
   public
     { Public declarations }
@@ -36,14 +35,9 @@ implementation
 
 {$R *.dfm}
 
-procedure TfrmRedisTestServer.DoLog(ALevel : ELog; AMessage : String); // could be threaded!
+procedure TfrmRedisTestServer.DoLog(AMessage : String); // could be threaded!
 begin
-  FLog.Log(cLog[ALevel]+AMessage); // cache for later
-end;
-
-procedure TfrmRedisTestServer.DoOnLog(AMessage : String);
-begin
-  Log(AMessage);
+  FLog.Log(AMessage); // cache for later
 end;
 
 procedure TfrmRedisTestServer.Log(AMessage : String);
@@ -54,18 +48,22 @@ end;
 procedure TfrmRedisTestServer.btnStartClick(Sender: TObject);
 begin
   FLog := TbaLogger.Create;
-  FLog.OnLog := DoOnLog;
+  FLog.OnLog := Log;
   
   FServer := TRedisServer.Create;
   FServer.Host := edtHost.Text;
   FServer.Port := StrToInt(edtPort.Text);
   FServer.OnLog := DoLog;
-  FServer.Start;
+  FServer.Connect;
 end;
 
 procedure TfrmRedisTestServer.btnStopClick(Sender: TObject);
 begin
-  FServer.Stop;
+  FServer.Disconnect;
+  while FServer.State<>statNull do begin
+    Sleep(25);
+    Application.ProcessMessages;
+  end;
   FServer.Free;
   FServer := Nil;
 

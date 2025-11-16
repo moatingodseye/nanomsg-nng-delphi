@@ -55,7 +55,7 @@ implementation
 {$R *.dfm}
 
 uses
-  redisConstant;
+  nngType, redisConstant;
 
 function IIF(ACheck : Boolean; ANo,AYes : String) : String;
 begin
@@ -108,12 +108,16 @@ begin
   FClient.Port := StrToInt(edtPort.Text);
   FClient.OnLog := DoLog;
   FClient.OnResponse := DoOnResponse;
-  FClient.Start;
+  FClient.Connect;
 end;
 
 procedure TfrmRedisClientTest.btnStopClick(Sender: TObject);
 begin
-  FClient.Stop;
+  FClient.Disconnect;
+  while FClient.State<>statNull do begin
+    Sleep(250);
+    Application.ProcessMessages;
+  end;
   FClient.Free;
   FClient := Nil;
 
