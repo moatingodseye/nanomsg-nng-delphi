@@ -15,29 +15,36 @@ object frmDebugClientTest: TfrmDebugClientTest
     Left = 0
     Top = 0
     Width = 624
-    Height = 41
+    Height = 67
     Align = alTop
     TabOrder = 0
     object Label1: TLabel
       Left = 192
-      Top = 12
+      Top = 14
       Width = 25
       Height = 15
       Caption = 'Host'
     end
     object Label2: TLabel
-      Left = 392
-      Top = 12
+      Left = 360
+      Top = 14
       Width = 22
       Height = 15
       Caption = 'Port'
+    end
+    object lblStatus: TLabel
+      Left = 8
+      Top = 46
+      Width = 45
+      Height = 15
+      Caption = 'lblStatus'
     end
     object btnStartup: TButton
       Left = 8
       Top = 9
       Width = 75
       Height = 25
-      Caption = 'btnStartup'
+      Caption = 'Connect'
       TabOrder = 0
       OnClick = btnStartupClick
     end
@@ -46,21 +53,21 @@ object frmDebugClientTest: TfrmDebugClientTest
       Top = 9
       Width = 75
       Height = 25
-      Caption = 'btnShutdown'
+      Caption = 'Disconnect'
       TabOrder = 1
       OnClick = btnShutdownClick
     end
     object edtHost: TEdit
       Left = 232
-      Top = 9
+      Top = 10
       Width = 121
       Height = 23
       TabOrder = 2
       Text = 'tcp://127.0.0.1'
     end
     object edtPort: TEdit
-      Left = 420
-      Top = 9
+      Left = 388
+      Top = 10
       Width = 61
       Height = 23
       TabOrder = 3
@@ -69,14 +76,11 @@ object frmDebugClientTest: TfrmDebugClientTest
   end
   object Panel2: TPanel
     Left = 0
-    Top = 41
+    Top = 67
     Width = 624
     Height = 41
     Align = alTop
     TabOrder = 1
-    ExplicitLeft = 64
-    ExplicitTop = 88
-    ExplicitWidth = 185
     object Label3: TLabel
       Left = 96
       Top = 11
@@ -120,16 +124,18 @@ object frmDebugClientTest: TfrmDebugClientTest
   end
   object mmoLog: TMemo
     Left = 0
-    Top = 82
+    Top = 108
     Width = 624
-    Height = 359
+    Height = 333
     Align = alClient
     Lines.Strings = (
       'mmoLog')
     TabOrder = 2
-    ExplicitLeft = 160
-    ExplicitTop = 136
-    ExplicitWidth = 185
-    ExplicitHeight = 89
+  end
+  object tmTimer: TTimer
+    Interval = 200
+    OnTimer = tmTimerTimer
+    Left = 520
+    Top = 24
   end
 end

@@ -71,7 +71,8 @@ implementation
 {$WARN IMPLICIT_STRING_CAST_LOSS OFF} 
 
 uses
-  nngdll, Dummy, nngResponse, nngRequest, nngPush, nngPull, nngPublish, nngSubscribe, nngBoth, nngPair, nngBus, nngPacket;
+  nngdll, Dummy, nngType,
+  nngResponse, nngRequest, nngPush, nngPull, nngPublish, nngSubscribe, nngBoth, nngPair, nngBus, nngPacket;
 
 procedure TfrmTestBed.DoOnStop(ATest : TObject);
 begin
@@ -146,7 +147,7 @@ end;
 
 procedure TfrmTestBed.btnBusClick(Sender: TObject);
 begin
-  Test(TnngBus.Create(bBoth));
+  Test(TnngBus.Create(whaBoth));
 end;
 
 procedure TfrmTestBed.btnCBusClick(Sender: TObject);
@@ -171,7 +172,7 @@ end;
 
 procedure TfrmTestBed.btnPairClick(Sender: TObject);
 begin
-  Test(TnngPair.Create(bBoth));
+  Test(TnngPair.Create(whaBoth));
 end;
 
 procedure TfrmTestBed.btnPublishClick(Sender: TObject);

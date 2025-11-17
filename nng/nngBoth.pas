@@ -6,13 +6,12 @@ uses
   nngType, nngProtocol;
 
 type
-  EBoth = (bListen, bDial, bBoth);
   TnngBoth = class(TnngProtocol)
   private
     FListen,
     FDial : THandle;
   protected
-    FBoth : EBoth;
+    FBoth : EnngWhat;
     FHost : AnsiString;
     FPort : Integer;
     FURL : AnsiString;
@@ -20,7 +19,7 @@ type
     procedure Setup; override;
     procedure Teardown(ATo : EnngState); override;
   public
-    constructor Create(ABoth : EBoth); reintroduce; virtual; 
+    constructor Create(ABoth : EnngWhat); reintroduce; virtual; 
     destructor Destroy; override;
   published
   end;
@@ -60,13 +59,13 @@ begin
   inherited;
   if FState=statProtocol then begin
     case FBoth of
-      bListen : 
+      whaListen : 
         if Listen=NNG_OK then
           FState := Succ(FState);
-      bDial : 
+      whaDial : 
         if Dial=NNG_OK then
           FState := Succ(FState);
-      bBoth :
+      whaBoth :
         begin
           if Listen=NNG_OK then
             if Dial=NNG_OK then
@@ -99,7 +98,7 @@ begin
   inherited;
 end;
 
-constructor TnngBoth.Create(ABoth : EBoth);
+constructor TnngBoth.Create(ABoth : EnngWhat);
 begin
   inherited Create;
   FListen := 0;

@@ -6,11 +6,13 @@ type
   TOnLog = procedure(AMessage : String) of object;
 
 type
+  EnngWhat = (whaNone, whaDial, whaListen, whaBoth);
   EnngDesired = (desNull, desReady, desActive);
   EnngState = (statNull, statInitialised, statProtocol, statConnect, statReady, statActive);
   TnngStateEvent = procedure(ASender : TObject; AState : EnngState) of object;
 
 const
+  cWhat : Array[EnngWhat] of String = ('','Dial','Listen','Both');
   cState : Array[EnngState] of String = ('','Initialised','Protocol','Connect','Ready','Active');
   
 implementation

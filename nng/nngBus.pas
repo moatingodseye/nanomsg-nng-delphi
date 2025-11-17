@@ -18,7 +18,7 @@ type
     procedure Process(AData : TObject); override;
     procedure Teardown(ATo : EnngState); override;
   public
-    constructor Create(ABoth : EBoth); override;
+    constructor Create(ABoth : EnngWhat); override;
     destructor Destroy; override;
   published
   end;
@@ -49,7 +49,7 @@ var
   size : Integer;
 begin
   Sleep(100); // just for debugging
-  if FBoth=bListen then begin
+  if FBoth=whaListen then begin
     rep := 'Bus:'+IntToStr(FCount);
     rep_len := Length(rep);
     err := nng_send(FSocket, PAnsiChar(rep), rep_len, 0); 
@@ -59,7 +59,7 @@ begin
       Error('Error sending Bus: '+ nng_strerror(err));
     Inc(FCount);
   end;
-  if FBoth=bDial then begin
+  if FBoth=whaDial then begin
     size := 1024;
     err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
@@ -75,7 +75,7 @@ begin
       Error('Error receiving: '+ nng_strerror(err));
     end;       
   end;
-  if FBoth=bBoth then begin
+  if FBoth=whaBoth then begin
     size := 1024;
     err := nng_recv(FSocket, FBuffer, @size, NNG_FLAG_NONBLOCK);
     case err of
@@ -140,12 +140,12 @@ end;
 
 constructor TnngListenBus.Create;
 begin
-  inherited Create(bListen);
+  inherited Create(whaListen);
 end;
 
 constructor TnngDialBus.Create;
 begin
-  inherited Create(bDial);
+  inherited Create(whaDial);
 end;
 
 end.

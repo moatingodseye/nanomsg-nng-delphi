@@ -22,9 +22,12 @@ type
     edtPPass: TEdit;
     edtPHost: TEdit;
     mmoLog: TMemo;
+    lblStatus: TLabel;
+    tmTimer: TTimer;
     procedure btnStartupClick(Sender: TObject);
     procedure btnShutdownClick(Sender: TObject);
     procedure btnPrepareClick(Sender: TObject);
+    procedure tmTimerTimer(Sender: TObject);
   private
     { Private declarations }
     FLog : TbaLogger;
@@ -43,6 +46,7 @@ implementation
 {$R *.dfm}
 
 uses
+  nngType,
   debugProtocol,
   debugClient;
   
@@ -56,6 +60,17 @@ begin
   mmoLog.Lines.Add(AMessage);
 end;
   
+procedure TfrmDebugClientTest.tmTimerTimer(Sender: TObject);
+var
+  lClient : TdebugClient;
+begin
+  if assigned(FClient) then begin
+    lClient := FClient as TdebugClient;
+    lblStatus.Caption := lClient.Status;
+  end else
+    lblStatus.Caption := '';
+end;
+
 procedure TfrmDebugClientTest.btnPrepareClick(Sender: TObject);
 var
   lClient : TdebugClient;
@@ -74,6 +89,10 @@ var
 begin
   lClient := FClient as TdebugClient;
   lClient.Disconnect;
+  while lClient.State<>statNull do begin
+    Sleep(250);
+    Application.ProcessMessages;
+  end;
   lClient.Free;
 
   FClient := Nil;

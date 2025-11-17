@@ -88,6 +88,16 @@ begin
   inherited;
   if FState>ATo then
     if FState=statProtocol then begin
+      err := nng_pipe_notify(FSocket,pipBefore,nil,nil);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+      err := nng_pipe_notify(FSocket,pipAdd,nil,nil);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+      err := nng_pipe_notify(FSocket,pipRemove,nil,nil);
+      if err<>NNG_OK then
+        Error('Pipe:'+nng_strerror(err));
+    
       err := nng_socket_close(FSocket);
       if err <> NNG_OK then
         Error('Protocol: '+ nng_strerror(err));

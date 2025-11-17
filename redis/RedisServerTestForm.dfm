@@ -18,16 +18,15 @@ object frmRedisTestServer: TfrmRedisTestServer
     Height = 49
     Align = alTop
     TabOrder = 0
-    ExplicitWidth = 388
     object Host: TLabel
-      Left = 208
+      Left = 176
       Top = 13
       Width = 25
       Height = 15
       Caption = 'Host'
     end
     object Label4: TLabel
-      Left = 375
+      Left = 351
       Top = 13
       Width = 22
       Height = 15
@@ -38,7 +37,7 @@ object frmRedisTestServer: TfrmRedisTestServer
       Top = 9
       Width = 75
       Height = 25
-      Caption = 'btnStart'
+      Caption = 'Connect'
       TabOrder = 0
       OnClick = btnStartClick
     end
@@ -47,12 +46,12 @@ object frmRedisTestServer: TfrmRedisTestServer
       Top = 9
       Width = 75
       Height = 25
-      Caption = 'btnStop'
+      Caption = 'Disconnect'
       TabOrder = 1
       OnClick = btnStopClick
     end
     object edtHost: TEdit
-      Left = 248
+      Left = 216
       Top = 10
       Width = 121
       Height = 23
@@ -60,9 +59,9 @@ object frmRedisTestServer: TfrmRedisTestServer
       Text = 'tcp://127.0.0.1'
     end
     object edtPort: TEdit
-      Left = 403
+      Left = 379
       Top = 10
-      Width = 102
+      Width = 46
       Height = 23
       TabOrder = 3
       Text = '5800'
@@ -77,6 +76,5 @@ object frmRedisTestServer: TfrmRedisTestServer
     Lines.Strings = (
       'mmoLog')
     TabOrder = 1
-    ExplicitWidth = 388
   end
 end

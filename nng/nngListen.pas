@@ -14,6 +14,7 @@ type
     procedure Setup; override;
     procedure Teardown(ATo : Enngstate); override;
   public
+    constructor Create; override;
   published
   end;
   
@@ -55,6 +56,12 @@ begin
       FState := Pred(FState);
     end;
 
+  inherited;
+end;
+
+constructor TnngListen.Create;
+begin
+  FWhat := whaListen;
   inherited;
 end;
 

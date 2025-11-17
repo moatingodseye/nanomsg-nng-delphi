@@ -232,17 +232,48 @@ begin
   end;
 end;
 
-initialization
+procedure Initialise;
+var
+  init_params : nng_init_param;
+  err : Integer;
+begin
   // Try to load the library when the unit is initialized
-  if not LoadNNGLibrary then
-  begin
+  if LoadNNGLibrary then begin
+    init_params.num_task_threads := 2;
+    init_params.max_task_threads := 4;
+    init_params.num_expire_threads := 1;
+    init_params.max_expire_threads := 2;
+    init_params.num_poller_threads := 1;
+    init_params.max_poller_threads := 2;
+    init_params.num_resolver_threads := 1;
+
+    // Initialize the nng library
+    err := nng_init(@init_params);
+    if not ((err = NNG_OK) or (err = NNG_EBUSY)) then
+      raise Exception.Create('Failed to initialise nng.dll '+nng_strerror(err));
+  end else                                      
     // If it fails, raise an exception or handle it gracefully
     raise Exception.Create('Failed to load nng.dll');
-  end;
+end;
 
-finalization
+procedure Finalise;
+var
+  err : Integer;
+begin
   // Clean up by freeing the DLL handle when done
-  if NNGLibHandle <> 0 then
+  if NNGLibHandle <> 0 then begin
+    err := nng_fini();
+//    if err <> NNG_OK then
+//      raise Exception.Create('Failed to finalise nng dll '+ nng_strerror(err));
+// always gives interrupted error on last finalise
     FreeLibrary(NNGLibHandle);
+  end;
+end;
+
+initialization
+  Initialise;
+  
+finalization
+  Finalise;
 
 end.

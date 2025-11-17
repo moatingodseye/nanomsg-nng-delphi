@@ -12,8 +12,11 @@ type
     pnlTop: TPanel;
     btnKick: TButton;
     btnStop: TButton;
+    lblStatus: TLabel;
+    tmTimer: TTimer;
     procedure btnKickClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
+    procedure tmTimerTimer(Sender: TObject);
   private
     { Private declarations }
     FData : TObject;
@@ -35,6 +38,9 @@ implementation
 
 {$R *.dfm}
 
+uses
+  nng, nngType;
+  
 procedure TfrmLog.btnKickClick(Sender: TObject);
 begin
   if assigned(FOnKick) then
@@ -50,6 +56,16 @@ end;
 procedure TfrmLog.Log(AMessage : String);
 begin
   mmoLog.Lines.add(AMessage);
+end;
+
+procedure TfrmLog.tmTimerTimer(Sender: TObject);
+var
+  lNng : Tnng;
+begin
+  if assigned(FData) then begin
+    lnng := FData as TNNG;
+    lblStatus.Caption := lnng.ClassName+' '+cWhat[lnng.What]+'/'+cState[lnng.State];
+  end;
 end;
 
 end.

@@ -15,29 +15,36 @@ object frmDebugServerTest: TfrmDebugServerTest
     Left = 0
     Top = 0
     Width = 624
-    Height = 41
+    Height = 65
     Align = alTop
     TabOrder = 0
     object Label1: TLabel
       Left = 192
-      Top = 12
+      Top = 13
       Width = 25
       Height = 15
       Caption = 'Host'
     end
     object Label2: TLabel
-      Left = 392
-      Top = 12
+      Left = 360
+      Top = 13
       Width = 22
       Height = 15
       Caption = 'Port'
+    end
+    object lblStatus: TLabel
+      Left = 16
+      Top = 44
+      Width = 45
+      Height = 15
+      Caption = 'lblStatus'
     end
     object btnStartup: TButton
       Left = 16
       Top = 8
       Width = 75
       Height = 25
-      Caption = 'btnStartup'
+      Caption = 'Connect'
       TabOrder = 0
       OnClick = btnStartupClick
     end
@@ -46,7 +53,7 @@ object frmDebugServerTest: TfrmDebugServerTest
       Top = 8
       Width = 75
       Height = 25
-      Caption = 'btnShutdown'
+      Caption = 'Disconnect'
       TabOrder = 1
       OnClick = btnShutdownClick
     end
@@ -59,7 +66,7 @@ object frmDebugServerTest: TfrmDebugServerTest
       Text = 'tcp://127.0.0.1'
     end
     object edtPort: TEdit
-      Left = 420
+      Left = 388
       Top = 9
       Width = 61
       Height = 23
@@ -69,27 +76,29 @@ object frmDebugServerTest: TfrmDebugServerTest
   end
   object Panel2: TPanel
     Left = 0
-    Top = 41
+    Top = 65
     Width = 624
     Height = 41
     Align = alTop
     TabOrder = 1
-    ExplicitLeft = 160
-    ExplicitTop = 96
-    ExplicitWidth = 185
+    ExplicitTop = 41
   end
   object mmoLog: TMemo
     Left = 0
-    Top = 82
+    Top = 106
     Width = 624
-    Height = 359
+    Height = 335
     Align = alClient
     Lines.Strings = (
       'mmoLog')
     TabOrder = 2
-    ExplicitLeft = 64
-    ExplicitTop = 176
-    ExplicitWidth = 185
-    ExplicitHeight = 89
+    ExplicitTop = 82
+    ExplicitHeight = 359
+  end
+  object tmTimer: TTimer
+    Interval = 100
+    OnTimer = tmTimerTimer
+    Left = 504
+    Top = 57
   end
 end

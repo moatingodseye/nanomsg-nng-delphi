@@ -41,7 +41,11 @@ type
   public
     constructor Create(AUsername,APassword,AHost : String); reintroduce;
     destructor Destroy; override;
-  published                       
+
+    property Username : String read FUsername;
+    property Password : String read FPassword;
+    property Host : String read FHost;
+  published
   end;
   
   TServer = class(TObject)
@@ -85,6 +89,7 @@ type
   protected
     FTodo : TTodo;
     function GetState : EnngState;
+    function GetStatus : String;
     procedure DoOnPull(ACommand : TCommand);
   public
     constructor Create(AHost : String; APull,APush : Integer);
@@ -95,6 +100,8 @@ type
     procedure Disconnect;
 
     property State :EnngState read GetState;
+    property Status : String read GetStatus;
+    
     property OnPull : TPullEvent read FOnPull write FOnPull;
     property OnLog : TOnLog read FOnLog write FOnLog;
   published
@@ -261,10 +268,17 @@ function TServer.GetState : EnngState;
 var
   lState : EnngState;
 begin
-  lState := FPull.State;
-  if lState<FPush.State then
+  lState := statNull;
+  if assigned(FPull) then
+    lState := FPull.State;
+  if assigned(FPush) and (lState<FPush.State) then
     lState := FPush.State;
   result := lState;
+end;
+
+function TServer.GetStatus : String;
+begin
+  result := FPull.ClassName+':'+cWhat[FPull.What]+'/'+cState[FPull.State]+'  '+FPush.ClassName+':'+cWhat[FPush.What]+'/'+cState[FPush.State];
 end;
 
 procedure TServer.DoOnPull(ACommand : TCommand);
@@ -321,6 +335,9 @@ procedure TServer.Disconnect;
 begin
   FPull.Disconnect;
   FPush.Disconnect;
+//  while FPull.State<>statNull do begin
+//    Sleep(250);
+//  end;
 end;
 
 end.

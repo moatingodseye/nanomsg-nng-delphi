@@ -14,6 +14,7 @@ type
     procedure Setup; override;
     procedure Teardown(ATo : Enngstate); override;
   public
+    constructor Create; override;
   published
   end;
   
@@ -55,6 +56,12 @@ begin
         Error('Undial:'+ nng_strerror(err));
     end;
 
+  inherited;
+end;
+
+constructor TnngDial.Create;
+begin
+  FWhat := whaDial;
   inherited;
 end;
 

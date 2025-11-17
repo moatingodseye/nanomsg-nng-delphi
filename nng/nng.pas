@@ -28,6 +28,7 @@ type
     procedure Process(AData : TObject); virtual; abstract;
     procedure Teardown(ATo : Enngstate); virtual; 
   protected
+    FWhat : EnngWhat;
     FEnabled : Boolean;
     
     procedure Error(AMessage : String);
@@ -42,6 +43,7 @@ type
 
     procedure Pipe(AWhich : Integer); // callback from nng dll - only reason its public don't call yourself!
 
+    property What : EnngWhat read FWhat;
     property State : EnngState read FState;
     
     property OnLog : TOnLog read FOnLog write FOnLog;
@@ -82,10 +84,16 @@ begin
       case FState of
         statProtocol,
         statReady,
-        statActive,
         statConnect :
           begin
             Teardown(statNUll);
+          end;
+        statActive : 
+          begin
+            case FWhat of
+              whaDial, 
+              whaListen : FState := statReady; // force it to shutdown!
+            end;
           end;
       end;
     desReady : 
@@ -101,7 +109,19 @@ begin
               Teardown(statProtocol);
           end;
         statReady : ;
-        statActive : FState := statReady;
+        statActive : 
+          begin
+            case FWhat of
+              whaDial,
+              whaBoth : 
+                begin
+                  FState := statReady;
+                  Teardown(statProtocol);
+                end
+            else
+              FState := statReady;
+            end;
+          end;
       end;
     desActive :
       case FState of
@@ -130,7 +150,8 @@ begin
     init_params.num_resolver_threads := 1;
 
     // Initialize the nng library
-    err := nng_init(@init_params);
+//    err := nng_init(@init_params);
+    err := NNG_OK;
     if (err = NNG_OK) or (err = NNG_EBUSY) then
       FState := Succ(FState)
     else
@@ -147,7 +168,8 @@ begin
       log('Finalise:');
       FState := Pred(FState);
       // Cleanup
-      err := nng_fini();
+//      err := nng_fini();
+      err := NNG_OK;
       if err <> NNG_OK then
         Error('Finalise: '+ nng_strerror(err));
     end;
@@ -163,15 +185,18 @@ begin
         Inc(FActive);
         if FActive>0 then begin
           Log('Active');
-          FDesired := desActive;
-          FThread.Kick;
+          if FDesired=desReady then begin
+            FDesired := desActive;
+            FThread.Kick;
+          end;
         end;
       end;
     3 : { Remove }
       begin
         Dec(FActive);
         if FActive=0 then begin
-          FDesired := desReady;
+          if FDesired=desActive then 
+            FDesired := desReady;
           Log('Inactive');
         end;
       end;
